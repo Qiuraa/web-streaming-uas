@@ -30,9 +30,15 @@
 
                     <td>{{ studio.studio_name }}</td>
 
-                    <td><a href="">Edit</a></td>
+                    <td><a href="{% url 'edit_studio' studio_id=studio.studio_id %}">Edit</a></td>
 
-                    <td><a href="">Delete</a></td>
+                    <td><form method="post" action="{% url 'delete_studio' studio_id=studio.studio_id %}">
+                        {% csrf_token %}
+                        <button type="submit"
+                                onclick="return confirm('Are you sure you want to delete {{ studio.studio_name }}')">
+                            Delete
+                        </button>
+                    </form></td>
 
                 </tr>
 

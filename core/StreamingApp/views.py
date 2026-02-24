@@ -40,7 +40,7 @@ class AddStudioView(View):
         add_studio_form = AddStudioForm(request.POST)
         if add_studio_form.is_valid():
             add_studio_form.save()
-            return redirect('manage_producer')
+            return redirect('manage_studio')
         return render(request, 'admin/add_studio.html', {
             'add_studio_form' : add_studio_form
         })
@@ -77,6 +77,13 @@ class EditProducerView(View):
             'edit_producer_form' : edit_producer_form
         })
 
+class DeleteProducerView(View):
+    def post(self, request, producer_id):
+        # request must be accepted as first argument for POST handlers
+        producer = get_object_or_404(Producer, producer_id=producer_id)
+        producer.delete()
+        return redirect('manage_producer')
+
 class EditStudioView(View):
     def get(self,request, studio_id):
         studio = get_object_or_404(Studio, studio_id=studio_id)
@@ -95,16 +102,12 @@ class EditStudioView(View):
             'edit_studio_form': edit_studio_form,
         })
 
-    
-    def post(self,request, studio_id):
-        studio = get_object_or_404(Studio, studio_id= studio_id)
-        edit_studio_form = AddStudioForm(request.POST, instance= studio)
-        if edit_studio_form.is_valid():
-            edit_studio_form.save()
-            return redirect('manage_studio')
-        render(request, 'admin/edit_studio.html',{
-            'edit_studio_form' : edit_studio_form
-        })
+class DeleteStudioView(View):
+    def post(self, request, studio_id):
+        # include request parameter so Django dispatch works correctly
+        studio = get_object_or_404(Studio, studio_id=studio_id)
+        studio.delete()
+        return redirect('manage_studio')
 
 admin_homepage = AdminHomepageView.as_view()
 add_producer = AddProducerView.as_view()
@@ -112,4 +115,7 @@ add_studio = AddStudioView.as_view()
 manage_producer = ManageProducerView.as_view()
 manage_studio = ManageStudioView.as_view()
 edit_producer = EditProducerView.as_view()
+edit_studio = EditStudioView.as_view()
+delete_producer = DeleteProducerView.as_view()
+delete_studio = DeleteStudioView.as_view()
 # add_film = AddFilmView.as_view()

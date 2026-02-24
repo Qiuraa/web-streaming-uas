@@ -5,8 +5,11 @@ urlpatterns = [
     path('dashboard-admin/', views.admin_homepage, name='admin_homepage'),
     path('dashboard-admin/manage-producer/', views.manage_producer, name='manage_producer'),
     path('dashboard-admin/manage-producer/edit/<uuid:producer_id>/', views.edit_producer, name='edit_producer'),
-    path('dashboard-admin/manage-studio/', views.manage_studio, name='manage_studio'),
+    path('dashboard-admin/manage-producer/delete/<uuid:producer_id>/', views.delete_producer, name='delete_producer'),
     path('dashboard-admin/manage-producer/add/', views.add_producer, name='add_producer'),
+    path('dashboard-admin/manage-studio/', views.manage_studio, name='manage_studio'),
+    path('dashboard-admin/manage-studio/edit/<uuid:studio_id>/', views.edit_studio, name='edit_studio'),
+    path('dashboard-admin/manage-studio/delete/<uuid:studio_id>/', views.delete_studio, name='delete_studio'),
     path('dashboard-admin/add-studio/', views.add_studio, name='add_studio'),
     # path('dashboard-admin/add-film/', views.add_film, name='add_film'),
 ]
