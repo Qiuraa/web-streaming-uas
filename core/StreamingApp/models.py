@@ -1,5 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.db.models import UniqueConstraint
+from django.db.models.functions import Lower
 import uuid
 
 class User(AbstractUser):
@@ -22,9 +24,15 @@ class User(AbstractUser):
         return self.username
     
 class Producer(models.Model):
+    class Meta:
+        constraints = [
+            UniqueConstraint(
+            Lower('name'),
+            name='unique_producer_name_case_insensitive'
+        )]
+
     producer_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255)
-    producer_url = models.URLField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -32,9 +40,15 @@ class Producer(models.Model):
         return self.name
 
 class Studio(models.Model):
+    class Meta:
+        constraints = [
+            UniqueConstraint(
+                Lower('studio_name'),
+                name='unique_studio_name_case_insensitive'
+            )
+        ]
     studio_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     studio_name = models.CharField(max_length=255)
-    studio_url = models.URLField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -223,3 +237,4 @@ class StreamingToken(models.Model):
     expired_at = models.DateTimeField()
     is_revoked = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+    

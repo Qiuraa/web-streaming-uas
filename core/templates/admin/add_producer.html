@@ -1,0 +1,15 @@
+{% extends 'base_admin/base_admin.html' %}
+{% block content %}
+
+<h1>Add Producer</h1>
+<br>
+<form method="post">
+    {% csrf_token %}
+    {{ add_producer_form.as_p }}
+    <button type="submit">Add Producer</button>
+</form>
+<br>
+
+<a href="{% url 'manage_producer' %}">Back to Manage Producer</a>
+
+{% endblock %}

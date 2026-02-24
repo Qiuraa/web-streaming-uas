@@ -1,0 +1,10 @@
+{% extends 'base_admin/base_admin.html' %}
+{% block content %}
+
+<h1>Welcome to the Admin Homepage</h1>
+<h3>Manage your application settings and content here.</h3>
+<a href=""><h3>Add New Film</h3></a>
+<a href="{% url 'manage_producer' %}"><h3>Manage Producer</h3></a>
+<a href="{% url 'manage_studio' %}"><h3>Manage Studio</h3></a>
+
+{% endblock %}

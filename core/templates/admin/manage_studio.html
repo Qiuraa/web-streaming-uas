@@ -1,0 +1,52 @@
+{% extends 'base_admin/base_manage_studio.html' %}
+{% block content %}
+<h1>Manage Studios</h1>
+<br>
+<a href="{% url 'add_studio' %}">Add Studio</a><br><br>
+
+{% if studios %}
+
+    <table border="1">
+
+        <thead>
+
+            <tr>
+
+                <th>Name</th>
+
+                <th>Edit</th>
+
+                <th>Delete</th>
+
+            </tr>
+
+        </thead>
+
+        <tbody>
+
+            {% for studio in studios %}
+
+                <tr>
+
+                    <td>{{ studio.studio_name }}</td>
+
+                    <td><a href="">Edit</a></td>
+
+                    <td><a href="">Delete</a></td>
+
+                </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+{% else %}
+
+    <p>No studios found.</p>
+{% endif %}
+<br><br>
+<a href="{% url 'admin_homepage' %}">Back to Admin Homepage</a>
+
+{% endblock %}
