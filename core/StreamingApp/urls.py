@@ -18,4 +18,5 @@ urlpatterns = [
     path('dashboard-admin/manage-genre/edit/<uuid:genre_id>/', views.edit_genre, name='edit_genre'),
     path('dashboard-admin/manage-genre/delete/<uuid:genre_id>/', views.delete_genre, name='delete_genre'),
     
+    
 ]

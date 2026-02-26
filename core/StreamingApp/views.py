@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.views import View
 
 from core.StreamingApp.form import AddGenreForm, AddProducerForm, AddStudioForm, AddSeriesForm
-from .models import Genre, Producer, Studio
+from .models import Genre, Producer, Series, Studio
 
 # @login_required
 class AdminHomepageView(View):
@@ -176,6 +176,13 @@ class DeleteGenreView(View):
         genre.delete()
         return redirect('manage_genre')
 
+class ManageFilmView(View):
+    def get(self,request):
+        series = Series.objects.all().order_by('title')
+        return render(request, 'admin/manage_film.html', {
+            'series': series
+        })
+
 admin_homepage = AdminHomepageView.as_view()
 add_producer = AddProducerView.as_view()
 add_studio = AddStudioView.as_view()
@@ -191,4 +198,5 @@ add_genre = AddGenreView.as_view()
 manage_genre = ManageGenreView.as_view()
 edit_genre = EditGenreView.as_view()
 delete_genre = DeleteGenreView.as_view()
+manage_film = ManageFilmView.as_view()
 # add_film = AddFilmView.as_view()

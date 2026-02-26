@@ -5,5 +5,13 @@
 <a href="{% url 'manage_genre' %}"><h3>Manage Genre</h3></a>
 <a href="{% url 'admin_homepage' %}"><h4>Back to Admin Homepage</h4></a>
 
-
+{% for s in series %}
+{% if s.thumbnail_picture %}
+	<img src="{{ s.thumbnail_picture.url }}" alt="{{ s.title }}" width="200" height="300">
+{% else %}
+	<!-- optional placeholder when no image is uploaded -->
+	<img src="/static/img/placeholder.png" alt="No image" width="200" height="300">
+{% endif %}
+<h4>{{ s.title }}</h4>
+{% endfor %}
 {% endblock %}
