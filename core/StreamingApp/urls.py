@@ -10,6 +10,12 @@ urlpatterns = [
     path('dashboard-admin/manage-studio/', views.manage_studio, name='manage_studio'),
     path('dashboard-admin/manage-studio/edit/<uuid:studio_id>/', views.edit_studio, name='edit_studio'),
     path('dashboard-admin/manage-studio/delete/<uuid:studio_id>/', views.delete_studio, name='delete_studio'),
-    path('dashboard-admin/add-studio/', views.add_studio, name='add_studio'),
-    # path('dashboard-admin/add-film/', views.add_film, name='add_film'),
+    path('dashboard-admin/manage-studio/add/', views.add_studio, name='add_studio'),
+    path('dashboard-admin/manage-film/', views.manage_film, name='manage_film'),
+    path('dashboard-admin/manage-film/add/', views.add_film, name='add_film'),
+    path('dashboard-admin/manage-genre/', views.manage_genre, name='manage_genre'),
+    path('dashboard-admin/manage-genre/add/', views.add_genre, name='add_genre'),
+    path('dashboard-admin/manage-genre/edit/<uuid:genre_id>/', views.edit_genre, name='edit_genre'),
+    path('dashboard-admin/manage-genre/delete/<uuid:genre_id>/', views.delete_genre, name='delete_genre'),
+    
 ]

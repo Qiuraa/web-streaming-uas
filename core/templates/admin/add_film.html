@@ -4,6 +4,7 @@
 <form method="post">
     {% csrf_token %}
     {{ add_film_form.as_p}}
+    <button type="submit">Add New Film</button>
 </form>
 
 {% endblock %}

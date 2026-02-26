@@ -1,0 +1,9 @@
+{% extends 'base_admin/base_manage_film.html' %}
+{% block content %}
+<h2>Edit Genre</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ edit_genre_form.as_p }}
+    <button type="submit">Update Genre</button>
+</form>
+{% endblock %}

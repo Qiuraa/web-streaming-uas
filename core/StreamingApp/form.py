@@ -1,6 +1,6 @@
 from django import forms
 from django.forms import ModelForm
-from .models import Producer, Studio, Series, Episode
+from .models import Genre, Producer, Studio, Series, Episode
 
 class AddProducerForm(ModelForm):
     class Meta:
@@ -15,10 +15,10 @@ class AddStudioForm(ModelForm):
 class AddSeriesForm(ModelForm):
     class Meta:
         model = Series
-        fields = [
-            'title', 'alternate_title', 'sypnosis',
-            'total_episodes', 'season_number', 'status',
-            'aired_start_date', 'aired_end_date', 'premiered_season',
-            'premiered_year', 'producer', 'studio',
-            'duration_minutes', 'rating'
-        ]
+        fields = '__all__'
+
+class AddGenreForm(ModelForm):
+    class Meta:
+        # Meta attribute must be lowercase 'model'
+        model = Genre
+        fields = '__all__'

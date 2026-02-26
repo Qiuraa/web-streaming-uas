@@ -2,8 +2,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.views import View
 
-from core.StreamingApp.form import AddProducerForm, AddStudioForm
-from .models import Producer, Studio
+from core.StreamingApp.form import AddGenreForm, AddProducerForm, AddStudioForm, AddSeriesForm
+from .models import Genre, Producer, Studio
 
 # @login_required
 class AdminHomepageView(View):
@@ -109,6 +109,73 @@ class DeleteStudioView(View):
         studio.delete()
         return redirect('manage_studio')
 
+class ManageFilmView(View):
+    def get(self,request):
+        return render(request, 'admin/manage_film.html')
+
+class AddFilmView(View):
+    def get(self, request):
+        add_film_form = AddSeriesForm()
+        return render(request, 'admin/add_film.html', {
+            'add_film_form': add_film_form
+        })
+    
+    def post(self,request):
+        add_film_form = AddSeriesForm(request.POST)
+        if add_film_form.is_valid():
+            add_film_form.save()
+            return redirect('manage_film')
+        return render(request, 'admin/add_film.html', {
+            'add_film_form': add_film_form
+        })
+    
+class AddGenreView(View):
+    def get(self, request):
+        add_genre_form = AddGenreForm()
+        return render(request, 'admin/add_genre.html', {
+            'add_genre_form': add_genre_form
+        })
+    
+    def post(self, request):
+        add_genre_form = AddGenreForm(request.POST)
+        if add_genre_form.is_valid():
+            add_genre_form.save()
+            return redirect('manage_genre')
+        return render(request, 'admin/add_genre.html', {
+            'add_genre_form': add_genre_form
+        })
+    
+class ManageGenreView(View):
+    def get(self, request):
+        genres = Genre.objects.all().order_by('name')
+        return render(request, 'admin/manage_genre.html', {
+            'genres': genres
+        })
+
+class EditGenreView(View):
+    def get(self, request, genre_id):
+        genre = get_object_or_404(Genre, genre_id=genre_id)
+        edit_genre_form = AddGenreForm(instance=genre)
+        return render(request, 'admin/edit_genre.html', {
+            'edit_genre_form': edit_genre_form,
+        })
+    
+    def post(self, request, genre_id):
+        genre = get_object_or_404(Genre, genre_id=genre_id)
+        edit_genre_form = AddGenreForm(request.POST, instance=genre)
+        if edit_genre_form.is_valid():
+            edit_genre_form.save()
+            return redirect('manage_genre')
+        return render(request, 'admin/edit_genre.html', {
+            'edit_genre_form': edit_genre_form,
+        })
+    
+class DeleteGenreView(View):
+    def post(self, request, genre_id):
+        genre = get_object_or_404(Genre, genre_id=genre_id)
+        genre.delete()
+        return redirect('manage_genre')
+
 admin_homepage = AdminHomepageView.as_view()
 add_producer = AddProducerView.as_view()
 add_studio = AddStudioView.as_view()
@@ -118,4 +185,10 @@ edit_producer = EditProducerView.as_view()
 edit_studio = EditStudioView.as_view()
 delete_producer = DeleteProducerView.as_view()
 delete_studio = DeleteStudioView.as_view()
+manage_film = ManageFilmView.as_view()
+add_film = AddFilmView.as_view()
+add_genre = AddGenreView.as_view()
+manage_genre = ManageGenreView.as_view()
+edit_genre = EditGenreView.as_view()
+delete_genre = DeleteGenreView.as_view()
 # add_film = AddFilmView.as_view()

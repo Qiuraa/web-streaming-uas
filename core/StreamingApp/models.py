@@ -57,6 +57,14 @@ class Studio(models.Model):
 
 class Series(models.Model):
 
+    ROLES_RATING = [
+        ('g', 'G - All Ages'),
+        ('pg', 'PG - Children'),
+        ('pg_13', 'PG-13 - Teens 13 or older'),
+        ('r', 'R - 17+ (violence & profanity)'),
+    ]
+        
+
     ROLES_STATUS = [
         ('ongoing', 'Ongoing'),
         ('finished', 'Finished'),
@@ -74,17 +82,20 @@ class Series(models.Model):
     title = models.CharField(max_length=255)
     alternate_title = models.CharField(max_length=255, null=True, blank=True)
     sypnosis = models.TextField()
+    thumbnail_picture = models.ImageField(upload_to='series_thumbnails/', null=True, blank=True)
     total_episodes = models.IntegerField()
     season_number = models.IntegerField()
     status = models.CharField(max_length=20, choices=ROLES_STATUS)
+    genre = models.ManyToManyField('Genre', through='SeriesGenre')
     aired_start_date = models.DateField()
     aired_end_date = models.DateField(null=True, blank=True)
     premiered_season = models.CharField(max_length=10, choices=ROLES_SEASON)
     premiered_year = models.IntegerField()
-    producer = models.ForeignKey(Producer, on_delete=models.CASCADE)
-    studio = models.ForeignKey(Studio, on_delete=models.CASCADE)
+    producer = models.ManyToManyField(Producer)
+    studio = models.ManyToManyField(Studio)
     duration_minutes = models.IntegerField()
-    rating = models.DecimalField(max_digits=3, decimal_places=1)
+    score = models.DecimalField(max_digits=3, decimal_places=1)
+    rating = models.CharField(max_length=10, choices=ROLES_RATING)
     is_published = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -141,53 +152,11 @@ class Comment(models.Model):
     
 class Genre(models.Model):
 
-    CHOICES_GENRE = [
-        ('action', 'Action'),
-        ('adventure', 'Adventure'),
-        ('cars', 'Cars'),
-        ('comedy', 'Comedy'),
-        ('dementia', 'Dementia'),
-        ('demons', 'Demons'),
-        ('drama', 'Drama'),
-        ('ecchi', 'Ecchi'),
-        ('fantasy', 'Fantasy'),
-        ('game', 'Game'),
-        ('harem', 'Harem'),
-        ('historical', 'Historical'),
-        ('horror', 'Horror'),
-        ('isekai', 'Isekai'),
-        ('josei', 'Josei'),
-        ('kids', 'Kids'),
-        ('magic', 'Magic'),
-        ('martial_arts', 'Martial Arts'),
-        ('mecha', 'Mecha'),
-        ('military', 'Military'),
-        ('music', 'Music'),
-        ('mystery', 'Mystery'),
-        ('parody', 'Parody'),
-        ('police', 'Police'),
-        ('psychological', 'Psychological'),
-        ('romance', 'Romance'),
-        ('samurai', 'Samurai'),
-        ('school', 'School'),
-        ('sci-fi', 'Sci-Fi'),
-        ('seinen', 'Seinen'),
-        ('shoujo', 'Shoujo'),
-        ('shounen', 'Shounen'),
-        ('shoujo_ai', 'Shoujo Ai'),
-        ('shounen_ai', 'Shounen Ai'),
-        ('slice_of_life', 'Slice of Life'),
-        ('space', 'Space'),
-        ('sports', 'Sports'),
-        ('super_power', 'Super Power'),
-        ('supernatural', 'Supernatural'),
-        ('thriller', 'Thriller'),
-        ('vampire', 'Vampire'),
-        ('yaoi', 'Yaoi'),
-        ('yuri', 'Yuri'),
-    ]
     genre_id = models.UUIDField(primary_key=True, default= uuid.uuid4, editable=False)
-    name = models.CharField(max_length=100, choices=CHOICES_GENRE, unique=True)
+    name = models.CharField(max_length=100, unique=True)
+    
+    def __str__(self):
+        return self.name
 
 class SeriesGenre(models.Model):
     class Meta:

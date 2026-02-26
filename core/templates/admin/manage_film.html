@@ -1,0 +1,9 @@
+{% extends 'base_admin/base_manage_film.html' %}
+{% block content %}
+
+<a href="{% url 'add_film' %}"><h3>Add New Film</h3></a>
+<a href="{% url 'manage_genre' %}"><h3>Manage Genre</h3></a>
+<a href="{% url 'admin_homepage' %}"><h4>Back to Admin Homepage</h4></a>
+
+
+{% endblock %}
