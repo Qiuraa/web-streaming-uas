@@ -112,10 +112,9 @@ class Episode(models.Model):
     episode_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     series = models.ForeignKey(Series, on_delete=models.CASCADE)
     episode_number = models.IntegerField()
-    title = models.CharField(max_length=255)
+    episode_title = models.CharField(max_length=255)
     video_id = models.CharField(max_length=255)
     view_count = models.IntegerField(default=0)
-    duration_seconds = models.IntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

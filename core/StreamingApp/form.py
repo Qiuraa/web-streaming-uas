@@ -26,4 +26,4 @@ class AddGenreForm(ModelForm):
 class AddEpisodeForm(ModelForm):
     class Meta:
         model = Episode
-        fields = '__all__'
+        fields = ['episode_number', 'episode_title', 'video_id']

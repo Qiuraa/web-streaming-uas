@@ -2,8 +2,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.views import View
 
-from core.StreamingApp.form import AddGenreForm, AddProducerForm, AddStudioForm, AddSeriesForm
-from .models import Genre, Producer, Series, Studio
+from core.StreamingApp.form import AddGenreForm, AddProducerForm, AddStudioForm, AddSeriesForm, AddEpisodeForm
+from .models import Genre, Producer, Series, Studio, Episode
 
 # @login_required
 class AdminHomepageView(View):
@@ -216,28 +216,69 @@ class DetailFilmView(View):
 
 class ManageEpisodeView(View):
     def get(self, request, series_id):
+        # Show episodes for a specific series
         series = get_object_or_404(Series, series_id=series_id)
+        episodes = Episode.objects.filter(series=series).order_by('episode_number')
         return render(request, 'admin/manage_episode.html', {
-            'series': series
+            'series': series,
+            'episodes': episodes,
         })
     
 class AddEpisodeView(View):
-    def get(self, request):
-        add_episode_form = AddSeriesForm()
-        return render (request, 'admin/add_episode.html',
-                       {
-            'add_episode_form': add_episode_form
-        })
-
-    def post(self,request):
-        add_episode_form = AddSeriesForm(request.POST)
-        if add_episode_form.is_valid:
-            add_episode_form.save()
-            return redirect('manage_episode')
+    def get(self, request, series_id):
+        series = get_object_or_404(Series, series_id=series_id)
+        # create empty form for adding a new Episode for this Series
+        add_episode_form = AddEpisodeForm()
         return render(request, 'admin/add_episode.html', {
-            'add_episode_form': add_episode_form
+            'add_episode_form': add_episode_form,
+            'series': series,
         })
 
+    def post(self,request, series_id):
+        series = get_object_or_404(Series, series_id=series_id)
+        add_episode_form = AddEpisodeForm(request.POST)
+        if add_episode_form.is_valid():
+            # assign the FK to the parent Series before saving
+            episode = add_episode_form.save(commit=False)
+            episode.series = series
+            episode.save()
+            return redirect('manage_episode', series_id=series.series_id)
+        return render(request, 'admin/add_episode.html', {
+            'add_episode_form': add_episode_form,
+            'series': series,
+        })
+
+class EditEpisodeView(View):
+    def get(self, request, episode_id):
+        episode = get_object_or_404(Episode, episode_id=episode_id)
+        edit_episode_form = AddEpisodeForm(instance=episode)
+        # include series in context in case template needs it or for redirect target
+        return render(request, 'admin/edit_episode.html', {
+            'edit_episode_form': edit_episode_form,
+            'series': episode.series,
+            'episode': episode,
+        })
+    
+    def post(self, request, episode_id):
+        episode = get_object_or_404(Episode, episode_id=episode_id)
+        edit_episode_form = AddEpisodeForm(request.POST, instance=episode)
+        if edit_episode_form.is_valid():
+            edit_episode_form.save()
+            # redirect back to the episode list for the parent series
+            return redirect('manage_episode', series_id=episode.series.series_id)
+        return render(request, 'admin/edit_episode.html', {
+            'edit_episode_form':edit_episode_form,
+            'series': episode.series,
+            'episode': episode,
+        })
+
+class DeleteEpisodeView(View):
+    def post(self, request, episode_id):
+        episode = get_object_or_404(Episode, episode_id=episode_id)
+        series_id = episode.series.series_id
+        episode.delete()
+        # Redirect back to the episode list for the parent series
+        return redirect('manage_episode', series_id=series_id)
 
 admin_homepage = AdminHomepageView.as_view()
 add_producer = AddProducerView.as_view()
@@ -260,3 +301,5 @@ delete_film = DeleteFilmView.as_view()
 manage_episode = ManageEpisodeView.as_view()
 add_episode = AddEpisodeView.as_view()
 detail_film = DetailFilmView.as_view()
+edit_episode = EditEpisodeView.as_view()
+delete_episode = DeleteEpisodeView.as_view()

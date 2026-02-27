@@ -15,7 +15,7 @@
     <p><strong>Total Episode:</strong> {{ series.total_episodes }}</p>
     <p><strong>Status:</strong> {{ series.status }}</p>
     <p><strong>Aired date:</strong> {{ series.aired_start_date }} to {% if series.aired_end_date %} {{series.aired_end_date}} {% else %} ? {% endif %}</p>
-    <p><strong>Status:</strong> {{ series.premiered_season }}, {{ series.premiered_year }}</p>
+    <p><strong>Status:</strong> {{ series.get_premiered_season_display }}, {{ series.premiered_year }}</p>
     <p><strong>Genres:</strong> {% for genre in series.genre.all %}{{ genre.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
     <p><strong>Producer:</strong> {% for producer in series.producer.all %}{{ producer.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
     <p><strong>Studio:</strong> {% for studio in series.studio.all %}{{ studio.studio_name }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
