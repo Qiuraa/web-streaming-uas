@@ -12,6 +12,6 @@
 	<!-- optional placeholder when no image is uploaded -->
 	<img src="/static/img/placeholder.png" alt="No image" width="200" height="300">
 {% endif %}
-<h4>{{ s.title }}</h4>
+<h4><a href="{% url 'detail_film' s.series_id %}">{{ s.title }}</a></h4>
 {% endfor %}
 {% endblock %}

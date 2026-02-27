@@ -182,6 +182,62 @@ class ManageFilmView(View):
         return render(request, 'admin/manage_film.html', {
             'series': series
         })
+    
+class EditFilmView(View):
+    def get(self, request, series_id):
+        series = get_object_or_404(Series, series_id=series_id)
+        edit_film_form = AddSeriesForm(instance=series)
+        return render(request, 'admin/edit_film.html', {
+            'edit_film_form' : edit_film_form
+        })
+    
+    def post(self, request, series_id):
+        series = get_object_or_404(Series, series_id=series_id)
+        edit_film_form = AddSeriesForm(request.POST, instance=series)
+        if edit_film_form.is_valid():
+            edit_film_form.save()
+            return redirect('manage_film')
+        return render(request, 'admin/edit_film.html', {
+            'edit_film_form' : edit_film_form
+            })
+
+class DeleteFilmView(View):
+    def post(self, request, series_id):
+        series = get_object_or_404(Series, series_id=series_id)
+        series.delete()
+        return redirect('manage_film')
+    
+class DetailFilmView(View):
+    def get(self, request, series_id):
+        series = get_object_or_404(Series, series_id=series_id)
+        return render(request, 'admin/detail_film.html', {
+            'series': series
+        })
+
+class ManageEpisodeView(View):
+    def get(self, request, series_id):
+        series = get_object_or_404(Series, series_id=series_id)
+        return render(request, 'admin/manage_episode.html', {
+            'series': series
+        })
+    
+class AddEpisodeView(View):
+    def get(self, request):
+        add_episode_form = AddSeriesForm()
+        return render (request, 'admin/add_episode.html',
+                       {
+            'add_episode_form': add_episode_form
+        })
+
+    def post(self,request):
+        add_episode_form = AddSeriesForm(request.POST)
+        if add_episode_form.is_valid:
+            add_episode_form.save()
+            return redirect('manage_episode')
+        return render(request, 'admin/add_episode.html', {
+            'add_episode_form': add_episode_form
+        })
+
 
 admin_homepage = AdminHomepageView.as_view()
 add_producer = AddProducerView.as_view()
@@ -199,4 +255,8 @@ manage_genre = ManageGenreView.as_view()
 edit_genre = EditGenreView.as_view()
 delete_genre = DeleteGenreView.as_view()
 manage_film = ManageFilmView.as_view()
-# add_film = AddFilmView.as_view()
+edit_film = EditFilmView.as_view()
+delete_film = DeleteFilmView.as_view()
+manage_episode = ManageEpisodeView.as_view()
+add_episode = AddEpisodeView.as_view()
+detail_film = DetailFilmView.as_view()

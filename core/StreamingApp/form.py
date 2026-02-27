@@ -22,3 +22,8 @@ class AddGenreForm(ModelForm):
         # Meta attribute must be lowercase 'model'
         model = Genre
         fields = '__all__'
+
+class AddEpisodeForm(ModelForm):
+    class Meta:
+        model = Episode
+        fields = '__all__'

@@ -1,0 +1,10 @@
+{% extends 'base_admin/base_manage_episode.html' %}
+{% block content %}
+
+<form method="post">
+    
+    {% csrf_token %}
+    {{ add_episode_form.as_p }}
+
+    <button type="submit">Add Episode</button>
+{% endblock %}

@@ -17,6 +17,10 @@ urlpatterns = [
     path('dashboard-admin/manage-genre/add/', views.add_genre, name='add_genre'),
     path('dashboard-admin/manage-genre/edit/<uuid:genre_id>/', views.edit_genre, name='edit_genre'),
     path('dashboard-admin/manage-genre/delete/<uuid:genre_id>/', views.delete_genre, name='delete_genre'),
-    
+    path('dashboard-admin/manage-film/edit/<uuid:series_id>/', views.edit_film, name='edit_film'),
+    path('dashboard-admin/manage-film/delete/<uuid:series_id>/', views.delete_film, name='delete_film'),
+    path('dashboard-admin/manage-episode/<uuid:series_id>', views.manage_episode, name='manage_episode'),
+    path('dashboard-admin/manage-episode/add/<uuid:series_id>/', views.add_episode, name='add_episode'),
+    path('dashboard-admin/manage-film/detail/<uuid:series_id>/', views.detail_film, name='detail_film'),
     
 ]

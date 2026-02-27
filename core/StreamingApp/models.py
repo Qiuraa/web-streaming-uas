@@ -94,7 +94,7 @@ class Series(models.Model):
     producer = models.ManyToManyField(Producer)
     studio = models.ManyToManyField(Studio)
     duration_minutes = models.IntegerField()
-    score = models.DecimalField(max_digits=3, decimal_places=1)
+    score = models.DecimalField(max_digits=3, decimal_places=2)
     rating = models.CharField(max_length=10, choices=ROLES_RATING)
     is_published = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
