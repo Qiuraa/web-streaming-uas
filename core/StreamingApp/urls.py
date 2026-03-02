@@ -23,5 +23,6 @@ urlpatterns = [
     path('dashboard-admin/manage-episode/add/<uuid:series_id>/', views.add_episode, name='add_episode'),
     path('dashboard-admin/manage-film/detail/<uuid:series_id>/', views.detail_film, name='detail_film'),
     path('dashboard-admin/manage-episode/edit/<uuid:episode_id>/', views.edit_episode, name='edit_episode'),
-    path('dashboard-admin/manage-episode/delete/<uuid:episode_id>/', views.delete_episode, name='delete_episode')
+    path('dashboard-admin/manage-episode/delete/<uuid:episode_id>/', views.delete_episode, name='delete_episode'),
+    path('dashboard-admin/manage-episode/play/<uuid:episode_id>/', views.play_episode, name='play_episode'),
 ]   

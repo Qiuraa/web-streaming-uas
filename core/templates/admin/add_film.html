@@ -1,7 +1,7 @@
 {% extends 'base_admin/base_admin.html' %}
 {% block content %}
 
-<form method="post">
+<form method="post" enctype="multipart/form-data">
     {% csrf_token %}
     {{ add_film_form.as_p}}
     <button type="submit">Add New Film</button>

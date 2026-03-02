@@ -121,7 +121,8 @@ class AddFilmView(View):
         })
     
     def post(self,request):
-        add_film_form = AddSeriesForm(request.POST)
+        # include request.FILES so uploaded files (thumbnail_picture) are processed
+        add_film_form = AddSeriesForm(request.POST, request.FILES)
         if add_film_form.is_valid():
             add_film_form.save()
             return redirect('manage_film')
@@ -179,6 +180,7 @@ class DeleteGenreView(View):
 class ManageFilmView(View):
     def get(self,request):
         series = Series.objects.all().order_by('title')
+        episode = Episode.objects.all()
         return render(request, 'admin/manage_film.html', {
             'series': series
         })
@@ -210,8 +212,17 @@ class DeleteFilmView(View):
 class DetailFilmView(View):
     def get(self, request, series_id):
         series = get_object_or_404(Series, series_id=series_id)
+        # Prefer to show episode number 1 on the detail page. If episode 1 doesn't exist,
+        # fall back to the first episode ordered by episode_number.
+        episode = Episode.objects.filter(series=series, episode_number=1).first()
+        if not episode:
+            episode = Episode.objects.filter(series=series).order_by('episode_number').first()
+        # compute origin to include in the YouTube embed query string — helps avoid some embed configuration errors
+        origin = f"{request.scheme}://{request.get_host()}"
         return render(request, 'admin/detail_film.html', {
-            'series': series
+            'series': series,
+            'episode': episode,
+            'origin': origin,
         })
 
 class ManageEpisodeView(View):
@@ -280,6 +291,18 @@ class DeleteEpisodeView(View):
         # Redirect back to the episode list for the parent series
         return redirect('manage_episode', series_id=series_id)
 
+
+class PlayEpisodeView(View):
+    def get(self, request, episode_id):
+        episode = get_object_or_404(Episode, episode_id=episode_id)
+        series = episode.series
+        origin = f"{request.scheme}://{request.get_host()}"
+        return render(request, 'admin/play_episode.html', {
+            'episode': episode,
+            'series': series,
+            'origin': origin,
+        })
+
 admin_homepage = AdminHomepageView.as_view()
 add_producer = AddProducerView.as_view()
 add_studio = AddStudioView.as_view()
@@ -303,3 +326,4 @@ add_episode = AddEpisodeView.as_view()
 detail_film = DetailFilmView.as_view()
 edit_episode = EditEpisodeView.as_view()
 delete_episode = DeleteEpisodeView.as_view()
+play_episode = PlayEpisodeView.as_view()
