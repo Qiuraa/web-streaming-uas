@@ -21,6 +21,8 @@ urlpatterns = [
     path('dashboard-admin/manage-film/delete/<uuid:series_id>/', views.delete_film, name='delete_film'),
     path('dashboard-admin/manage-episode/<uuid:series_id>', views.manage_episode, name='manage_episode'),
     path('dashboard-admin/manage-episode/add/<uuid:series_id>/', views.add_episode, name='add_episode'),
+    # Detail view shows the series and chooses the default episode (ep #1) itself,
+    # so only series_id is required in the URL.
     path('dashboard-admin/manage-film/detail/<uuid:series_id>/', views.detail_film, name='detail_film'),
     path('dashboard-admin/manage-episode/edit/<uuid:episode_id>/', views.edit_episode, name='edit_episode'),
     path('dashboard-admin/manage-episode/delete/<uuid:episode_id>/', views.delete_episode, name='delete_episode'),

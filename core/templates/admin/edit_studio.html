@@ -1,6 +1,7 @@
-{% extends "base_admin/base_manage_studio.html" %}
+{% extends "base_admin/base_manage_film.html" %}
 {% block content %}
 
+<h2>Edit Studio</h2>
 <form method="post">
     {% csrf_token %}
     {{ edit_studio_form.as_p }}

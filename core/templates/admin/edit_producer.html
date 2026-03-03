@@ -1,6 +1,7 @@
-{% extends 'base_admin/base_admin.html' %}
+{% extends 'base_admin/base_manage_film.html' %}
 {% block content %}
 
+<h2>Edit Producer</h2>
 <form method="post">
     {% csrf_token %}
     {{ edit_producer_form.as_p}}

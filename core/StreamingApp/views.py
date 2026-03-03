@@ -109,9 +109,9 @@ class DeleteStudioView(View):
         studio.delete()
         return redirect('manage_studio')
 
-class ManageFilmView(View):
-    def get(self,request):
-        return render(request, 'admin/manage_film.html')
+# NOTE: ManageFilmView is defined further below with full context (series list).
+# The earlier empty placeholder ManageFilmView was removed to avoid a duplicate class
+# which could shadow the real implementation.
 
 class AddFilmView(View):
     def get(self, request):
@@ -179,10 +179,12 @@ class DeleteGenreView(View):
 
 class ManageFilmView(View):
     def get(self,request):
+        # Provide the list of series only. Do not pass a QuerySet into an exact
+        # lookup for Episode (that caused ValueError previously). The detail
+        # page selects the default episode itself.
         series = Series.objects.all().order_by('title')
-        episode = Episode.objects.all()
         return render(request, 'admin/manage_film.html', {
-            'series': series
+            'series': series,
         })
     
 class EditFilmView(View):
