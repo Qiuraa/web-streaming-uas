@@ -1,7 +1,10 @@
 from django.urls import path
 from . import views
+from django.contrib.auth.views import LoginView, LogoutView
 
 urlpatterns = [
+    path('dashboard-admin/login/', LoginView.as_view(template_name='admin/admin_login.html', redirect_authenticated_user=True), name='admin_login'),
+    path('dashboard-admin/logout/', LogoutView.as_view(next_page='admin_login'), name='admin_logout'),
     path('dashboard-admin/', views.admin_homepage, name='admin_homepage'),
     path('dashboard-admin/manage-producer/', views.manage_producer, name='manage_producer'),
     path('dashboard-admin/manage-producer/edit/<uuid:producer_id>/', views.edit_producer, name='edit_producer'),
@@ -27,4 +30,4 @@ urlpatterns = [
     path('dashboard-admin/manage-episode/edit/<uuid:episode_id>/', views.edit_episode, name='edit_episode'),
     path('dashboard-admin/manage-episode/delete/<uuid:episode_id>/', views.delete_episode, name='delete_episode'),
     path('dashboard-admin/manage-episode/play/<uuid:episode_id>/', views.play_episode, name='play_episode'),
-]   
+]
