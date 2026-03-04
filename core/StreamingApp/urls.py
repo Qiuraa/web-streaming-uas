@@ -2,6 +2,7 @@ from django.urls import path
 from . import views
 from django.contrib.auth.views import LoginView, LogoutView
 
+
 urlpatterns = [
     path('dashboard-admin/login/', LoginView.as_view(template_name='admin/admin_login.html', redirect_authenticated_user=True), name='admin_login'),
     path('dashboard-admin/logout/', LogoutView.as_view(next_page='admin_login'), name='admin_logout'),
