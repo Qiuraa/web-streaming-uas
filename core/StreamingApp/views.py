@@ -1,16 +1,31 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.views import LoginView, LogoutView
 from django.views import View
 
 from core.StreamingApp.form import AddGenreForm, AddProducerForm, AddStudioForm, AddSeriesForm, AddEpisodeForm
 from .models import Genre, Producer, Series, Studio, Episode
 
-# @login_required
-class AdminHomepageView(View):
+class AdminRequiredView(LoginRequiredMixin, View):
+    login_url = 'admin_login'
+
+    def dispatch(self, request, *args, **kwargs):
+        # Explicit guard: if user is not authenticated redirect to the named
+        # login view. This makes the behavior explicit and ensures redirects
+        # include the `next` parameter so users return after login.
+        if not request.user.is_authenticated:
+            from django.shortcuts import redirect
+            from django.urls import reverse
+            return redirect(f"{reverse('admin_login')}?next={request.path}")
+        return super().dispatch(request, *args, **kwargs)
+
+
+
+class AdminHomepageView(AdminRequiredView):
     def get(self,request):
         return render(request, 'admin/admin_homepage.html')
     
-class AddProducerView(View):
+class AddProducerView(AdminRequiredView):
     def get(self, request):
         # Provide an empty form instance so template can render it
         add_producer_form = AddProducerForm()
@@ -29,7 +44,7 @@ class AddProducerView(View):
         })
 
 
-class AddStudioView(View):
+class AddStudioView(AdminRequiredView):
     def get(self, request):
         add_studio_form = AddStudioForm()
         return render(request, 'admin/add_studio.html', {
@@ -45,21 +60,21 @@ class AddStudioView(View):
             'add_studio_form' : add_studio_form
         })
 
-class ManageProducerView(View):
+class ManageProducerView(AdminRequiredView):
     def get(self,request):
         producers = Producer.objects.all()
         return render(request, 'admin/manage_producer.html', {
             'producers': producers,
         })
 
-class ManageStudioView(View):
+class ManageStudioView(AdminRequiredView):
     def get(self,request):
         studios = Studio.objects.all()
         return render(request, 'admin/manage_studio.html', {
             'studios' : studios
         })
 
-class EditProducerView(View):
+class EditProducerView(AdminRequiredView):
     def get(self,request, producer_id):
         producer = get_object_or_404(Producer, producer_id=producer_id)
         edit_producer_form = AddProducerForm(instance=producer)
@@ -77,14 +92,14 @@ class EditProducerView(View):
             'edit_producer_form' : edit_producer_form
         })
 
-class DeleteProducerView(View):
+class DeleteProducerView(AdminRequiredView):
     def post(self, request, producer_id):
         # request must be accepted as first argument for POST handlers
         producer = get_object_or_404(Producer, producer_id=producer_id)
         producer.delete()
         return redirect('manage_producer')
 
-class EditStudioView(View):
+class EditStudioView(AdminRequiredView):
     def get(self,request, studio_id):
         studio = get_object_or_404(Studio, studio_id=studio_id)
         edit_studio_form = AddStudioForm(instance=studio)
@@ -102,7 +117,7 @@ class EditStudioView(View):
             'edit_studio_form': edit_studio_form,
         })
 
-class DeleteStudioView(View):
+class DeleteStudioView(AdminRequiredView):
     def post(self, request, studio_id):
         # include request parameter so Django dispatch works correctly
         studio = get_object_or_404(Studio, studio_id=studio_id)
@@ -113,7 +128,7 @@ class DeleteStudioView(View):
 # The earlier empty placeholder ManageFilmView was removed to avoid a duplicate class
 # which could shadow the real implementation.
 
-class AddFilmView(View):
+class AddFilmView(AdminRequiredView):
     def get(self, request):
         add_film_form = AddSeriesForm()
         return render(request, 'admin/add_film.html', {
@@ -130,7 +145,7 @@ class AddFilmView(View):
             'add_film_form': add_film_form
         })
     
-class AddGenreView(View):
+class AddGenreView(AdminRequiredView):
     def get(self, request):
         add_genre_form = AddGenreForm()
         return render(request, 'admin/add_genre.html', {
@@ -146,14 +161,14 @@ class AddGenreView(View):
             'add_genre_form': add_genre_form
         })
     
-class ManageGenreView(View):
+class ManageGenreView(AdminRequiredView):
     def get(self, request):
         genres = Genre.objects.all().order_by('name')
         return render(request, 'admin/manage_genre.html', {
             'genres': genres
         })
 
-class EditGenreView(View):
+class EditGenreView(AdminRequiredView):
     def get(self, request, genre_id):
         genre = get_object_or_404(Genre, genre_id=genre_id)
         edit_genre_form = AddGenreForm(instance=genre)
@@ -171,13 +186,13 @@ class EditGenreView(View):
             'edit_genre_form': edit_genre_form,
         })
     
-class DeleteGenreView(View):
+class DeleteGenreView(AdminRequiredView):
     def post(self, request, genre_id):
         genre = get_object_or_404(Genre, genre_id=genre_id)
         genre.delete()
         return redirect('manage_genre')
 
-class ManageFilmView(View):
+class ManageFilmView(AdminRequiredView):
     def get(self,request):
         # Provide the list of series only. Do not pass a QuerySet into an exact
         # lookup for Episode (that caused ValueError previously). The detail
@@ -187,7 +202,7 @@ class ManageFilmView(View):
             'series': series,
         })
     
-class EditFilmView(View):
+class EditFilmView(AdminRequiredView):
     def get(self, request, series_id):
         series = get_object_or_404(Series, series_id=series_id)
         edit_film_form = AddSeriesForm(instance=series)
@@ -205,13 +220,13 @@ class EditFilmView(View):
             'edit_film_form' : edit_film_form
             })
 
-class DeleteFilmView(View):
+class DeleteFilmView(AdminRequiredView):
     def post(self, request, series_id):
         series = get_object_or_404(Series, series_id=series_id)
         series.delete()
         return redirect('manage_film')
     
-class DetailFilmView(View):
+class DetailFilmView(AdminRequiredView):
     def get(self, request, series_id):
         series = get_object_or_404(Series, series_id=series_id)
         # Prefer to show episode number 1 on the detail page. If episode 1 doesn't exist,
@@ -227,7 +242,7 @@ class DetailFilmView(View):
             'origin': origin,
         })
 
-class ManageEpisodeView(View):
+class ManageEpisodeView(AdminRequiredView):
     def get(self, request, series_id):
         # Show episodes for a specific series
         series = get_object_or_404(Series, series_id=series_id)
@@ -237,7 +252,7 @@ class ManageEpisodeView(View):
             'episodes': episodes,
         })
     
-class AddEpisodeView(View):
+class AddEpisodeView(AdminRequiredView):
     def get(self, request, series_id):
         series = get_object_or_404(Series, series_id=series_id)
         # create empty form for adding a new Episode for this Series
@@ -261,7 +276,7 @@ class AddEpisodeView(View):
             'series': series,
         })
 
-class EditEpisodeView(View):
+class EditEpisodeView(AdminRequiredView):
     def get(self, request, episode_id):
         episode = get_object_or_404(Episode, episode_id=episode_id)
         edit_episode_form = AddEpisodeForm(instance=episode)
@@ -285,7 +300,7 @@ class EditEpisodeView(View):
             'episode': episode,
         })
 
-class DeleteEpisodeView(View):
+class DeleteEpisodeView(AdminRequiredView):
     def post(self, request, episode_id):
         episode = get_object_or_404(Episode, episode_id=episode_id)
         series_id = episode.series.series_id
@@ -294,7 +309,7 @@ class DeleteEpisodeView(View):
         return redirect('manage_episode', series_id=series_id)
 
 
-class PlayEpisodeView(View):
+class PlayEpisodeView(AdminRequiredView):
     def get(self, request, episode_id):
         episode = get_object_or_404(Episode, episode_id=episode_id)
         series = episode.series
@@ -305,6 +320,14 @@ class PlayEpisodeView(View):
             'origin': origin,
         })
 
+# Use Django's built-in auth views for admin login/logout.
+# The template `admin/admin_login.html` will render the form.
+admin_login = LoginView.as_view(
+    template_name='admin/admin_login.html',
+    redirect_authenticated_user=True,
+
+)
+admin_logout = LogoutView.as_view(next_page='admin_login')
 admin_homepage = AdminHomepageView.as_view()
 add_producer = AddProducerView.as_view()
 add_studio = AddStudioView.as_view()
