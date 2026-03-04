@@ -1,0 +1,79 @@
+{% extends 'base_user/base_user.html' %}
+{% block content %}
+
+{% if series %}
+    {% if series.thumbnail_picture %}
+        <img src="{{ series.thumbnail_picture.url }}" alt="{{ series.title }}" width="200" height="300">
+    {% else %}
+        <img src="/static/img/placeholder.png" alt="No image" width="200" height="300">
+    {% endif %}
+    <h2>{{ series.title }}</h2>
+    {% if series.alternate_title %}
+        <h3>{{ series.alternate_title }}</h3>
+    {% endif %}
+    {% if episode %}
+        <iframe id="yt-player" width="560" height="315"
+            src="https://www.youtube.com/embed/{{ episode.video_id }}?rel=0&modestbranding=1&origin={{ origin }}"
+            title="YouTube video player" frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerpolicy="strict-origin-when-cross-origin"
+            allowfullscreen></iframe>
+        <!-- list available episodes as buttons that update the iframe via JS -->
+        <div id="episode-list">
+        {% for ep in series.episode_set.all %}
+            <button class="ep-btn" data-video-id="{{ ep.video_id }}" data-ep-number="{{ ep.episode_number }}" data-ep-title="{{ ep.title }}">Episode {{ ep.episode_number }}: {{ ep.title }}</button>
+            <br>
+        {% endfor %}
+        </div>
+        <p><a id="open-on-youtube" href="https://www.youtube.com/watch?v={{ episode.video_id }}" target="_blank">Open on YouTube</a></p>
+    {% else %}
+    <p>No episode available to play.</p>
+    {% endif %}
+    <script>
+        (function(){
+            const origin = '{{ origin }}';
+            const player = document.getElementById('yt-player');
+            const openLink = document.getElementById('open-on-youtube');
+            const buttons = document.querySelectorAll('.ep-btn');
+            function setVideo(videoId, epNumber, epTitle){
+                if(!player) return;
+                const src = `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1&origin=${origin}`;
+                player.src = src;
+                if(openLink){ openLink.href = `https://www.youtube.com/watch?v=${videoId}`; }
+                // update heading if present
+                const h2 = document.querySelector('h2');
+                if(h2 && epNumber && epTitle){
+                    h2.textContent = `${h2.textContent.split(':')[0]}: ${h2.textContent}`;
+                }
+            }
+            buttons.forEach(btn => {
+                btn.addEventListener('click', function(e){
+                    e.preventDefault();
+                    const vid = this.dataset.videoId;
+                    const num = this.dataset.epNumber;
+                    const title = this.dataset.epTitle;
+                    setVideo(vid,num,title);
+                });
+            });
+        })();
+    </script>
+    <p><strong>Sypnosis:</strong> {{ series.sypnosis }}</p>
+    <p><strong>Total Episode:</strong> {{ series.total_episodes }}</p>
+    <p><strong>Status:</strong> {{ series.status }}</p>
+    <p><strong>Aired date:</strong> {{ series.aired_start_date }} to {% if series.aired_end_date %} {{series.aired_end_date}} {% else %} ? {% endif %}</p>
+    <p><strong>Status:</strong> {{ series.get_premiered_season_display }}, {{ series.premiered_year }}</p>
+    <p><strong>Genres:</strong> {% for genre in series.genre.all %}{{ genre.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+    <p><strong>Producer:</strong> {% for producer in series.producer.all %}{{ producer.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+    <p><strong>Studio:</strong> {% for studio in series.studio.all %}{{ studio.studio_name }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+    <p><strong>Duration:</strong> {{ series.duration_minutes }} minutes per ep</p>
+    <p><strong>Score:</strong> {{ series.score }}</p>
+    <p><strong>Rating:</strong> {{ series.get_rating_display }}</p>
+    <p><strong>Publish Status:</strong> {% if series.is_published %} Published {% else %} Not Published {% endif %}</p>
+
+
+    <a href="{% url 'edit_film' series.series_id %}"><button>Edit Film</button></a>
+    <a href="{% url 'manage_episode' series.series_id %}"><button>Manage Episodes</button></a>
+{% else %}
+    <p>Film not found.</p>
+{% endif %}
+{% endblock %}

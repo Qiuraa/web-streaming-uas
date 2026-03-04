@@ -320,6 +320,38 @@ class PlayEpisodeView(AdminRequiredView):
             'origin': origin,
         })
 
+class HomepageView(View):
+    def get(self, request):
+        series = Series.objects.all()
+        return render(request, 'guest/home_page.html', {
+            'series': series,
+        })
+
+class SearchResultsView(View):
+    def get(self, request):
+        query = request.GET.get('q', '')
+        search_results = Series.objects.filter(title__icontains=query).order_by('title')
+        return render(request, 'guest/search_results.html', {
+            'search_results': search_results,
+            'query': query,
+        })
+
+class DetailFilmGuestView(View):
+    def get(self, request, series_id):
+        series = get_object_or_404(Series, series_id=series_id)
+        # Prefer to show episode number 1 on the detail page. If episode 1 doesn't exist,
+        # fall back to the first episode ordered by episode_number.
+        episode = Episode.objects.filter(series=series, episode_number=1).first()
+        if not episode:
+            episode = Episode.objects.filter(series=series).order_by('episode_number').first()
+        # compute origin to include in the YouTube embed query string — helps avoid some embed configuration errors
+        origin = f"{request.scheme}://{request.get_host()}"
+        return render(request, 'guest/detail_film_guest.html', {
+            'series': series,
+            'episode': episode,
+            'origin': origin,
+        })
+
 # Use Django's built-in auth views for admin login/logout.
 # The template `admin/admin_login.html` will render the form.
 admin_login = LoginView.as_view(
@@ -352,3 +384,6 @@ detail_film = DetailFilmView.as_view()
 edit_episode = EditEpisodeView.as_view()
 delete_episode = DeleteEpisodeView.as_view()
 play_episode = PlayEpisodeView.as_view()
+homepage = HomepageView.as_view()
+search_results = SearchResultsView.as_view()
+detail_film_guest = DetailFilmGuestView.as_view()
