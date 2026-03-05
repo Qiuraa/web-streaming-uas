@@ -2,18 +2,114 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Homepage</title>
+    <title>WatchOut! - Stream Anime</title>
 </head>
-<body>
-    <a href="{% url 'homepage' %}"><h2>WatchOut!</h2></a>
-    <a href=''><h3>Login</h3></a>
-    <h3>search bar</h3>
-    <form method="get" action="{% url 'search_results' %}">
-        <input type="text" name="q" placeholder="Search for films...">
-        <button type="submit">Search</button>
-    </form>
-    {% block content %}
-    {% endblock %}
+<body style="margin:0; font-family: Arial, Helvetica, sans-serif; background-color:#0f0f0f; color:white;">
+
+    <!-- NAVBAR -->
+    <div style="display:flex; justify-content:space-between; align-items:center; padding:15px 40px; background-color:#111; position:sticky; top:0; z-index:1000;">
+        <a href="{% url 'homepage' %}" style="text-decoration:none; color:#ff2c2c;">
+            <h2 style="margin:0;">WatchOut!</h2>
+        </a>
+
+        <form method="get" action="{% url 'search_results' %}" style="display:flex; gap:10px;">
+            <input type="text" name="q" placeholder="Search anime..."
+                style="padding:8px 12px; border-radius:20px; border:none; outline:none; width:200px;">
+            <button type="submit"
+                style="background:#ff2c2c; color:white; border:none; padding:8px 15px; border-radius:20px; cursor:pointer;">
+                Search
+            </button>
+        </form>
+
+        <a href="#" style="text-decoration:none; color:white;">
+            <h3 style="margin:0;">Login</h3>
+        </a>
+    </div>
+
+    <!-- HERO SECTION -->
+    <div style="position:relative; height:80vh; background-image:url('https://images.alphacoders.com/132/1329916.jpeg'); background-size:cover; background-position:center;">
+        <div style="position:absolute; top:0; left:0; width:100%; height:100%; background:linear-gradient(to right, rgba(0,0,0,0.8), rgba(0,0,0,0.2)); padding:100px 60px;">
+            <h1 style="font-size:60px; margin-bottom:20px;">Attack on Titan</h1>
+            <p style="max-width:500px; line-height:1.6;">
+                Humanity fights for survival against gigantic Titans in this epic dark fantasy anime series.
+            </p>
+            <button style="margin-top:20px; padding:12px 25px; background:#ff2c2c; border:none; border-radius:5px; color:white; font-size:16px; cursor:pointer;">
+                ▶ Watch Now
+            </button>
+        </div>
+    </div>
+
+    <!-- TRENDING SECTION -->
+    <div style="padding:40px;">
+        <h2 style="margin-bottom:20px;">🔥 Trending Now</h2>
+
+        <div style="display:flex; gap:20px; flex-wrap:wrap;">
+            
+            <!-- Card 1 -->
+            <div style="width:200px; cursor:pointer; transition:0.3s;">
+                <img src="https://cdn.myanimelist.net/images/anime/1208/94745.jpg" 
+                     style="width:100%; border-radius:10px;">
+                <h4>Attack on Titan</h4>
+            </div>
+
+            <!-- Card 2 -->
+            <div style="width:200px;">
+                <img src="https://cdn.myanimelist.net/images/anime/1171/109222.jpg" 
+                     style="width:100%; border-radius:10px;">
+                <h4>Demon Slayer</h4>
+            </div>
+
+            <!-- Card 3 -->
+            <div style="width:200px;">
+                <img src="https://cdn.myanimelist.net/images/anime/1337/99013.jpg" 
+                     style="width:100%; border-radius:10px;">
+                <h4>Jujutsu Kaisen</h4>
+            </div>
+
+            <!-- Card 4 -->
+            <div style="width:200px;">
+                <img src="https://cdn.myanimelist.net/images/anime/10/78745.jpg" 
+                     style="width:100%; border-radius:10px;">
+                <h4>Naruto</h4>
+            </div>
+
+            <!-- Card 5 -->
+            <div style="width:200px;">
+                <img src="https://cdn.myanimelist.net/images/anime/6/73245.jpg" 
+                     style="width:100%; border-radius:10px;">
+                <h4>One Piece</h4>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- LATEST EPISODES -->
+    <div style="padding:40px; background-color:#141414;">
+        <h2 style="margin-bottom:20px;">🆕 Latest Episodes</h2>
+
+        <div style="display:flex; gap:20px; flex-wrap:wrap;">
+            <div style="background:#1c1c1c; padding:15px; border-radius:10px; width:300px;">
+                <h3>Demon Slayer - Episode 12</h3>
+                <p>Tanjiro faces a new demon threat...</p>
+                <button style="background:#ff2c2c; border:none; padding:8px 15px; color:white; border-radius:5px;">
+                    Watch
+                </button>
+            </div>
+
+            <div style="background:#1c1c1c; padding:15px; border-radius:10px; width:300px;">
+                <h3>Jujutsu Kaisen - Episode 8</h3>
+                <p>Gojo enters the battlefield...</p>
+                <button style="background:#ff2c2c; border:none; padding:8px 15px; color:white; border-radius:5px;">
+                    Watch
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div style="text-align:center; padding:30px; background:#111; margin-top:40px;">
+        <p style="color:#aaa;">© 2026 WatchOut! - Stream Anime Anytime</p>
+    </div>
+
 </body>
 </html>
