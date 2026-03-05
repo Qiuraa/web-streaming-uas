@@ -1,79 +1,267 @@
 {% extends 'base_admin/base_manage_film.html' %}
 {% block content %}
 
+<div style="
+background:white;
+padding:30px;
+border-radius:16px;
+box-shadow:0 10px 25px rgba(0,0,0,0.08);
+font-family:'Poppins',sans-serif;
+">
+
 {% if series %}
-    {% if series.thumbnail_picture %}
-        <img src="{{ series.thumbnail_picture.url }}" alt="{{ series.title }}" width="200" height="300">
-    {% else %}
-        <img src="/static/img/placeholder.png" alt="No image" width="200" height="300">
-    {% endif %}
-    <h2>{{ series.title }}</h2>
-    {% if series.alternate_title %}
-        <h3>{{ series.alternate_title }}</h3>
-    {% endif %}
-    {% if episode %}
-        <iframe id="yt-player" width="560" height="315"
-            src="https://www.youtube.com/embed/{{ episode.video_id }}?rel=0&modestbranding=1&origin={{ origin }}"
-            title="YouTube video player" frameborder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            referrerpolicy="strict-origin-when-cross-origin"
-            allowfullscreen></iframe>
-        <!-- list available episodes as buttons that update the iframe via JS -->
-        <div id="episode-list">
-        {% for ep in series.episode_set.all %}
-            <button class="ep-btn" data-video-id="{{ ep.video_id }}" data-ep-number="{{ ep.episode_number }}" data-ep-title="{{ ep.title }}">Episode {{ ep.episode_number }}: {{ ep.title }}</button>
-            <br>
-        {% endfor %}
-        </div>
-        <p><a id="open-on-youtube" href="https://www.youtube.com/watch?v={{ episode.video_id }}" target="_blank">Open on YouTube</a></p>
-    {% else %}
-    <p>No episode available to play.</p>
-    {% endif %}
-    <script>
-        (function(){
-            const origin = '{{ origin }}';
-            const player = document.getElementById('yt-player');
-            const openLink = document.getElementById('open-on-youtube');
-            const buttons = document.querySelectorAll('.ep-btn');
-            function setVideo(videoId, epNumber, epTitle){
-                if(!player) return;
-                const src = `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1&origin=${origin}`;
-                player.src = src;
-                if(openLink){ openLink.href = `https://www.youtube.com/watch?v=${videoId}`; }
-                // update heading if present
-                const h2 = document.querySelector('h2');
-                if(h2 && epNumber && epTitle){
-                    h2.textContent = `${h2.textContent.split(':')[0]}: ${h2.textContent}`;
-                }
-            }
-            buttons.forEach(btn => {
-                btn.addEventListener('click', function(e){
-                    e.preventDefault();
-                    const vid = this.dataset.videoId;
-                    const num = this.dataset.epNumber;
-                    const title = this.dataset.epTitle;
-                    setVideo(vid,num,title);
-                });
-            });
-        })();
-    </script>
-    <p><strong>Sypnosis:</strong> {{ series.sypnosis }}</p>
-    <p><strong>Total Episode:</strong> {{ series.total_episodes }}</p>
-    <p><strong>Status:</strong> {{ series.status }}</p>
-    <p><strong>Aired date:</strong> {{ series.aired_start_date }} to {% if series.aired_end_date %} {{series.aired_end_date}} {% else %} ? {% endif %}</p>
-    <p><strong>Status:</strong> {{ series.get_premiered_season_display }}, {{ series.premiered_year }}</p>
-    <p><strong>Genres:</strong> {% for genre in series.genre.all %}{{ genre.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
-    <p><strong>Producer:</strong> {% for producer in series.producer.all %}{{ producer.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
-    <p><strong>Studio:</strong> {% for studio in series.studio.all %}{{ studio.studio_name }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
-    <p><strong>Duration:</strong> {{ series.duration_minutes }} minutes per ep</p>
-    <p><strong>Score:</strong> {{ series.score }}</p>
-    <p><strong>Rating:</strong> {{ series.get_rating_display }}</p>
-    <p><strong>Publish Status:</strong> {% if series.is_published %} Published {% else %} Not Published {% endif %}</p>
 
+<!-- TOP SECTION -->
 
-    <a href="{% url 'edit_film' series.series_id %}"><button>Edit Film</button></a>
-    <a href="{% url 'manage_episode' series.series_id %}"><button>Manage Episodes</button></a>
+<div style="
+display:grid;
+grid-template-columns:220px 1fr;
+gap:30px;
+margin-bottom:30px;
+">
+
+<!-- POSTER -->
+
+<div>
+
+{% if series.thumbnail_picture %}
+<img src="{{ series.thumbnail_picture.url }}" style="
+width:220px;
+height:320px;
+object-fit:cover;
+border-radius:10px;
+box-shadow:0 6px 20px rgba(0,0,0,0.15);
+">
 {% else %}
-    <p>Film not found.</p>
+<img src="/static/img/placeholder.png" style="
+width:220px;
+height:320px;
+object-fit:cover;
+border-radius:10px;
+">
 {% endif %}
+
+</div>
+
+
+<!-- INFO -->
+
+<div>
+
+<h2 style="margin:0;font-weight:600;">
+{{ series.title }}
+</h2>
+
+{% if series.alternate_title %}
+<p style="color:#6b7280;margin-top:5px;">
+{{ series.alternate_title }}
+</p>
+{% endif %}
+
+<div style="margin-top:15px;line-height:1.8;font-size:14px;">
+
+<p><b>Episodes:</b> {{ series.total_episodes }}</p>
+<p><b>Status:</b> {{ series.status }}</p>
+
+<p>
+<b>Aired:</b>
+{{ series.aired_start_date }}
+-
+{% if series.aired_end_date %}
+{{ series.aired_end_date }}
+{% else %}
+?
+{% endif %}
+</p>
+
+<p>
+<b>Season:</b>
+{{ series.get_premiered_season_display }} {{ series.premiered_year }}
+</p>
+
+<p>
+<b>Genres:</b>
+{% for genre in series.genre.all %}
+{{ genre.name }}{% if not forloop.last %}, {% endif %}
+{% endfor %}
+</p>
+
+<p>
+<b>Producer:</b>
+{% for producer in series.producer.all %}
+{{ producer.name }}{% if not forloop.last %}, {% endif %}
+{% endfor %}
+</p>
+
+<p>
+<b>Studio:</b>
+{% for studio in series.studio.all %}
+{{ studio.studio_name }}{% if not forloop.last %}, {% endif %}
+{% endfor %}
+</p>
+
+<p><b>Duration:</b> {{ series.duration_minutes }} min / episode</p>
+<p><b>Score:</b> ⭐ {{ series.score }}</p>
+<p><b>Rating:</b> {{ series.get_rating_display }}</p>
+
+<p>
+<b>Publish:</b>
+{% if series.is_published %}
+<span style="color:#10b981;">Published</span>
+{% else %}
+<span style="color:#ef4444;">Not Published</span>
+{% endif %}
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+
+<!-- SYNOPSIS -->
+
+<div style="margin-bottom:30px">
+
+<h3>Synopsis</h3>
+
+<p style="
+color:#555;
+line-height:1.6;
+max-width:900px;
+">
+
+{{ series.sypnosis }}
+
+</p>
+
+</div>
+
+
+<!-- VIDEO PLAYER -->
+
+{% if episode %}
+
+<div style="margin-bottom:30px">
+
+<h3>Episode {{ episode.episode_number }}</h3>
+
+<div style="
+position:relative;
+padding-bottom:56.25%;
+height:0;
+overflow:hidden;
+border-radius:12px;
+box-shadow:0 6px 18px rgba(0,0,0,0.15);
+">
+
+<iframe
+src="https://www.youtube.com/embed/{{ episode.video_id }}?rel=0&modestbranding=1&origin={{ origin }}"
+frameborder="0"
+allowfullscreen
+style="
+position:absolute;
+top:0;
+left:0;
+width:100%;
+height:100%;
+">
+</iframe>
+
+</div>
+
+</div>
+
+{% endif %}
+
+
+<!-- EPISODE LIST -->
+
+<div style="margin-bottom:30px">
+
+<h3>Episodes</h3>
+
+<div style="
+display:flex;
+flex-wrap:wrap;
+gap:10px;
+">
+
+{% for ep in series.episode_set.all %}
+
+<a href="{% url 'play_episode' ep.episode_id %}" style="text-decoration:none;">
+
+<button style="
+background:#6366f1;
+color:white;
+border:none;
+padding:8px 14px;
+border-radius:6px;
+cursor:pointer;
+font-size:13px;
+">
+
+EP {{ ep.episode_number }}
+
+</button>
+
+</a>
+
+{% endfor %}
+
+</div>
+
+</div>
+
+
+<!-- ACTION BUTTON -->
+
+<div style="display:flex;gap:10px;flex-wrap:wrap;">
+
+<a href="{% url 'edit_film' series.series_id %}">
+
+<button style="
+background:#3b82f6;
+border:none;
+padding:10px 16px;
+border-radius:8px;
+color:white;
+cursor:pointer;
+">
+
+Edit Film
+
+</button>
+
+</a>
+
+<a href="{% url 'manage_episode' series.series_id %}">
+
+<button style="
+background:#6366f1;
+border:none;
+padding:10px 16px;
+border-radius:8px;
+color:white;
+cursor:pointer;
+">
+
+Manage Episodes
+
+</button>
+
+</a>
+
+</div>
+
+
+{% else %}
+
+<p>Film not found.</p>
+
+{% endif %}
+
+</div>
+
 {% endblock %}

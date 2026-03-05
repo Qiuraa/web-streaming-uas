@@ -130,3 +130,4 @@ AUTH_USER_MODEL = 'StreamingApp.User'
 LOGIN_URL = 'admin_login'
 # After login, redirect admin users to the admin homepage by default
 LOGIN_REDIRECT_URL = 'admin_homepage'
+

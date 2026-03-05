@@ -1,58 +1,200 @@
 {% extends 'base_admin/base_manage_film.html' %}
 {% block content %}
-<h1>Manage Studios</h1>
-<br>
-<a href="{% url 'add_studio' %}">Add Studio</a><br><br>
+
+<div style="
+background:white;
+padding:30px;
+border-radius:16px;
+box-shadow:0 10px 25px rgba(0,0,0,0.08);
+font-family:'Poppins',sans-serif;
+">
+
+<!-- HEADER -->
+
+<div style="
+display:flex;
+justify-content:space-between;
+align-items:center;
+flex-wrap:wrap;
+gap:15px;
+margin-bottom:30px;
+">
+
+<div>
+
+<h2 style="margin:0;font-weight:600;">
+Manage Studios
+</h2>
+
+<p style="
+margin:4px 0;
+font-size:14px;
+color:#6b7280;
+">
+
+Manage animation studios used in your anime library
+
+</p>
+
+</div>
+
+<a href="{% url 'add_studio' %}">
+
+<button style="
+background:linear-gradient(135deg,#6366f1,#3b82f6);
+padding:10px 18px;
+border:none;
+border-radius:8px;
+color:white;
+font-weight:500;
+cursor:pointer;
+box-shadow:0 5px 15px rgba(0,0,0,0.15);
+">
+
++ Add Studio
+
+</button>
+
+</a>
+
+</div>
+
 
 {% if studios %}
 
-    <table border="1">
+<!-- TABLE -->
 
-        <thead>
+<div style="overflow-x:auto;">
 
-            <tr>
+<table style="
+width:100%;
+border-collapse:collapse;
+font-size:14px;
+">
 
-                <th>Name</th>
+<thead>
 
-                <th>Edit</th>
+<tr style="
+background:#f9fafb;
+text-align:left;
+">
 
-                <th>Delete</th>
+<th style="padding:14px;">Studio Name</th>
+<th style="padding:14px;">Edit</th>
+<th style="padding:14px;">Delete</th>
 
-            </tr>
+</tr>
 
-        </thead>
+</thead>
 
-        <tbody>
+<tbody>
 
-            {% for studio in studios %}
+{% for studio in studios %}
 
-                <tr>
+<tr style="
+border-top:1px solid #eee;
+transition:0.2s;
+"
+onmouseover="this.style.background='#f9fafb'"
+onmouseout="this.style.background='white'"
+>
 
-                    <td>{{ studio.studio_name }}</td>
+<td style="
+padding:14px;
+font-weight:500;
+">
 
-                    <td><a href="{% url 'edit_studio' studio_id=studio.studio_id %}">Edit</a></td>
+{{ studio.studio_name }}
 
-                    <td><form method="post" action="{% url 'delete_studio' studio_id=studio.studio_id %}">
-                        {% csrf_token %}
-                        <button type="submit"
-                                onclick="return confirm('Are you sure you want to delete {{ studio.studio_name }}')">
-                            Delete
-                        </button>
-                    </form></td>
+</td>
 
-                </tr>
+<td style="padding:14px;">
 
-            {% endfor %}
+<a href="{% url 'edit_studio' studio_id=studio.studio_id %}">
 
-        </tbody>
+<button style="
+background:#3b82f6;
+padding:6px 12px;
+border:none;
+border-radius:6px;
+color:white;
+cursor:pointer;
+font-size:13px;
+">
 
-    </table>
+Edit
+
+</button>
+
+</a>
+
+</td>
+
+<td style="padding:14px;">
+
+<form method="post" action="{% url 'delete_studio' studio_id=studio.studio_id %}">
+{% csrf_token %}
+
+<button style="
+background:#ef4444;
+padding:6px 12px;
+border:none;
+border-radius:6px;
+color:white;
+cursor:pointer;
+font-size:13px;
+">
+
+Delete
+
+</button>
+
+</form>
+
+</td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
 
 {% else %}
 
-    <p>No studios found.</p>
+<p style="color:#6b7280;">
+No studios found.
+</p>
+
 {% endif %}
-<br><br>
-<a href="{% url 'admin_homepage' %}">Back to Admin Homepage</a>
+
+
+<!-- FOOTER -->
+
+<div style="margin-top:25px;">
+
+<a href="{% url 'admin_homepage' %}">
+
+<button style="
+background:#64748b;
+padding:10px 16px;
+border:none;
+border-radius:8px;
+color:white;
+cursor:pointer;
+">
+
+← Back to Dashboard
+
+</button>
+
+</a>
+
+</div>
+
+</div>
 
 {% endblock %}

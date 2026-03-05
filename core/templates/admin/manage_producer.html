@@ -1,40 +1,201 @@
 {% extends 'base_admin/base_manage_film.html' %}
 {% block content %}
 
-<h1>Manage Producers</h1>
-<br>
-<a href="{% url 'add_producer' %}">Add Producer</a><br><br>
+<div style="
+background:white;
+padding:30px;
+border-radius:16px;
+box-shadow:0 10px 25px rgba(0,0,0,0.08);
+font-family:'Poppins',sans-serif;
+">
+
+<!-- HEADER -->
+
+<div style="
+display:flex;
+justify-content:space-between;
+align-items:center;
+flex-wrap:wrap;
+gap:15px;
+margin-bottom:30px;
+">
+
+<div>
+
+<h2 style="margin:0;font-weight:600;">
+Manage Producers
+</h2>
+
+<p style="
+margin:4px 0;
+font-size:14px;
+color:#6b7280;
+">
+
+Manage all anime production companies
+
+</p>
+
+</div>
+
+<a href="{% url 'add_producer' %}">
+
+<button style="
+background:linear-gradient(135deg,#6366f1,#3b82f6);
+padding:10px 18px;
+border:none;
+border-radius:8px;
+color:white;
+font-weight:500;
+cursor:pointer;
+box-shadow:0 5px 15px rgba(0,0,0,0.15);
+">
+
++ Add Producer
+
+</button>
+
+</a>
+
+</div>
+
+
+
 {% if producers %}
-    <table border="1">
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Edit</th>
-                <th>Delete</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for producer in producers %}
-                <tr>
-                    <td>{{ producer.name }}</td>
-                    <td><a href="{% url 'edit_producer' producer_id=producer.producer_id %}">Edit</a></td>
-                    <td><form method="post" action="{% url 'delete_producer' producer_id=producer.producer_id %}">
-                        {% csrf_token %}
-                        <button type="submit"
-                                onclick="return confirm('Are you sure you want to delete {{ producer.name }}')">
-                            Delete
-                        </button>
-                        </form>
-                    </td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+
+<!-- TABLE -->
+
+<div style="overflow-x:auto;">
+
+<table style="
+width:100%;
+border-collapse:collapse;
+font-size:14px;
+">
+
+<thead>
+
+<tr style="
+background:#f9fafb;
+text-align:left;
+">
+
+<th style="padding:14px;">Producer</th>
+<th style="padding:14px;">Edit</th>
+<th style="padding:14px;">Delete</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+{% for producer in producers %}
+
+<tr style="
+border-top:1px solid #eee;
+transition:0.2s;
+"
+onmouseover="this.style.background='#f9fafb'"
+onmouseout="this.style.background='white'"
+>
+
+<td style="
+padding:14px;
+font-weight:500;
+">
+
+{{ producer.name }}
+
+</td>
+
+<td style="padding:14px;">
+
+<a href="{% url 'edit_producer' producer_id=producer.producer_id %}">
+
+<button style="
+background:#3b82f6;
+padding:6px 12px;
+border:none;
+border-radius:6px;
+color:white;
+cursor:pointer;
+font-size:13px;
+">
+
+Edit
+
+</button>
+
+</a>
+
+</td>
+
+<td style="padding:14px;">
+
+<form method="post" action="{% url 'delete_producer' producer_id=producer.producer_id %}">
+{% csrf_token %}
+
+<button style="
+background:#ef4444;
+padding:6px 12px;
+border:none;
+border-radius:6px;
+color:white;
+cursor:pointer;
+font-size:13px;
+">
+
+Delete
+
+</button>
+
+</form>
+
+</td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
 {% else %}
-    <p>No producers found.</p>
-    
+
+<p style="color:#6b7280;">
+No producers found.
+</p>
+
 {% endif %}
-<br><br>
-<a href="{% url 'admin_homepage' %}">Back to Admin Homepage</a>
+
+
+<!-- FOOTER -->
+
+<div style="margin-top:25px;">
+
+<a href="{% url 'admin_homepage' %}">
+
+<button style="
+background:#64748b;
+padding:10px 16px;
+border:none;
+border-radius:8px;
+color:white;
+cursor:pointer;
+">
+
+← Back to Dashboard
+
+</button>
+
+</a>
+
+</div>
+
+</div>
 
 {% endblock %}

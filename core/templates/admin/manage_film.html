@@ -1,19 +1,251 @@
 {% extends 'base_admin/base_manage_film.html' %}
 {% block content %}
 
-<a href="{% url 'add_film' %}"><h3>Add New Film</h3></a>
-<a href="{% url 'manage_genre' %}"><h3>Manage Genre</h3></a>
-<a href="{% url 'manage_producer' %}"><h3>Manage Producer</h3></a>
-<a href="{% url 'manage_studio' %}"><h3>Manage Studio</h3></a>
-<a href="{% url 'admin_homepage' %}"><h4>Back to Admin Homepage</h4></a>
+<div style="font-family:'Poppins',sans-serif;">
+
+<!-- HEADER ACTION BAR -->
+
+<div style="
+display:flex;
+justify-content:space-between;
+align-items:center;
+flex-wrap:wrap;
+gap:15px;
+margin-bottom:30px;
+">
+
+<div>
+
+<h2 style="margin:0;font-weight:600;">Manage Anime</h2>
+<p style="margin:3px 0;color:#6b7280;font-size:14px;">
+Manage all anime in your library
+</p>
+
+</div>
+
+<div style="display:flex;gap:10px;flex-wrap:wrap;">
+
+<input type="text" id="animeSearch" placeholder="Search anime..."
+style="
+padding:10px 15px;
+border-radius:8px;
+border:1px solid #ddd;
+width:220px;
+">
+
+<a href="{% url 'add_film' %}">
+<button style="
+background:linear-gradient(135deg,#6366f1,#3b82f6);
+padding:10px 16px;
+border:none;
+border-radius:8px;
+color:white;
+cursor:pointer;
+">
++ Add Anime
+</button>
+</a>
+
+<a href="{% url 'manage_genre' %}">
+<button style="
+background:#3b82f6;
+padding:10px 16px;
+border:none;
+border-radius:8px;
+color:white;
+cursor:pointer;
+">
+Genres
+</button>
+</a>
+
+<a href="{% url 'admin_homepage' %}">
+<button style="
+background:#64748b;
+padding:10px 16px;
+border:none;
+border-radius:8px;
+color:white;
+cursor:pointer;
+">
+Dashboard
+</button>
+</a>
+
+</div>
+
+</div>
+
+
+
+<!-- ANIME GRID -->
+
+<div id="animeGrid" style="
+display:grid;
+grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+gap:30px;
+">
 
 {% for s in series %}
+
+<div class="animeCard">
+
+<div style="
+background:white;
+border-radius:16px;
+overflow:hidden;
+box-shadow:0 10px 25px rgba(0,0,0,0.08);
+transition:0.3s;
+cursor:pointer;
+"
+onmouseover="this.style.transform='translateY(-8px)'"
+onmouseout="this.style.transform='translateY(0)'"
+>
+
+<a href="{% url 'detail_film' s.series_id %}" style="text-decoration:none;color:black;">
+
+<!-- POSTER -->
+
+<div style="position:relative">
+
 {% if s.thumbnail_picture %}
-	<a href="{% url 'detail_film' s.series_id %}"><img src="{{ s.thumbnail_picture.url }}" alt="{{ s.title }}" width="200" height="300"></a>
+<img src="{{ s.thumbnail_picture.url }}" style="
+width:100%;
+height:270px;
+object-fit:cover;
+">
 {% else %}
-	<!-- optional placeholder when no image is uploaded -->
-	<img src="/static/img/placeholder.png" alt="No image" width="200" height="300">
+<img src="/static/img/placeholder.png" style="
+width:100%;
+height:270px;
+object-fit:cover;
+">
 {% endif %}
-<h4><a href="{% url 'detail_film' s.series_id %}">{{ s.title }}</a></h4>
+
+<!-- GRADIENT -->
+
+<div style="
+position:absolute;
+bottom:0;
+left:0;
+right:0;
+height:80px;
+background:linear-gradient(transparent,rgba(0,0,0,0.8));
+"></div>
+
+<!-- EPISODE BADGE -->
+
+<div style="
+position:absolute;
+top:10px;
+left:10px;
+background:#6366f1;
+color:white;
+padding:4px 8px;
+border-radius:6px;
+font-size:12px;
+">
+
+EP {{ s.total_episodes }}
+
+</div>
+
+<!-- STATUS BADGE -->
+
+{% if s.is_published %}
+<div style="
+position:absolute;
+top:10px;
+right:10px;
+background:#10b981;
+color:white;
+padding:4px 8px;
+border-radius:6px;
+font-size:12px;
+">
+
+Published
+
+</div>
+{% else %}
+
+<div style="
+position:absolute;
+top:10px;
+right:10px;
+background:#f59e0b;
+color:white;
+padding:4px 8px;
+border-radius:6px;
+font-size:12px;
+">
+
+Draft
+
+</div>
+
+{% endif %}
+
+</div>
+
+
+
+<!-- INFO -->
+
+<div style="padding:14px">
+
+<h4 style="
+margin:0;
+font-size:15px;
+font-weight:600;
+line-height:1.4;
+">
+
+{{ s.title }}
+
+</h4>
+
+</div>
+
+</a>
+
+</div>
+
+</div>
+
 {% endfor %}
+
+</div>
+
+</div>
+
+
+
+<!-- SEARCH SCRIPT -->
+
+<script>
+
+const search=document.getElementById("animeSearch")
+const cards=document.querySelectorAll(".animeCard")
+
+search.addEventListener("keyup",function(){
+
+let filter=search.value.toLowerCase()
+
+cards.forEach(card=>{
+
+let text=card.innerText.toLowerCase()
+
+if(text.includes(filter)){
+card.style.display="block"
+}else{
+card.style.display="none"
+}
+
+})
+
+})
+
+</script>
+
 {% endblock %}

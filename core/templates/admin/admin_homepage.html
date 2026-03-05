@@ -1,9 +1,71 @@
 {% extends 'base_admin/base_admin.html' %}
 {% block content %}
 
-<h1>Welcome to the Admin Homepage</h1>
-<h3>Manage your application settings and content here.</h3>
-<a href="{% url 'manage_film' %}"><h3>Manage Films</h3></a>
+<h1 style="margin-bottom:30px;">Admin Dashboard</h1>
 
+<div style="display:grid;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:25px;
+margin-bottom:40px;">
+
+<div class="card" style="text-align:center;">
+<h2>🎬 Anime</h2>
+<p>Manage anime series</p>
+<a href="{% url 'manage_film' %}">
+<button>Open</button>
+</a>
+</div>
+
+<div class="card" style="text-align:center;">
+<h2>🎭 Genres</h2>
+<p>Manage anime genres</p>
+<a href="{% url 'manage_genre' %}">
+<button>Open</button>
+</a>
+</div>
+
+<div class="card" style="text-align:center;">
+<h2>🏢 Producers</h2>
+<p>Manage producers</p>
+<a href="{% url 'manage_producer' %}">
+<button>Open</button>
+</a>
+</div>
+
+<div class="card" style="text-align:center;">
+<h2>🎥 Studios</h2>
+<p>Manage studios</p>
+<a href="{% url 'manage_studio' %}">
+<button>Open</button>
+</a>
+</div>
+
+</div>
+
+<div class="card">
+
+<h2 style="margin-bottom:15px;">Quick Actions</h2>
+
+<div style="display:flex;gap:15px;flex-wrap:wrap;">
+
+<a href="{% url 'add_film' %}">
+<button>Add Anime</button>
+</a>
+
+<a href="{% url 'add_genre' %}">
+<button>Add Genre</button>
+</a>
+
+<a href="{% url 'add_producer' %}">
+<button>Add Producer</button>
+</a>
+
+<a href="{% url 'add_studio' %}">
+<button>Add Studio</button>
+</a>
+
+</div>
+
+</div>
 
 {% endblock %}
