@@ -1,10 +1,95 @@
 {% extends 'base_admin/base_manage_film.html' %}
 {% block content %}
 
+<div style="
+max-width:500px;
+margin:auto;
+background:white;
+padding:35px;
+border-radius:16px;
+box-shadow:0 10px 25px rgba(0,0,0,0.08);
+font-family:'Poppins',sans-serif;
+">
+
+<!-- HEADER -->
+
+<div style="margin-bottom:25px">
+
+<h2 style="
+margin:0;
+font-weight:600;
+">
+
+Add New Genre
+
+</h2>
+
+<p style="
+margin-top:6px;
+color:#6b7280;
+font-size:14px;
+">
+
+Create a new genre category
+
+</p>
+
+</div>
+
+
+<!-- FORM -->
+
 <form method="post">
-    {% csrf_token %}
-    {{ add_genre_form.as_p }}
-    <button type="submit">Add New Genre</button>
+
+{% csrf_token %}
+
+<div style="margin-bottom:20px">
+
+{{ add_genre_form.as_p }}
+
+</div>
+
+<button type="submit" style="
+background:linear-gradient(135deg,#6366f1,#3b82f6);
+padding:10px 20px;
+border:none;
+border-radius:8px;
+color:white;
+font-weight:500;
+cursor:pointer;
+box-shadow:0 5px 15px rgba(0,0,0,0.15);
+">
+
+Add Genre
+
+</button>
+
 </form>
+
+
+<!-- BACK BUTTON -->
+
+<div style="margin-top:25px">
+
+<a href="{% url 'manage_genre' %}">
+
+<button style="
+background:#64748b;
+padding:10px 16px;
+border:none;
+border-radius:8px;
+color:white;
+cursor:pointer;
+">
+
+← Back to Genres
+
+</button>
+
+</a>
+
+</div>
+
+</div>
 
 {% endblock %}

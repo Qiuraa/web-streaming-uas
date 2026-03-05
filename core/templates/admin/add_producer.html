@@ -1,15 +1,95 @@
-{% extends 'base_admin/base_manage_film.html' %}
+{% extends 'base_admin/base_admin.html' %}
 {% block content %}
 
-<h1>Add Producer</h1>
-<br>
-<form method="post">
-    {% csrf_token %}
-    {{ add_producer_form.as_p }}
-    <button type="submit">Add Producer</button>
-</form>
-<br>
+<div style="
+max-width:500px;
+margin:auto;
+background:white;
+padding:35px;
+border-radius:16px;
+box-shadow:0 10px 25px rgba(0,0,0,0.08);
+font-family:'Poppins',sans-serif;
+">
 
-<a href="{% url 'manage_producer' %}">Back to Manage Producer</a>
+<!-- HEADER -->
+
+<div style="margin-bottom:25px">
+
+<h2 style="
+margin:0;
+font-weight:600;
+">
+
+Add Producer
+
+</h2>
+
+<p style="
+margin-top:6px;
+font-size:14px;
+color:#6b7280;
+">
+
+Create a new anime production company
+
+</p>
+
+</div>
+
+
+<!-- FORM -->
+
+<form method="post">
+
+{% csrf_token %}
+
+<div style="margin-bottom:20px">
+
+{{ add_producer_form.as_p }}
+
+</div>
+
+<button type="submit" style="
+background:linear-gradient(135deg,#6366f1,#3b82f6);
+padding:10px 20px;
+border:none;
+border-radius:8px;
+color:white;
+font-weight:500;
+cursor:pointer;
+box-shadow:0 5px 15px rgba(0,0,0,0.15);
+">
+
+Add Producer
+
+</button>
+
+</form>
+
+
+<!-- BACK BUTTON -->
+
+<div style="margin-top:25px">
+
+<a href="{% url 'manage_producer' %}">
+
+<button style="
+background:#64748b;
+padding:10px 16px;
+border:none;
+border-radius:8px;
+color:white;
+cursor:pointer;
+">
+
+← Back to Producers
+
+</button>
+
+</a>
+
+</div>
+
+</div>
 
 {% endblock %}
