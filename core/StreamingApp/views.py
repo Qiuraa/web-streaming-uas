@@ -313,10 +313,10 @@ class PlayEpisodeView(AdminRequiredView):
     def get(self, request, episode_id):
         episode = get_object_or_404(Episode, episode_id=episode_id)
         series = episode.series
+        # compute origin to include in the YouTube embed query string — helps avoid some embed configuration errors
         origin = f"{request.scheme}://{request.get_host()}"
         return render(request, 'admin/play_episode.html', {
             'episode': episode,
-            'series': series,
             'origin': origin,
         })
 
