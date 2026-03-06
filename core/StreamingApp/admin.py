@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Producer, Series, SeriesGenre, Genre
+from .models import Producer, Series, SeriesGenre, Genre, User
 
 
 @admin.register(Producer)
@@ -30,3 +30,8 @@ class SeriesAdmin(admin.ModelAdmin):
         return ", ".join([g.name for g in obj.genre.all()])
 
     get_genres.short_description = 'Genres'
+
+@admin.register(User)
+class UserAdmin(admin.ModelAdmin):
+    readonly_fields = ('user_id', 'created_at', 'updated_at')
+    list_display = ('username', 'email', 'role', 'user_id', 'created_at')

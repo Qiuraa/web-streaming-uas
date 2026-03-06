@@ -4,7 +4,7 @@ from django.contrib.auth.views import LoginView, LogoutView
 
 
 urlpatterns = [
-    path('dashboard-admin/login/', LoginView.as_view(template_name='admin/admin_login.html', redirect_authenticated_user=True), name='admin_login'),
+    path('dashboard-admin/login/', views.admin_login, name='admin_login'),
     path('dashboard-admin/logout/', LogoutView.as_view(next_page='admin_login'), name='admin_logout'),
     path('dashboard-admin/', views.admin_homepage, name='admin_homepage'),
     path('dashboard-admin/manage-producer/', views.manage_producer, name='manage_producer'),
@@ -29,7 +29,10 @@ urlpatterns = [
     path('dashboard-admin/manage-episode/edit/<uuid:episode_id>/', views.edit_episode, name='edit_episode'),
     path('dashboard-admin/manage-episode/delete/<uuid:episode_id>/', views.delete_episode, name='delete_episode'),
     path('dashboard-admin/manage-episode/play/<uuid:episode_id>/', views.play_episode, name='play_episode'),
+    path('user/login/', views.viewer_login, name='viewer_login'),
+    path('user/register/', views.viewer_register, name='signup'),
     path('homepage/', views.homepage, name='homepage'),
+    path('homepage/user/<uuid:user_id>/', views.viewer_homepage, name='viewer_homepage'),
     path('search/', views.search_results, name='search_results'),
     path('detail/<uuid:series_id>/', views.detail_film_guest, name='detail_film_guest'),
 ]

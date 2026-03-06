@@ -1,24 +1,79 @@
+from urllib import response
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView, LogoutView
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views import View
+from django.urls import reverse
+from django.contrib.auth import logout, get_user_model
 
+from core.StreamingApp import form
 from core.StreamingApp.form import AddGenreForm, AddProducerForm, AddStudioForm, AddSeriesForm, AddEpisodeForm
 from .models import Genre, Producer, Series, Studio, Episode
 
-class AdminRequiredView(LoginRequiredMixin, View):
-    login_url = 'admin_login'
+
+
+class ViewerRequiredView(LoginView):
+    template_name = "guest/viewer_login.html"
 
     def dispatch(self, request, *args, **kwargs):
-        # Explicit guard: if user is not authenticated redirect to the named
-        # login view. This makes the behavior explicit and ensures redirects
-        # include the `next` parameter so users return after login.
-        if not request.user.is_authenticated:
-            from django.shortcuts import redirect
-            from django.urls import reverse
-            return redirect(f"{reverse('admin_login')}?next={request.path}")
+        if request.user.is_authenticated:
+            logout(request)  # log out any authenticated user to ensure a clean session for the viewer role
         return super().dispatch(request, *args, **kwargs)
+    
+    def form_valid(self, form):
+        response = super().form_valid(form)
 
+        # jika bukan viewer → logout dan kembali ke login
+        if self.request.user.role != "viewer":
+            logout(self.request)
+            return redirect("viewer_login")
+
+        return response
+
+    def get_success_url(self):
+        return reverse("viewer_homepage", kwargs={'user_id': self.request.user.user_id})
+
+class ViewerRegisterView(View):
+    def get(self, request):
+        viewer_register_form = form.ViewerRegisterForm()
+        return render(request, 'guest/viewer_register.html', {
+            'viewer_register_form': viewer_register_form,
+        })
+    
+    def post(self, request):
+        viewer_register_form = form.ViewerRegisterForm(request.POST)
+        if viewer_register_form.is_valid():
+            # Create a new user with the provided username, email, and password
+            from django.contrib.auth.models import User
+            username = viewer_register_form.cleaned_data['username']
+            email = viewer_register_form.cleaned_data['email']
+            password = viewer_register_form.cleaned_data['password']
+            user = get_user_model().objects.create_user(username=username, email=email, password=password)
+            user.role = 'viewer'
+            user.save()
+            return redirect('viewer_login')
+        return render(request, 'guest/viewer_register.html', {
+            'viewer_register_form': viewer_register_form,
+        })
+
+class AdminRequiredView(LoginRequiredMixin, View):
+    # For admin-only pages. Unauthenticated users are redirected to the
+    # named admin login view so the `next` parameter is preserved.
+    login_url = 'admin_login'
+    allowed_roles = ["admin"]
+
+    def dispatch(self, request, *args, **kwargs):
+        # If the user isn't authenticated, LoginRequiredMixin will redirect
+        # to `login_url` automatically when we call super().dispatch; we
+        # still make an explicit check so we can add role-based behavior.
+        if not request.user.is_authenticated:
+            return redirect(f"{reverse('admin_login')}?next={request.path}")
+
+        # If authenticated but not an admin, send them to the public homepage.
+        if getattr(request.user, 'role', None) != 'admin':
+            return redirect('homepage')
+
+        return super().dispatch(request, *args, **kwargs)
 
 
 class AdminHomepageView(AdminRequiredView):
@@ -352,13 +407,20 @@ class DetailFilmGuestView(View):
             'origin': origin,
         })
 
-# Use Django's built-in auth views for admin login/logout.
-# The template `admin/admin_login.html` will render the form.
+class ViewerHomepageView(View):
+    def get(self, request, user_id):
+        series = Series.objects.all()
+        return render(request, 'viewer/viewer_homepage.html', {
+            'series': series,
+        })
+
+# Provide a proper LoginView for the admin login page so unauthenticated
+# users can reach the login form. Keep the viewer login as a special LoginView.
 admin_login = LoginView.as_view(
     template_name='admin/admin_login.html',
     redirect_authenticated_user=True,
-
 )
+viewer_login = ViewerRequiredView.as_view()
 admin_logout = LogoutView.as_view(next_page='admin_login')
 admin_homepage = AdminHomepageView.as_view()
 add_producer = AddProducerView.as_view()
@@ -387,3 +449,5 @@ play_episode = PlayEpisodeView.as_view()
 homepage = HomepageView.as_view()
 search_results = SearchResultsView.as_view()
 detail_film_guest = DetailFilmGuestView.as_view()
+viewer_homepage = ViewerHomepageView.as_view()
+viewer_register = ViewerRegisterView.as_view()
