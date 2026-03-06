@@ -1,40 +1,162 @@
 {% extends 'base_admin/base_manage_film.html' %}
 {% block content %}
 
-<a href="{% url 'add_episode' series.series_id %}"><h4>Add New Episode</h4></a>
-<a href="{% url 'manage_film' %}"><h4>← Back to Film Management</h4></a>
+<div style="
+background:white;
+padding:30px;
+border-radius:12px;
+box-shadow:0 8px 20px rgba(0,0,0,0.08);
+font-family:Arial, sans-serif;
+">
 
-<h3>Episodes for: {{ series.title }}</h3>
+<!-- Header -->
+<div style="
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:20px;
+">
 
-<table border="1">
-    <thead>
-        <tr>
-            <th>Episode #</th>
-            <th>Title</th>
-            <th>Video ID</th>
-            <th>Edit</th>
-            <th>Delete</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for e in episodes %}
-        <tr>
-            <td>{{ e.episode_number }}</td>
-            <td>{{ e.episode_title }}</td>
-            <td>{{ e.video_id }}</td>
-            <td><a href="{% url 'edit_episode' e.episode_id %}">Edit</a></td>
-            <td><form method="post" action="{% url 'delete_episode' e.episode_id %}">
-                {% csrf_token %}
-                <button type="submit" onclick="return confirm('Are you sure you want to delete {{ e.episode_title }}?')">Delete</button>
-                </form>
-            </td>
-        </tr>
-        {% empty %}
-        <tr>
-            <td colspan="4">No episodes found for this series.</td>
-        </tr>
-        {% endfor %}
-    </tbody>
+<h2 style="margin:0;">
+Episodes for: {{ series.title }}
+</h2>
+
+<div>
+
+<a href="{% url 'add_episode' series.series_id %}" style="
+text-decoration:none;
+background:#5a4bff;
+color:white;
+padding:8px 14px;
+border-radius:6px;
+margin-right:10px;
+font-size:14px;
+">
+➕ Add Episode
+</a>
+
+<a href="{% url 'manage_film' %}" style="
+text-decoration:none;
+background:#e9e9ff;
+color:#333;
+padding:8px 14px;
+border-radius:6px;
+font-size:14px;
+">
+⬅ Back
+</a>
+
+</div>
+
+</div>
+
+
+<!-- Table -->
+<table style="
+width:100%;
+border-collapse:collapse;
+">
+
+<thead>
+
+<tr style="
+background:#f4f6ff;
+text-align:left;
+">
+
+<th style="padding:12px;">Episode</th>
+<th style="padding:12px;">Title</th>
+<th style="padding:12px;">Video ID</th>
+<th style="padding:12px;">Edit</th>
+<th style="padding:12px;">Delete</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+{% for e in episodes %}
+
+<tr style="
+border-top:1px solid #eee;
+">
+
+<td style="padding:12px;">{{ e.episode_number }}</td>
+
+<td style="padding:12px;">{{ e.episode_title }}</td>
+
+<td style="padding:12px;">
+<span style="
+background:#f2f2f2;
+padding:4px 8px;
+border-radius:4px;
+font-size:13px;
+">
+{{ e.video_id }}
+</span>
+</td>
+
+<td style="padding:12px;">
+
+<a href="{% url 'edit_episode' e.episode_id %}" style="
+background:#6c63ff;
+color:white;
+padding:6px 12px;
+border-radius:5px;
+text-decoration:none;
+font-size:13px;
+">
+Edit
+</a>
+
+</td>
+
+<td style="padding:12px;">
+
+<form method="post" action="{% url 'delete_episode' e.episode_id %}" style="display:inline;">
+{% csrf_token %}
+
+<button type="submit"
+onclick="return confirm('Delete {{ e.episode_title }} ?')"
+style="
+background:#ff5c5c;
+border:none;
+color:white;
+padding:6px 12px;
+border-radius:5px;
+cursor:pointer;
+font-size:13px;
+">
+
+Delete
+
+</button>
+
+</form>
+
+</td>
+
+</tr>
+
+{% empty %}
+
+<tr>
+<td colspan="5" style="
+padding:20px;
+text-align:center;
+color:#888;
+">
+No episodes found for this series.
+</td>
+</tr>
+
+{% endfor %}
+
+</tbody>
+
 </table>
+
+</div>
 
 {% endblock %}
