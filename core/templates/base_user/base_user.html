@@ -1,3 +1,5 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,8 +8,28 @@
     <title>Homepage</title>
 </head>
 <body>
-    <a href="{% url 'homepage' %}"><h2>WatchOut!</h2></a>
-    <a href='{% url "viewer_login" %}'><h3>Login</h3></a>
+    {% if user.is_authenticated %}
+        <a href="{% url 'viewer_homepage' user.user_id %}">WatchOut!</a>
+    
+    {% else %}
+        <a href="{% url 'homepage' %}"><h2>WatchOut!</h2></a>
+
+    {% endif %}
+    {% if user.is_authenticated %}
+        {% if user.profile_picture_url %}
+            <img src="{{ user.profile_picture_url.url }}" alt="Profile Picture" class="profile-picture" onclick="toggleMenu()">
+        {% else %}
+            <img src="{% static 'profile_picture/default.svg' %}" alt="Default Profile Picture" class="profile-picture" onclick="toggleMenu()">
+        {% endif %}
+
+        <div class="dropdown-menu" id="dropdownMenu">
+            <a href="{% url 'viewer_profile' user.user_id %}">Profile</a>
+            <a href="{% url 'watch_history' %}">Watch History</a>
+        </div>
+
+    {% else %}
+         <a href='{% url "viewer_login" %}'><img src="{% static 'profile_picture/default.svg' %}" alt="Default Profile Picture" class="profile-picture"></a>
+    {% endif %}
     <h3>search bar</h3>
     <form method="get" action="{% url 'search_results' %}">
         <input type="text" name="q" placeholder="Search for films...">
@@ -16,4 +38,16 @@
     {% block content %}
     {% endblock %}
 </body>
+
+<script>
+function toggleMenu(){
+    let menu = document.getElementById("dropdownMenu");
+
+    if(menu.style.display === "block"){
+        menu.style.display = "none";
+    } else {
+        menu.style.display = "block";
+    }
+}
+</script>
 </html>

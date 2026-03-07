@@ -1,0 +1,26 @@
+{% extends "base_user/base_user.html" %}
+{% block content %}
+
+{% if watch_history_list %}
+
+    <h2>Your Watch History</h2>
+
+    <ul>
+        {% for history in watch_history_list %}
+            <img src="{{ history.episode.series.thumbnail_picture.url }}" alt="{{ history.episode.series.title }} class="series-poster">
+            <li>
+                <a href="{% url 'detail_film_guest' history.episode.series.series_id %}?t={{ history.progress_seconds }}#ep-{{ history.episode.episode_number }}">
+                    {{ history.episode.series.title }} - {{ history.episode.episode_title }}
+                </a>
+                ({{ history.progress_seconds }} seconds watched) — last watched: {{ history.last_watched_at }}
+            </li>
+        {% endfor %}
+    </ul>
+
+{% else %}
+
+    <p>You have no watch history yet. Start watching some films to see them here!</p>
+
+{% endif %}
+
+{% endblock %}

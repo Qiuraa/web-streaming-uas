@@ -2,6 +2,8 @@
 {% block content %}
 
 {% if series %}
+    {# Ensure CSRF cookie is available for AJAX calls by rendering the token (hidden) #}
+    <form style="display:none">{% csrf_token %}</form>
     {% if series.thumbnail_picture %}
         <img src="{{ series.thumbnail_picture.url }}" alt="{{ series.title }}" width="200" height="300">
     {% else %}
@@ -12,16 +14,11 @@
         <h3>{{ series.alternate_title }}</h3>
     {% endif %}
     {% if episode %}
-        <iframe id="yt-player" width="560" height="315"
-            src="https://www.youtube.com/embed/{{ episode.video_id }}?rel=0&modestbranding=1&origin={{ origin }}"
-            title="YouTube video player" frameborder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            referrerpolicy="strict-origin-when-cross-origin"
-            allowfullscreen></iframe>
+        <div id="yt-player"></div>
         <!-- list available episodes as buttons that update the iframe via JS -->
         <div id="episode-list">
         {% for ep in series.episode_set.all %}
-            <button class="ep-btn" data-video-id="{{ ep.video_id }}" data-ep-number="{{ ep.episode_number }}" data-ep-title="{{ ep.title }}">Episode {{ ep.episode_number }}: {{ ep.title }}</button>
+            <button class="ep-btn" data-ep-id="{{ ep.episode_id }}" data-video-id="{{ ep.video_id }}" data-ep-number="{{ ep.episode_number }}" data-ep-title="{{ ep.title }}">Episode {{ ep.episode_number }}: {{ ep.title }}</button>
             <br>
         {% endfor %}
         </div>
@@ -29,33 +26,122 @@
     {% else %}
     <p>No episode available to play.</p>
     {% endif %}
+    <script src="https://www.youtube.com/iframe_api"></script>
+
     <script>
-        (function(){
-            const origin = '{{ origin }}';
-            const player = document.getElementById('yt-player');
-            const openLink = document.getElementById('open-on-youtube');
-            const buttons = document.querySelectorAll('.ep-btn');
-            function setVideo(videoId, epNumber, epTitle){
-                if(!player) return;
-                const src = `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1&origin=${origin}`;
-                player.src = src;
-                if(openLink){ openLink.href = `https://www.youtube.com/watch?v=${videoId}`; }
-                // update heading if present
-                const h2 = document.querySelector('h2');
-                if(h2 && epNumber && epTitle){
-                    h2.textContent = `${h2.textContent.split(':')[0]}: ${h2.textContent}`;
+    (function(){
+        const origin = '{{ origin }}';
+
+        // helper to read cookie (for CSRF token)
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
                 }
             }
-            buttons.forEach(btn => {
-                btn.addEventListener('click', function(e){
-                    e.preventDefault();
-                    const vid = this.dataset.videoId;
-                    const num = this.dataset.epNumber;
-                    const title = this.dataset.epTitle;
-                    setVideo(vid,num,title);
-                });
+            return cookieValue;
+        }
+
+        let player;
+        // use the explicit PK field
+        let episodeId = "{{ episode.episode_id }}";
+
+        // parse resume seconds from query param ?t=
+        const urlParams = new URLSearchParams(window.location.search);
+        const resumeSeconds = urlParams.has('t') ? parseInt(urlParams.get('t')) || 0 : 0;
+
+        // parse target episode from hash (#ep-N)
+        const hash = window.location.hash || '';
+        const targetMatch = hash.match(/^#ep-(\d+)$/);
+        const targetEpNumber = targetMatch ? targetMatch[1] : null;
+
+        // create YT player when API ready
+        window.onYouTubeIframeAPIReady = function() {
+            player = new YT.Player('yt-player', {
+                height: '315',
+                width: '560',
+                videoId: "{{ episode.video_id }}",
+                playerVars: {
+                    rel: 0,
+                    modestbranding: 1
+                },
+                events: {
+                    'onReady': function(event){
+                        // if a specific episode was requested via hash, click its button to load it
+                        if(targetEpNumber){
+                            const btn = document.querySelector('.ep-btn[data-ep-number="' + targetEpNumber + '"]');
+                            if(btn){ btn.click();
+                                // after loading, if resumeSeconds provided, seek
+                                if(resumeSeconds){ setTimeout(function(){ try{ player.seekTo(resumeSeconds, true); }catch(e){} }, 500); }
+                            }
+                        } else if(resumeSeconds){
+                            // if no episode change but resume time present, seek current
+                            setTimeout(function(){ try{ player.seekTo(resumeSeconds, true); }catch(e){} }, 500);
+                        }
+                    }
+                }
             });
-        })();
+        };
+
+        // helper to change video
+        function setVideo(videoId, epNumber, epTitle, epId, startSeconds){
+            episodeId = epId || episodeId;
+            if(player && typeof player.loadVideoById === 'function'){
+                const opts = {videoId: videoId};
+                if(startSeconds) opts.startSeconds = startSeconds;
+                player.loadVideoById(opts);
+                if(startSeconds){ setTimeout(function(){ try{ player.seekTo(startSeconds, true); }catch(e){} }, 500); }
+            } else {
+                // fallback if player not yet initialized
+                const iframe = document.getElementById('yt-player');
+                iframe.src = `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1&origin=${origin}`;
+            }
+            const openLink = document.getElementById('open-on-youtube');
+            if(openLink){ openLink.href = `https://www.youtube.com/watch?v=${videoId}`; }
+            const h2 = document.querySelector('h2');
+            if(h2 && epNumber && epTitle){ h2.textContent = `${h2.textContent.split(':')[0]}: ${h2.textContent}`; }
+        }
+
+        // wire episode buttons
+        const buttons = document.querySelectorAll('.ep-btn');
+        buttons.forEach(btn => {
+            btn.addEventListener('click', function(e){
+                e.preventDefault();
+                const vid = this.dataset.videoId;
+                const num = this.dataset.epNumber;
+                const title = this.dataset.epTitle;
+                const eid = this.dataset.epId;
+                // if this is the target episode and resumeSeconds exist, start from that time
+                const start = (targetEpNumber && num === targetEpNumber) ? resumeSeconds : 0;
+                setVideo(vid, num, title, eid, start);
+            });
+        });
+
+        // periodic progress save (works once the player API populates player)
+        setInterval(function(){
+            try{
+                if(player && player.getCurrentTime){
+                    const seconds = Math.floor(player.getCurrentTime());
+                    const csrftoken = getCookie('csrftoken');
+                    fetch("{% url 'save_progress' %}",{
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRFToken": csrftoken
+                        },
+                        body: JSON.stringify({ episode_id: episodeId, progress_seconds: seconds })
+                    }).catch(err => console.debug('save_progress error', err));
+                }
+            }catch(e){ /* ignore */ }
+        }, 5000);
+
+    })();
     </script>
     <p><strong>Sypnosis:</strong> {{ series.sypnosis }}</p>
     <p><strong>Total Episode:</strong> {{ series.total_episodes }}</p>

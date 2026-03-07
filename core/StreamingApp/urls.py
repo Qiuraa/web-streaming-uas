@@ -33,6 +33,11 @@ urlpatterns = [
     path('user/register/', views.viewer_register, name='signup'),
     path('homepage/', views.homepage, name='homepage'),
     path('homepage/user/<uuid:user_id>/', views.viewer_homepage, name='viewer_homepage'),
+    path('user/profile/<uuid:user_id>/', views.viewer_profile, name='viewer_profile'),
+    path('user/profile/update/<uuid:user_id>/', views.update_profile, name='update_profile'),
+    path('user/watch-history/', views.watch_history, name='watch_history'),
+    path('save-progress/', views.save_progress, name='save_progress'),
     path('search/', views.search_results, name='search_results'),
     path('detail/<uuid:series_id>/', views.detail_film_guest, name='detail_film_guest'),
+    # legacy/unused patterns removed; use the above simple endpoints
 ]

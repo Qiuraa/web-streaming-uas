@@ -1,0 +1,47 @@
+{% load static %}
+
+{% block content %}
+<div class="viewer-profile">
+    {% if form %}
+        <form method="post" action="{% url 'update_profile' user.user_id %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div>
+                {% if user.profile_picture_url %}
+                    <img src="{{ user.profile_picture_url.url }}" alt="Profile Picture" class="profile-picture-large">
+                {% else %}
+                    <img src="{% static 'profile_picture/default.svg' %}" alt="Default Profile Picture" class="profile-picture-large">
+                {% endif %}
+            </div>
+            <div>
+                {{ form.username.label_tag }}<br>
+                {{ form.username }}
+            </div>
+            <div>
+                {{ form.profile_picture_url.label_tag }}<br>
+                {{ form.profile_picture_url }}
+            </div>
+            <div>
+                <label>Account created at</label><br>
+                <input type="text" value="{{ user.created_at }}" readonly>
+            </div>
+            <button type="submit">Save changes</button>
+        </form>
+    {% else %}
+        <div>
+            {% if user.profile_picture_url %}
+                <img src="{{ user.profile_picture_url.url }}" alt="Profile Picture" class="profile-picture-large">
+            {% else %}
+                <img src="{% static 'profile_picture/default.svg' %}" alt="Default Profile Picture" class="profile-picture-large">
+            {% endif %}
+        </div>
+        <div>
+            <p><strong>Username:</strong> {{ user.username }}</p>
+            <p><strong>Account created at:</strong> {{ user.created_at }}</p>
+            <a href="{% url 'update_profile' user.user_id %}">Edit profile</a>
+        </div>
+    {% endif %}
+
+
+
+</div>
+{% endblock %}

@@ -1,6 +1,7 @@
 from django import forms
 from django.forms import ModelForm
 from .models import Genre, Producer, Studio, Series, Episode
+from django.contrib.auth import get_user_model
 
 class AddProducerForm(ModelForm):
     class Meta:
@@ -32,3 +33,12 @@ class ViewerRegisterForm(forms.Form):
     username = forms.CharField(max_length=150, required=True)
     email = forms.EmailField(required=True)
     password = forms.CharField(widget=forms.PasswordInput, required=True)
+
+
+class ViewerProfileForm(ModelForm):
+    class Meta:
+        model = get_user_model()
+        fields = ['username', 'profile_picture_url']
+        widgets = {
+            'username': forms.TextInput(attrs={'class': 'form-control'}),
+        }

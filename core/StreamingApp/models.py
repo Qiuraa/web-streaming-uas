@@ -2,9 +2,17 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.db.models import UniqueConstraint
 from django.db.models.functions import Lower
+from django.core.exceptions import ValidationError
 import uuid
+from PIL import Image
+
+def validate_image_size(image):
+    max_size_kb = 2048  # 1 MB
+    if image.size > max_size_kb * 2048:
+        raise ValidationError(f"Image size should not exceed {max_size_kb} KB.")
 
 class User(AbstractUser):
+    
     CHOICES_ROLE = [
         ('admin', 'Admin'),
         ('viewer', 'Viewer'),
@@ -12,13 +20,25 @@ class User(AbstractUser):
 
     user_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     role = models.CharField(max_length=10, choices=CHOICES_ROLE, default='viewer')
-    profile_picture_url = models.ImageField(upload_to='profile_pictures/', null=True, blank=True)
+    profile_picture_url = models.ImageField(upload_to='profile_pictures/', validators=[validate_image_size], null=True, blank=True)
 
     failed_login_attempts = models.IntegerField(default=0)
     account_locked_until = models.DateTimeField(null=True, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    updated_at = models.DateTimeField(auto_now=True)\
+    
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+        if self.profile_picture_url:
+            img = Image.open(self.profile_picture_url.path)
+
+            max_size = (300, 300)
+
+            if img.height > 300 or img.width > 300:
+                img.thumbnail(max_size)
+                img.save(self.profile_picture_url.path)
 
     def __str__(self):
         return self.username
@@ -108,6 +128,7 @@ class Episode(models.Model):
 
     class Meta:
         unique_together = ('series', 'episode_number')
+        
 
     episode_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     series = models.ForeignKey(Series, on_delete=models.CASCADE)
@@ -117,6 +138,9 @@ class Episode(models.Model):
     view_count = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.series.title} - Episode {self.episode_number}: {self.episode_title}"
 
 class Watchlist(models.Model):
     watchlist_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -129,13 +153,14 @@ class Watchlist(models.Model):
     
 class WatchHistory(models.Model):
     watch_history_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    series = models.ForeignKey(Series, on_delete=models.CASCADE, null=True, blank=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     episode = models.ForeignKey(Episode, on_delete=models.CASCADE)
     progress_seconds = models.IntegerField(default=0)
     last_watched_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.user.username} - {self.episode.title} - {self.progress_seconds}s"
+        return f"{self.user.username} - {self.series.title} - {self.episode.title} - {self.progress_seconds}s"
     
 class Comment(models.Model):
     comment_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

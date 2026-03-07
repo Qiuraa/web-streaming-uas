@@ -8,7 +8,10 @@ from django.contrib.auth import logout, get_user_model
 
 from core.StreamingApp import form
 from core.StreamingApp.form import AddGenreForm, AddProducerForm, AddStudioForm, AddSeriesForm, AddEpisodeForm
-from .models import Genre, Producer, Series, Studio, Episode
+from .models import Genre, Producer, Series, Studio, Episode, WatchHistory
+import json
+from django.http import JsonResponse
+import json
 
 
 
@@ -410,12 +413,138 @@ class DetailFilmGuestView(View):
 class ViewerHomepageView(View):
     def get(self, request, user_id):
         series = Series.objects.all()
+        watch_history_list = WatchHistory.objects.filter(user__user_id=user_id).select_related('episode__series').order_by('-last_watched_at')[:5]
         return render(request, 'viewer/viewer_homepage.html', {
             'series': series,
+            'watch_history_list': watch_history_list,
         })
 
-# Provide a proper LoginView for the admin login page so unauthenticated
-# users can reach the login form. Keep the viewer login as a special LoginView.
+class BaseUserView(View):
+    def get(self, request):
+        user = get_user_model().objects.filter(user_id=request.user.user_id).first()
+        return render(request, 'base_user/base_user.html', {
+            'user': user,
+        })
+    
+class ViewerProfileView(ViewerRequiredView ,View):
+    def get(self, request, user_id):
+        user = get_user_model().objects.filter(user_id=request.user.user_id).first()
+        return render(request, 'viewer/viewer_profile.html', {
+            'user': user,
+        })
+
+
+class UpdateProfileView(ViewerRequiredView, View):
+
+    def get(self, request, user_id):
+        # ensure users can only edit their own profile (or admins)
+        if str(request.user.user_id) != str(user_id) and getattr(request.user, 'role', None) != 'admin':
+            return redirect('homepage')
+        from core.StreamingApp.form import ViewerProfileForm
+        form = ViewerProfileForm(instance=request.user)
+        return render(request, 'viewer/viewer_profile.html', {
+            'user': request.user,
+            'form': form,
+        })
+
+    def post(self, request, user_id):
+        if str(request.user.user_id) != str(user_id) and getattr(request.user, 'role', None) != 'admin':
+            return redirect('homepage')
+        from core.StreamingApp.form import ViewerProfileForm
+        form = ViewerProfileForm(request.POST, request.FILES, instance=request.user)
+        if form.is_valid():
+            form.save()
+            return redirect('viewer_profile', user_id=request.user.user_id)
+        return render(request, 'viewer/viewer_profile.html', {
+            'user': request.user,
+            'form': form,
+        })
+    
+class WatchHistoryView(View):
+
+    def get(self, request, user_id=None):
+        # only allow authenticated viewers to see watch history
+        if not request.user.is_authenticated:
+            return redirect(f"{reverse('viewer_login')}?next={request.path}")
+        if getattr(request.user, 'role', None) != 'viewer':
+            return redirect('homepage')
+
+        # If no user_id provided, show the current user's watch history.
+        if user_id is None:
+            user = request.user
+            watch_history_list = WatchHistory.objects.filter(user=user).select_related('episode__series').order_by('-last_watched_at')
+        else:
+            # allow admins to view other users' history by UUID
+            watch_history_list = WatchHistory.objects.filter(user__user_id=user_id).select_related('episode__series').order_by('-last_watched_at')
+        return render(request, 'viewer/viewer_watch_history.html', {
+            'watch_history_list': watch_history_list,
+        })
+
+    def post(self, request):
+        # This POST handler can be used to update watch history progress from the frontend.
+        # Protect against anonymous users.
+        if not request.user.is_authenticated:
+            return redirect('viewer_login')
+        if getattr(request.user, 'role', None) != 'viewer':
+            return redirect('homepage')
+
+        episode_id = request.POST.get('episode_id')
+        progress_seconds = request.POST.get('progress_seconds')
+        if episode_id and progress_seconds is not None:
+            try:
+                episode = Episode.objects.get(episode_id=episode_id)
+                watch_history, created = WatchHistory.objects.get_or_create(user=request.user, episode=episode)
+                watch_history.progress_seconds = progress_seconds
+                watch_history.save()
+                return redirect('viewer_homepage', user_id=request.user.user_id)
+            except Episode.DoesNotExist:
+                pass  # handle invalid episode_id if necessary
+        return redirect('viewer_homepage', user_id=request.user.user_id)
+
+
+
+def save_progress(request):
+
+    if request.method == "POST":
+        # ensure user is authenticated
+        if not request.user.is_authenticated:
+            return JsonResponse({"status": "forbidden"}, status=403)
+
+        try:
+            data = json.loads(request.body)
+        except Exception:
+            return JsonResponse({"status": "bad_request"}, status=400)
+
+        episode_id = data.get("episode_id")
+        progress = data.get("progress_seconds")
+
+        if episode_id is None or progress is None:
+            return JsonResponse({"status": "bad_request"}, status=400)
+
+        # find the Episode instance (episode_id is UUID string)
+        try:
+            episode = Episode.objects.get(episode_id=episode_id)
+        except Episode.DoesNotExist:
+            return JsonResponse({"status": "not_found"}, status=404)
+
+        watch, created = WatchHistory.objects.get_or_create(
+            user=request.user,
+            episode=episode,
+            defaults={'progress_seconds': int(progress)}
+        )
+
+        # update only if progressed further
+        try:
+            progress_int = int(progress)
+        except Exception:
+            progress_int = 0
+
+        if not created and progress_int > watch.progress_seconds:
+            watch.progress_seconds = progress_int
+            watch.save()
+
+        return JsonResponse({"status": "ok"})
+
 admin_login = LoginView.as_view(
     template_name='admin/admin_login.html',
     redirect_authenticated_user=True,
@@ -451,3 +580,8 @@ search_results = SearchResultsView.as_view()
 detail_film_guest = DetailFilmGuestView.as_view()
 viewer_homepage = ViewerHomepageView.as_view()
 viewer_register = ViewerRegisterView.as_view()
+viewer_profile = ViewerProfileView.as_view()
+update_profile = UpdateProfileView.as_view()
+# function view - don't call it when assigning
+save_progress = save_progress
+watch_history = WatchHistoryView.as_view()
