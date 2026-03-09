@@ -5,6 +5,7 @@ from django.db.models.functions import Lower
 from django.core.exceptions import ValidationError
 import uuid
 from PIL import Image
+from django.utils import timezone
 
 def validate_image_size(image):
     max_size_kb = 2048  # 1 MB
@@ -117,9 +118,14 @@ class Series(models.Model):
     score = models.DecimalField(max_digits=3, decimal_places=2)
     rating = models.CharField(max_length=10, choices=ROLES_RATING)
     is_published = models.BooleanField(default=False)
+    is_published_date = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    def save(self, *args, **kwargs):
+        if self.is_published and not self.is_published_date:
+            self.is_published_date = timezone.now()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.title

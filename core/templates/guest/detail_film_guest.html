@@ -156,9 +156,6 @@
     <p><strong>Rating:</strong> {{ series.get_rating_display }}</p>
     <p><strong>Publish Status:</strong> {% if series.is_published %} Published {% else %} Not Published {% endif %}</p>
 
-
-    <a href="{% url 'edit_film' series.series_id %}"><button>Edit Film</button></a>
-    <a href="{% url 'manage_episode' series.series_id %}"><button>Manage Episodes</button></a>
 {% else %}
     <p>Film not found.</p>
 {% endif %}

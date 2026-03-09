@@ -12,7 +12,8 @@ from .models import Genre, Producer, Series, Studio, Episode, WatchHistory
 import json
 from django.http import JsonResponse
 import json
-
+from datetime import timedelta
+from django.utils import timezone
 
 
 class ViewerRequiredView(LoginView):
@@ -399,9 +400,9 @@ class DetailFilmGuestView(View):
         series = get_object_or_404(Series, series_id=series_id)
         # Prefer to show episode number 1 on the detail page. If episode 1 doesn't exist,
         # fall back to the first episode ordered by episode_number.
-        episode = Episode.objects.filter(series=series, episode_number=1).first()
+        episode = Episode.objects.filter(series=series, episode_number=1, is_published=True).first()
         if not episode:
-            episode = Episode.objects.filter(series=series).order_by('episode_number').first()
+            episode = Episode.objects.filter(series=series, is_published=True).order_by('episode_number').first()
         # compute origin to include in the YouTube embed query string — helps avoid some embed configuration errors
         origin = f"{request.scheme}://{request.get_host()}"
         return render(request, 'guest/detail_film_guest.html', {
@@ -412,11 +413,23 @@ class DetailFilmGuestView(View):
 
 class ViewerHomepageView(View):
     def get(self, request, user_id):
-        series = Series.objects.all()
+        series = Series.objects.filter(is_published=True)
         watch_history_list = WatchHistory.objects.filter(user__user_id=user_id).select_related('episode__series').order_by('-last_watched_at')[:5]
+        # Show recently published series in the "New On WatchOut!" section.
+        # Keep the same window as NewReleasesView (last 5 days) and limit to 10.
+        five_days_ago = timezone.now() - timedelta(days=5)
+        new_series = Series.objects.filter(
+            is_published_date__gte=five_days_ago
+        ).order_by('-is_published_date')[:10]
+
+        # Also supply upcoming (not yet published) series for the "Upcoming Releases" section.
+        upcoming_series = Series.objects.filter(is_published=False).order_by('created_at')[:10]
+
         return render(request, 'viewer/viewer_homepage.html', {
             'series': series,
             'watch_history_list': watch_history_list,
+            'new_series': new_series,
+            'upcoming_series': upcoming_series,
         })
 
 class BaseUserView(View):
@@ -426,18 +439,39 @@ class BaseUserView(View):
             'user': user,
         })
     
-class ViewerProfileView(ViewerRequiredView ,View):
+class ViewerProfileView(LoginRequiredMixin, View):
+    # Use LoginRequiredMixin so we don't run the ViewerRequiredView.dispatch which
+    # intentionally logs out an authenticated user (that behavior is only for the
+    # dedicated viewer login page). Ensure only viewers (or admins) can view profiles.
+    login_url = 'viewer_login'
+
     def get(self, request, user_id):
-        user = get_user_model().objects.filter(user_id=request.user.user_id).first()
+        # Require authenticated user (LoginRequiredMixin already enforces this
+        # but we keep an explicit guard for clarity).
+        if not request.user.is_authenticated:
+            return redirect(f"{reverse('viewer_login')}?next={request.path}")
+
+        # Only allow the profile owner or admins to view this page.
+        if getattr(request.user, 'role', None) != 'admin' and str(request.user.user_id) != str(user_id):
+            return redirect('homepage')
+
+        # Fetch the requested user by UUID (user_id param). If missing, redirect.
+        user = get_user_model().objects.filter(user_id=user_id).first()
+        if not user:
+            return redirect('homepage')
+
         return render(request, 'viewer/viewer_profile.html', {
             'user': user,
         })
 
 
-class UpdateProfileView(ViewerRequiredView, View):
+class UpdateProfileView(LoginRequiredMixin, View):
+    login_url = 'viewer_login'
 
     def get(self, request, user_id):
         # ensure users can only edit their own profile (or admins)
+        if not request.user.is_authenticated:
+            return redirect(f"{reverse('viewer_login')}?next={request.path}")
         if str(request.user.user_id) != str(user_id) and getattr(request.user, 'role', None) != 'admin':
             return redirect('homepage')
         from core.StreamingApp.form import ViewerProfileForm
@@ -448,6 +482,8 @@ class UpdateProfileView(ViewerRequiredView, View):
         })
 
     def post(self, request, user_id):
+        if not request.user.is_authenticated:
+            return redirect(f"{reverse('viewer_login')}?next={request.path}")
         if str(request.user.user_id) != str(user_id) and getattr(request.user, 'role', None) != 'admin':
             return redirect('homepage')
         from core.StreamingApp.form import ViewerProfileForm
@@ -545,6 +581,25 @@ def save_progress(request):
 
         return JsonResponse({"status": "ok"})
 
+class NewReleasesView(View):
+    def get(self, request):
+
+        five_days_ago = timezone.now() - timedelta(days=5)
+
+        new_series = Series.objects.filter(
+            is_published_date__gte=five_days_ago
+        ).order_by('-is_published_date')[:5]
+
+        return render(request, "viewer/viewer_homepage.html", {
+            "new_series": new_series
+        })
+
+class UpcomingReleasesView(View):
+    def get(self, request):
+        upcoming_series = Series.objects.filter(is_published=False).order_by('created_at')[:5]
+        return render(request, "viewer/viewer_homepage.html", {
+            "upcoming_series": upcoming_series
+        })
 admin_login = LoginView.as_view(
     template_name='admin/admin_login.html',
     redirect_authenticated_user=True,
@@ -585,3 +640,5 @@ update_profile = UpdateProfileView.as_view()
 # function view - don't call it when assigning
 save_progress = save_progress
 watch_history = WatchHistoryView.as_view()
+new_releases = NewReleasesView.as_view()
+upcoming_releases = UpcomingReleasesView.as_view()

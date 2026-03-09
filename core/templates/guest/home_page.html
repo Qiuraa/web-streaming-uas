@@ -1,7 +1,14 @@
 {% extends 'base_user/base_user.html' %}
 {% block content %}
 
-{% if series %}
+{% if user.is_authenticated %}
+    {% url 'viewer_homepage' user.user_id as viewer_url %}
+    <script>
+        window.location.href = "{{ viewer_url }}";
+    </script>
+{% endif %}
+
+{% if series and series.is_published %}
     <h2>Featured Series</h2>
     <div class="series-list">
         {% for s in series %}
