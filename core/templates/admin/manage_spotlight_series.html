@@ -1,0 +1,40 @@
+{% extends 'base_admin/base_manage_film.html' %}
+{% block content %}
+
+<a href="{% url 'add_spotlight_series' %}">
+    <button style="margin-bottom:20px;">Add Spotlight Series</button>
+</a>
+
+{% if spotlight_series %}
+{% for series in spotlight_series %}
+<div class="series-item">
+    <a href="{% url 'detail_film' series.series.series_id %}">
+        {% if series.series.thumbnail_picture %}
+            <img src="{{ series.series.thumbnail_picture.url }}" alt="{{ series.series.title }} Poster" class="series-poster">
+        {% else %}
+            <img src="/static/img/placeholder.png" alt="No image" class="series-poster">
+        {% endif %}
+        <h3>{{ series.series.title }}</h3>
+    </a>
+    <form method="post" action="{% url 'delete_spotlight_series' series.spotlight_series_id %}" style="display:inline;">
+        {% csrf_token %}
+        <button type="submit" onclick="return confirm('Are you sure you want to remove this series from the spotlight?');">Remove</button>
+    </form>
+        <td>
+            <a href="{% url 'detail_film_guest' series.series.series_id %}">
+                {% if series.image %}
+                    <img src="{{ series.image.url }}" alt="{{ series.series.title }}" width="180">
+                {% elif series.series.thumbnail_picture %}
+                    <img src="{{ series.series.thumbnail_picture.url }}" alt="{{ series.series.title }}" width="120">
+                {% else %}
+                    <img src="/static/img/placeholder.png" alt="No image" width="120">
+                {% endif %}
+            </a>
+        </td>
+</div>
+{% endfor %}
+{% else %}
+    <p>No spotlight series available.</p>
+{% endif %}
+
+{% endblock %}

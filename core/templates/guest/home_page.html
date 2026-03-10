@@ -8,18 +8,18 @@
     </script>
 {% endif %}
 
-{% if series and series.is_published %}
+{% if series %}
     <h2>Featured Series</h2>
     <div class="series-list">
-        {% for s in series %}
+        {% for fs in featured_series %}
             <div class="series-item">
-                <a href="{% url 'detail_film_guest' s.series_id %}">
-                    {% if s.thumbnail_picture %}
-                        <img src="{{ s.thumbnail_picture.url }}" alt="{{ s.title }} Poster" class="series-poster">
+                <a href="{% url 'detail_film_guest' fs.series_id %}">
+                    {% if fs.thumbnail_picture %}
+                        <img src="{{ fs.thumbnail_picture.url }}" alt="{{ fs.title }} Poster" class="series-poster">
                     {% else %}
                         <img src="/static/img/placeholder.png" alt="No image" class="series-poster">
                     {% endif %}
-                    <h3>{{ s.title }}</h3>
+                    <h3>{{ fs.title }}</h3>
                 </a>
             </div>
         {% endfor %}

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Producer, Series, SeriesGenre, Genre, User, WatchHistory
+from .models import Producer, Series, SeriesGenre, Genre, User, WatchHistory, Episode, SpotLightSeries
 
 
 @admin.register(Producer)
@@ -40,3 +40,14 @@ class UserAdmin(admin.ModelAdmin):
 class WatchHistoryAdmin(admin.ModelAdmin):
     readonly_fields = ('watch_history_id', 'last_watched_at')
     list_display = ('user', 'series', 'episode', 'progress_seconds', 'last_watched_at')
+
+
+@admin.register(Episode)
+class EpisodeAdmin(admin.ModelAdmin):
+    readonly_fields = ('episode_id', 'created_at', 'updated_at')
+    list_display = ('episode_title', 'series', 'view_count', 'episode_number', 'episode_id', 'created_at')
+
+@admin.register(SpotLightSeries)
+class SpotLightSeriesAdmin(admin.ModelAdmin):
+    readonly_fields = ('spotlight_series_id', 'created_at')
+    list_display = ('series', 'created_at', 'spotlight_series_id')

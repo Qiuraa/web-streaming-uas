@@ -236,4 +236,12 @@ class StreamingToken(models.Model):
     expired_at = models.DateTimeField()
     is_revoked = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
-    
+
+class SpotLightSeries(models.Model):
+    spotlight_series_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    series = models.ForeignKey(Series, on_delete=models.CASCADE)
+    image = models.ImageField(upload_to='spotlight_series_images/', null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('series',)

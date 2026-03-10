@@ -8,12 +8,16 @@ from django.contrib.auth import logout, get_user_model
 
 from core.StreamingApp import form
 from core.StreamingApp.form import AddGenreForm, AddProducerForm, AddStudioForm, AddSeriesForm, AddEpisodeForm
-from .models import Genre, Producer, Series, Studio, Episode, WatchHistory
+from .models import Genre, Producer, Series, SpotLightSeries, Studio, Episode, WatchHistory
 import json
 from django.http import JsonResponse
 import json
 from datetime import timedelta
 from django.utils import timezone
+from django.db.models import Sum, Value
+from django.db.models.functions import Coalesce
+from django.core.serializers.json import DjangoJSONEncoder
+import json
 
 
 class ViewerRequiredView(LoginView):
@@ -400,9 +404,10 @@ class DetailFilmGuestView(View):
         series = get_object_or_404(Series, series_id=series_id)
         # Prefer to show episode number 1 on the detail page. If episode 1 doesn't exist,
         # fall back to the first episode ordered by episode_number.
-        episode = Episode.objects.filter(series=series, episode_number=1, is_published=True).first()
+        # Episode model doesn't have is_published field; select by series and episode_number
+        episode = Episode.objects.filter(series=series, episode_number=1).first()
         if not episode:
-            episode = Episode.objects.filter(series=series, is_published=True).order_by('episode_number').first()
+            episode = Episode.objects.filter(series=series).order_by('episode_number').first()
         # compute origin to include in the YouTube embed query string — helps avoid some embed configuration errors
         origin = f"{request.scheme}://{request.get_host()}"
         return render(request, 'guest/detail_film_guest.html', {
@@ -413,7 +418,12 @@ class DetailFilmGuestView(View):
 
 class ViewerHomepageView(View):
     def get(self, request, user_id):
-        series = Series.objects.filter(is_published=True)
+        # Determine featured series by total episode views (top by sum of episode.view_count)
+        featured_series = Series.objects.filter(is_published=True).annotate(
+            total_views=Coalesce(Sum('episode__view_count'), Value(0))
+        ).order_by('-total_views')[:10]
+        # `series` in the template is used for the Featured section; provide featured_series there
+        series = featured_series
         watch_history_list = WatchHistory.objects.filter(user__user_id=user_id).select_related('episode__series').order_by('-last_watched_at')[:5]
         # Show recently published series in the "New On WatchOut!" section.
         # Keep the same window as NewReleasesView (last 5 days) and limit to 10.
@@ -425,11 +435,14 @@ class ViewerHomepageView(View):
         # Also supply upcoming (not yet published) series for the "Upcoming Releases" section.
         upcoming_series = Series.objects.filter(is_published=False).order_by('created_at')[:10]
 
+        spotlight_series = SpotLightSeries.objects.filter(series__is_published=True).select_related('series').order_by('-created_at')[:5]
+
         return render(request, 'viewer/viewer_homepage.html', {
             'series': series,
             'watch_history_list': watch_history_list,
             'new_series': new_series,
             'upcoming_series': upcoming_series,
+            'spotlight_series': spotlight_series,
         })
 
 class BaseUserView(View):
@@ -563,18 +576,29 @@ def save_progress(request):
         except Episode.DoesNotExist:
             return JsonResponse({"status": "not_found"}, status=404)
 
-        watch, created = WatchHistory.objects.get_or_create(
-            user=request.user,
-            episode=episode,
-            defaults={'progress_seconds': int(progress)}
-        )
-
-        # update only if progressed further
+        # parse progress into int safely
         try:
             progress_int = int(progress)
         except Exception:
             progress_int = 0
 
+        watch, created = WatchHistory.objects.get_or_create(
+            user=request.user,
+            episode=episode,
+            defaults={'progress_seconds': progress_int}
+        )
+
+        # If this is the first time this user has a WatchHistory for this episode
+        # and they have progressed beyond 0 seconds, count it as a view for the episode.
+        if created and progress_int > 0:
+            try:
+                episode.view_count = (episode.view_count or 0) + 1
+                episode.save(update_fields=['view_count', 'updated_at'])
+            except Exception:
+                # ignore failures to avoid breaking progress saving
+                pass
+
+        # update only if progressed further
         if not created and progress_int > watch.progress_seconds:
             watch.progress_seconds = progress_int
             watch.save()
@@ -600,6 +624,67 @@ class UpcomingReleasesView(View):
         return render(request, "viewer/viewer_homepage.html", {
             "upcoming_series": upcoming_series
         })
+    
+class FeaturedSeriesView(View):
+    def get(self, request):
+        featured_series = Series.objects.filter(is_published=True).annotate(
+            total_views=Coalesce(Sum('episode__view_count'), Value(0))
+        ).order_by('-total_views')[:6]
+        return render(request, "viewer/viewer_homepage.html", {
+            "featured_series": featured_series
+        })
+
+class ManageSpotlightSeriesView(AdminRequiredView):
+    def get(self, request):
+        spotlight_series = SpotLightSeries.objects.select_related('series').order_by('-created_at')
+        return render(request, 'admin/manage_spotlight_series.html', {
+            'spotlight_series': spotlight_series
+        })
+    
+    # Keep this view for listing/manage actions; deletion is handled by a small
+    # function-based endpoint below which matches the URL kwarg name used in urls.py.
+    def post(self, request, spotlight_id=None):
+        # Optional: support form-based deletions targeting this view
+        if spotlight_id:
+            spotlight = get_object_or_404(SpotLightSeries, spotlight_id=spotlight_id)
+            spotlight.delete()
+        return redirect('manage_spotlight_series')
+
+
+def delete_spotlight_series(request, spotlight_series_id):
+    """Delete a SpotLightSeries by its UUID (used by the admin delete URL).
+
+    The URL pattern uses the name 'spotlight_series_id' so this function
+    accepts that kwarg name to avoid Django passing an unexpected param name.
+    """
+    # Only allow admin users — reuse the same check as AdminRequiredView
+    if not request.user.is_authenticated or getattr(request.user, 'role', None) != 'admin':
+        return redirect('admin_login')
+
+    spotlight = get_object_or_404(SpotLightSeries, spotlight_series_id=spotlight_series_id)
+    spotlight.delete()
+    return redirect('manage_spotlight_series')
+
+class AddSpotlightSeriesView(View):
+    def get(self, request):
+        add_spotlight_form = form.AddSpotlightSeriesForm()
+        # provide published series metadata for client-side search suggestions
+        published_series = list(Series.objects.filter(is_published=True).values('series_id', 'title'))
+        published_series_json = json.dumps(published_series, cls=DjangoJSONEncoder)
+        return render(request, 'admin/add_spotlight_series.html', {
+            'add_spotlight_form': add_spotlight_form,
+            'published_series_json': published_series_json,
+        })
+    
+    def post(self, request):
+        add_spotlight_form = form.AddSpotlightSeriesForm(request.POST, request.FILES)
+        if add_spotlight_form.is_valid():
+            add_spotlight_form.save()
+            return redirect('manage_spotlight_series')
+        return render(request, 'admin/add_spotlight_series.html', {
+            'add_spotlight_form': add_spotlight_form
+        })
+
 admin_login = LoginView.as_view(
     template_name='admin/admin_login.html',
     redirect_authenticated_user=True,
@@ -642,3 +727,8 @@ save_progress = save_progress
 watch_history = WatchHistoryView.as_view()
 new_releases = NewReleasesView.as_view()
 upcoming_releases = UpcomingReleasesView.as_view()
+featured_series = FeaturedSeriesView.as_view()
+manage_spotlight_series = ManageSpotlightSeriesView.as_view()
+add_spotlight_series = AddSpotlightSeriesView.as_view()
+# export the function-based delete view (matches urls.py kwarg name)
+delete_spotlight_series = delete_spotlight_series

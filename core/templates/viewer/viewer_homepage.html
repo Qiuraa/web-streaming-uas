@@ -1,6 +1,27 @@
 {% extends "base_user/base_user.html" %}
 {% block content %}
 
+{% if spotlight_series %}
+    <h2>Spotlight</h2>
+
+    <div class="spotlight-row">
+        {% for ss in spotlight_series %}
+            <a href="{% url 'detail_film_guest' ss.series.series_id %}" class="spotlight-item" style="display:block; width:100%;">
+                {% if ss.image %}
+                    <img src="{{ ss.image.url }}" alt="{{ ss.series.title }} Spotlight" class="spotlight-banner" style="width:100%; height:auto; display:block; object-fit:cover;">
+                {% elif ss.series.thumbnail_picture %}
+                    <img src="{{ ss.series.thumbnail_picture.url }}" alt="{{ ss.series.title }} Poster" class="spotlight-banner" style="width:100%; height:auto; display:block; object-fit:cover;">
+                {% else %}
+                    <img src="/static/img/placeholder.png" alt="No image" class="spotlight-banner" style="width:100%; height:auto; display:block; object-fit:cover;">
+                {% endif %}
+                <div class="spotlight-caption"><h3 style="position:absolute; left:20px; bottom:20px; color:#fff; text-shadow:0 2px 6px rgba(0,0,0,0.6);">{{ ss.series.title }}</h3></div>
+            </a>
+        {% endfor %}
+    </div>
+{% else %}
+    <p>No spotlight series at the moment. Please check back later!</p>
+{% endif %}
+
 {% if series %}
     <h2>Featured Series</h2>
 
@@ -79,5 +100,6 @@
     {% else %}
         <p>No upcoming releases at the moment. Please check back later!</p>
     {% endif %}
+    
 
 {% endblock %}
