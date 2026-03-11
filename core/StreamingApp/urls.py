@@ -5,7 +5,6 @@ from django.contrib.auth.views import LoginView, LogoutView
 
 urlpatterns = [
     path('dashboard-admin/login/', views.admin_login, name='admin_login'),
-    path('dashboard-admin/logout/', LogoutView.as_view(next_page='admin_login'), name='admin_logout'),
     path('dashboard-admin/', views.admin_homepage, name='admin_homepage'),
     path('dashboard-admin/manage-producer/', views.manage_producer, name='manage_producer'),
     path('dashboard-admin/manage-producer/edit/<uuid:producer_id>/', views.edit_producer, name='edit_producer'),

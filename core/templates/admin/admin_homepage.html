@@ -1,6 +1,10 @@
 {% extends 'base_admin/base_admin.html' %}
 {% block content %}
 
+{% if not user.is_authenticated and user.role == "admin" %}
+    redirect('admin_login')
+{% endif %}
+
 <h1 style="margin-bottom:30px;">Admin Dashboard</h1>
 
 <div style="display:grid;
@@ -67,7 +71,10 @@ margin-bottom:40px;">
 <a href="{% url 'manage_spotlight_series' %}">
 <button>Manage Spotlight Series</button>
 </a>
-
+<form method="post" action="{% url 'admin_homepage' %}">
+    {% csrf_token %}
+    <button type="submit">Logout</button>
+</form>
 </div>
 
 </div>

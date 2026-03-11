@@ -84,9 +84,13 @@ class AdminRequiredView(LoginRequiredMixin, View):
         return super().dispatch(request, *args, **kwargs)
 
 
-class AdminHomepageView(AdminRequiredView):
+class AdminHomepageView(AdminRequiredView, View):
     def get(self,request):
         return render(request, 'admin/admin_homepage.html')
+    
+    def post(self, request):
+            logout(request)
+            return redirect('homepage')
     
 class AddProducerView(AdminRequiredView):
     def get(self, request):
@@ -385,9 +389,29 @@ class PlayEpisodeView(AdminRequiredView):
 
 class HomepageView(View):
     def get(self, request):
-        series = Series.objects.all()
+        featured_series = Series.objects.filter(is_published=True).annotate(
+            total_views=Coalesce(Sum('episode__view_count'), Value(0))
+            ).order_by('-total_views')[:10]
+        # `series` in the template is used for the Featured section; provide featured_series there
+        series = featured_series
+        # Show recently published series in the "New On WatchOut!" section.
+        # Keep the same window as NewReleasesView (last 5 days) and limit to 10.
+        five_days_ago = timezone.now() - timedelta(days=5)
+        new_series = Series.objects.filter(
+            is_published_date__gte=five_days_ago
+        ).order_by('-is_published_date')[:10]
+
+        # Also supply upcoming (not yet published) series for the "Upcoming Releases" section.
+        upcoming_series = Series.objects.filter(is_published=False).order_by('created_at')[:10]
+
+        spotlight_series = SpotLightSeries.objects.filter(series__is_published=True).select_related('series').order_by('-created_at')[:5]
+
         return render(request, 'guest/home_page.html', {
+            'featured_series': featured_series,
             'series': series,
+            'new_series': new_series,
+            'upcoming_series': upcoming_series,
+            'spotlight_series': spotlight_series,
         })
 
 class SearchResultsView(View):
@@ -477,6 +501,11 @@ class ViewerProfileView(LoginRequiredMixin, View):
             'user': user,
         })
 
+    def post(self, request, user_id):
+        user_id = get_user_model().objects.filter(user_id=user_id).first()
+        if user_id:
+            logout(request)
+            return redirect('homepage')
 
 class UpdateProfileView(LoginRequiredMixin, View):
     login_url = 'viewer_login'
