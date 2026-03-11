@@ -6,7 +6,7 @@
 
     <div class="spotlight-row">
         {% for ss in spotlight_series %}
-            <a href="{% url 'detail_film_guest' ss.series.series_id %}" class="spotlight-item" style="display:block; width:100%;">
+            <a href="{% url 'watch_film_guest' ss.series.series_id %}" class="spotlight-item" style="display:block; width:100%;">
                 {% if ss.image %}
                     <img src="{{ ss.image.url }}" alt="{{ ss.series.title }} Spotlight" class="spotlight-banner" style="width:100%; height:auto; display:block; object-fit:cover;">
                 {% elif ss.series.thumbnail_picture %}
@@ -28,7 +28,7 @@
     <div class="series-list">
         {% for s in series %}
             <div class="series-item">
-                <a href="{% url 'detail_film_guest' s.series_id %}">
+                <a href="{% url 'watch_film_guest' s.series_id %}">
                     {% if s.thumbnail_picture %}
                         <img src="{{ s.thumbnail_picture.url }}" alt="{{ s.title }} Poster" class="series-poster">
                     {% else %}
@@ -50,7 +50,7 @@
         {% for history in watch_history_list %}
 
             <img src="{{ history.episode.series.thumbnail_picture.url }}" alt="{{ history.episode.series.title }} Poster" class="series-poster"><br>
-            <a href="{% url 'detail_film_guest' history.episode.series.series_id %}?t={{ history.progress_seconds }}#ep-{{ history.episode.episode_number }}"><br>
+            <a href="{% url 'watch_film_guest' history.episode.series.series_id %}?t={{ history.progress_seconds }}#ep-{{ history.episode.episode_number }}"><br>
                 {{ history.episode.series.title }} - {{ history.episode.episode_title }}<br>
             </a>
 
@@ -64,7 +64,7 @@
         <div class="series-list">
             {% for ns in new_series %}
                 <div class="series-item">
-                    <a href="{% url 'detail_film_guest' ns.series_id %}">
+                    <a href="{% url 'watch_film_guest' ns.series_id %}">
                         {% if ns.thumbnail_picture %}
                             <img src="{{ ns.thumbnail_picture.url }}" alt="{{ ns.title }} Poster" class="series-poster">
                         {% else %}
@@ -85,7 +85,7 @@
         <div class="series-list">
             {% for us in upcoming_series %}
                 <div class="series-item">
-                    <a href="{% url 'detail_film_guest' us.series_id %}">
+                    <a href="{% url 'watch_film_guest' us.series_id %}">
                         {% if us.thumbnail_picture %}
                             <img src="{{ us.thumbnail_picture.url }}" alt="{{ us.title }} Poster" class="series-poster">
                         {% else %}

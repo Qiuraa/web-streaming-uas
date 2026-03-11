@@ -8,7 +8,7 @@ from django.contrib.auth import logout, get_user_model
 
 from core.StreamingApp import form
 from core.StreamingApp.form import AddGenreForm, AddProducerForm, AddStudioForm, AddSeriesForm, AddEpisodeForm
-from .models import Genre, Producer, Series, SpotLightSeries, Studio, Episode, WatchHistory
+from .models import Genre, Producer, Series, SpotLightSeries, Studio, Episode, WatchHistory, Watchlist
 import json
 from django.http import JsonResponse
 import json
@@ -423,7 +423,7 @@ class SearchResultsView(View):
             'query': query,
         })
 
-class DetailFilmGuestView(View):
+class WatchFilmGuestView(View):
     def get(self, request, series_id):
         series = get_object_or_404(Series, series_id=series_id)
         # Prefer to show episode number 1 on the detail page. If episode 1 doesn't exist,
@@ -434,10 +434,17 @@ class DetailFilmGuestView(View):
             episode = Episode.objects.filter(series=series).order_by('episode_number').first()
         # compute origin to include in the YouTube embed query string — helps avoid some embed configuration errors
         origin = f"{request.scheme}://{request.get_host()}"
-        return render(request, 'guest/detail_film_guest.html', {
+        return render(request, 'guest/watch_film_guest.html', {
             'series': series,
             'episode': episode,
             'origin': origin,
+        })
+    
+class DetailFilmGuestView(View):
+    def get(self, request, series_id):
+        series = get_object_or_404(Series, series_id=series_id)
+        return render(request, 'guest/detail_film_guest.html', {
+            'series': series,
         })
 
 class ViewerHomepageView(View):
@@ -714,6 +721,31 @@ class AddSpotlightSeriesView(View):
             'add_spotlight_form': add_spotlight_form
         })
 
+class ViewerAddWatchlistView(LoginRequiredMixin, View):
+    login_url = 'viewer_login'
+
+    def post(self, request, series_id):
+        # Only allow authenticated viewers to add to watchlist
+        if not request.user.is_authenticated:
+            return redirect('viewer_login')
+        if getattr(request.user, 'role', None) != 'viewer':
+            return redirect('homepage')
+
+        series = get_object_or_404(Series, series_id=series_id)
+        
+        Watchlist.objects.get_or_create(user=request.user, series=series)
+        return redirect('detail_film_guest', series_id=series_id)
+
+class ViewerWatchlistView(LoginRequiredMixin, View):
+    login_url = 'viewer_login'
+
+    def get(self, request):
+        watchlist = Watchlist.objects.filter(user=request.user).select_related('series').order_by('-created_at')
+        return render(request, 'viewer/viewer_watchlist.html', {
+            'watchlist': watchlist
+        })
+
+
 admin_login = LoginView.as_view(
     template_name='admin/admin_login.html',
     redirect_authenticated_user=True,
@@ -746,7 +778,7 @@ delete_episode = DeleteEpisodeView.as_view()
 play_episode = PlayEpisodeView.as_view()
 homepage = HomepageView.as_view()
 search_results = SearchResultsView.as_view()
-detail_film_guest = DetailFilmGuestView.as_view()
+watch_film_guest = WatchFilmGuestView.as_view()
 viewer_homepage = ViewerHomepageView.as_view()
 viewer_register = ViewerRegisterView.as_view()
 viewer_profile = ViewerProfileView.as_view()
@@ -761,3 +793,6 @@ manage_spotlight_series = ManageSpotlightSeriesView.as_view()
 add_spotlight_series = AddSpotlightSeriesView.as_view()
 # export the function-based delete view (matches urls.py kwarg name)
 delete_spotlight_series = delete_spotlight_series
+add_to_watchlist = ViewerAddWatchlistView.as_view()
+view_watchlist = ViewerWatchlistView.as_view()
+detail_film_guest = DetailFilmGuestView.as_view()

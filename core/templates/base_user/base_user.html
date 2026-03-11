@@ -25,6 +25,7 @@
         <div class="dropdown-menu" id="dropdownMenu">
             <a href="{% url 'viewer_profile' user.user_id %}">Profile</a>
             <a href="{% url 'watch_history' %}">Watch History</a>
+            <a href="{% url 'watchlist' %}">Watchlist</a>
         </div>
 
     {% else %}

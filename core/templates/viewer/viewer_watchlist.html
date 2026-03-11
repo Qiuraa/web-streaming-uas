@@ -1,0 +1,33 @@
+{% extends "base_user/base_user.html" %}
+{% block content %}
+
+{% if not user.is_authenticated %}
+    redirect('viewer_login')
+{% endif %}
+
+<a href="{% url 'viewer_profile' user.user_id %}">Profile</a>
+<a href="{% url 'watch_history' %}">Watch History</a>
+<a href="{% url 'watchlist' %}">Watchlist</a>
+
+{% if watchlist %}
+    <h2>Your Watchlist</h2>
+
+    <div class="series-list">
+        {% for item in watchlist %}
+            <div class="series-item">
+                <a href="{% url 'watch_film_guest' item.series.series_id %}">
+                    {% if item.series.thumbnail_picture %}
+                        <img src="{{ item.series.thumbnail_picture.url }}" alt="{{ item.series.title }} Poster" class="series-poster">
+                    {% else %}
+                        <img src="/static/img/placeholder.png" alt="No image" class="series-poster">
+                    {% endif %}
+                    <h3>{{ item.series.title }}</h3>
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <p>Your watchlist is empty. Start adding some series to your watchlist to see them here!</p>
+{% endif %}
+
+{% endblock %}

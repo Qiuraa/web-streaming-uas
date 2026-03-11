@@ -1,6 +1,13 @@
+{% extends "base_user/base_user.html" %}
+
 {% load static %}
 
 {% block content %}
+
+<a href="{% url 'viewer_profile' user.user_id %}">Profile</a>
+<a href="{% url 'watch_history' %}">Watch History</a>
+<a href="{% url 'watchlist' %}">Watchlist</a>
+
 <div class="viewer-profile">
     {% if form %}
         <form method="post" action="{% url 'update_profile' user.user_id %}" enctype="multipart/form-data">
