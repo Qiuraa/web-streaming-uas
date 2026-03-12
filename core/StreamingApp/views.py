@@ -709,6 +709,32 @@ def delete_spotlight_series(request, spotlight_series_id):
     spotlight.delete()
     return redirect('manage_spotlight_series')
 
+
+def episode_comments_json(request, series_id, episode_id):
+    """Return JSON list of comments for a given episode.
+
+    This endpoint is used by the client-side episode switcher to refresh
+    comments without a full page reload.
+    """
+    if request.method != 'GET':
+        return JsonResponse({'error': 'method_not_allowed'}, status=405)
+
+    series = get_object_or_404(Series, series_id=series_id)
+    episode = get_object_or_404(Episode, episode_id=episode_id, series=series)
+
+    comments_qs = Comment.objects.filter(episode=episode, is_deleted=False).select_related('user').order_by('-created_at')
+    comments = [
+        {
+            'comment_id': str(c.comment_id),
+            'user': c.user.username,
+            'content': c.content,
+            'created_at': c.created_at.isoformat(),
+        }
+        for c in comments_qs
+    ]
+
+    return JsonResponse({'comments': comments})
+
 class AddSpotlightSeriesView(View):
     def get(self, request):
         add_spotlight_form = form.AddSpotlightSeriesForm()
@@ -773,8 +799,12 @@ class ViewerCommentView(LoginRequiredMixin, View):
         series = get_object_or_404(Series, series_id=series_id)
         episode = get_object_or_404(Episode, episode_id=episode_id, series=series)
         comments = Comment.objects.filter(episode=episode, is_deleted=False).order_by('-created_at').select_related('user')
+        origin = f"{request.scheme}://{request.get_host()}"
+        # Pass the episode and origin so the watch page can render the player and comments
         return render(request, 'guest/watch_film_guest.html', {
             'series': series,
+            'episode': episode,
+            'origin': origin,
             'comments': comments,
             'user': request.user,
         })

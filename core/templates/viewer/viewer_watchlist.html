@@ -15,18 +15,23 @@
     <div class="series-list">
         {% for item in watchlist %}
             <div class="series-item">
-                <a href="{% url 'watch_film_guest' item.series.series_id %}">
+                {# Link to watch page: use the series' first episode if available #}
+                {% if item.series.episode_set.first %}
+                <a href="{% url 'watch_film_guest' item.series.series_id item.series.episode_set.first.episode_id %}">
+                {% else %}
+                <a href="#">
+                {% endif %}
                     {% if item.series.thumbnail_picture %}
                         <img src="{{ item.series.thumbnail_picture.url }}" alt="{{ item.series.title }} Poster" class="series-poster">
                     {% else %}
                         <img src="/static/img/placeholder.png" alt="No image" class="series-poster">
                     {% endif %}
                     <h3>{{ item.series.title }}</h3>
-                    <form method="post" action="{% url 'remove_from_watchlist' item.series.series_id %}" style="display:inline;">
-                        {% csrf_token %}
-                        <button type="submit" onclick="return confirm('Are you sure you want to remove this series from your watchlist?');">Remove from Watchlist</button>
-                    </form>
                 </a>
+                <form method="post" action="{% url 'remove_from_watchlist' item.series.series_id %}" style="display:inline; margin-left:8px;">
+                    {% csrf_token %}
+                    <button type="submit" onclick="return confirm('Are you sure you want to remove this series from your watchlist?');">Remove from Watchlist</button>
+                </form>
             </div>
         {% endfor %}
     </div>

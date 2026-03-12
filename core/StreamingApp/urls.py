@@ -41,6 +41,7 @@ urlpatterns = [
     path('save-progress/', views.save_progress, name='save_progress'),
     path('search/', views.search_results, name='search_results'),
     path('watch/<uuid:series_id>/<uuid:episode_id>/', views.watch_film_guest, name='watch_film_guest'),
+    path('api/comments/<uuid:series_id>/<uuid:episode_id>/', views.episode_comments_json, name='episode_comments_json'),
     path('detail/<uuid:series_id>/', views.detail_film_guest, name='detail_film_guest'),
     path('watchlist/add/<uuid:series_id>/', views.add_to_watchlist, name='add_to_watchlist'),
     path('watchlist/', views.view_watchlist, name='watchlist'),

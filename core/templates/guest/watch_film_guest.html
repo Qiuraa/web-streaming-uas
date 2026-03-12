@@ -18,7 +18,7 @@
         <!-- list available episodes as buttons that update the iframe via JS -->
         <div id="episode-list">
         {% for ep in series.episode_set.all %}
-            <button class="ep-btn" data-ep-id="{{ ep.episode_id }}" data-video-id="{{ ep.video_id }}" data-ep-number="{{ ep.episode_number }}" data-ep-title="{{ ep.title }}">Episode {{ ep.episode_number }}: {{ ep.title }}</button>
+            <button class="ep-btn" data-ep-id="{{ ep.episode_id }}" data-video-id="{{ ep.video_id }}" data-ep-number="{{ ep.episode_number }}" data-ep-title="{{ ep.episode_title }}">Episode {{ ep.episode_number }}: {{ ep.episode_title }}</button>
             <br>
         {% endfor %}
         </div>
@@ -30,7 +30,8 @@
 
     <script>
     (function(){
-        const origin = '{{ origin }}';
+    const origin = '{{ origin }}';
+    const seriesId = '{{ series.series_id }}';
 
         // helper to read cookie (for CSRF token)
         function getCookie(name) {
@@ -89,7 +90,7 @@
             });
         };
 
-        // helper to change video
+        // helper to change video and update comment form + comments
         function setVideo(videoId, epNumber, epTitle, epId, startSeconds){
             episodeId = epId || episodeId;
             if(player && typeof player.loadVideoById === 'function'){
@@ -106,6 +107,17 @@
             if(openLink){ openLink.href = `https://www.youtube.com/watch?v=${videoId}`; }
             const h2 = document.querySelector('h2');
             if(h2 && epNumber && epTitle){ h2.textContent = `${h2.textContent.split(':')[0]}: ${h2.textContent}`; }
+
+            // update the comment form action to post to the correct episode
+            try{
+                const formEl = document.querySelector('form[method="post"][action]');
+                if(formEl){
+                    formEl.action = `/comment/${seriesId}/${episodeId}/`;
+                }
+            }catch(e){ /* ignore */ }
+
+            // fetch and render comments for selected episode
+            fetchComments();
         }
 
         // wire episode buttons
@@ -122,6 +134,34 @@
                 setVideo(vid, num, title, eid, start);
             });
         });
+
+        // fetch comments for current episode and render into the DOM
+        function renderComments(comments){
+            const container = document.querySelector('#comments-list');
+            if(!container) return;
+            if(!comments || comments.length === 0){
+                container.innerHTML = '<p>No comments yet. Be the first to comment!</p>';
+                return;
+            }
+            let html = '<ul>';
+            comments.forEach(c => {
+                html += `<li><strong>${c.user}</strong> (${new Date(c.created_at).toLocaleString()}): ${c.content}</li>`;
+            });
+            html += '</ul>';
+            container.innerHTML = html;
+        }
+
+        function fetchComments(){
+            if(!episodeId) return;
+            fetch(`/api/comments/${seriesId}/${episodeId}/`).then(r => r.json()).then(data => {
+                renderComments(data.comments || []);
+            }).catch(err => {
+                console.debug('failed to fetch comments', err);
+            });
+        }
+
+        // initial comments load
+        fetchComments();
 
         // periodic progress save (works once the player API populates player)
         setInterval(function(){
@@ -167,14 +207,20 @@
     <br>
     <button type="submit">Post Comment</button>
 </form>
-{% if comments %}
-    <h3>Comments</h3>
-    <ul>
-    {% for c in comments %}
-        <li><strong>{{ c.user.username }}</strong> ({{ c.created_at }}): {{ c.content }}</li>
-    {% endfor %}
-    </ul>
-{% else %}
-    <p>No comments yet. Be the first to comment!</p>
-{% endif %}
+<div id="comments-list">
+    <!-- comments will be loaded via JS; fallback provided in <noscript> -->
+</div>
+
+<noscript>
+    {% if comments %}
+        <h3>Comments</h3>
+        <ul>
+        {% for c in comments %}
+            <li><strong>{{ c.user.username }}</strong> ({{ c.created_at }}): {{ c.content }}</li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>No comments yet. Be the first to comment!</p>
+    {% endif %}
+</noscript>
 {% endblock %}
