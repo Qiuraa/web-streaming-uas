@@ -20,8 +20,8 @@
                 {% endif %}
             </div>
             <div>
-                {{ form.username.label_tag }}<br>
-                {{ form.username }}
+                {{ form.email.label_tag }}<br>
+                {{ form.email }}
             </div>
             <div>
                 {{ form.profile_picture_url.label_tag }}<br>
@@ -41,9 +41,9 @@
                 <img src="{% static 'profile_picture/default.svg' %}" alt="Default Profile Picture" class="profile-picture-large">
             {% endif %}
         </div>
-        <div>
-            <p><strong>Username:</strong> {{ user.username }}</p>
-            <p><strong>Account created at:</strong> {{ user.created_at }}</p>
+            <div>
+                <p><strong>Email:</strong> {{ user.email }}</p>
+                <p><strong>Account created at:</strong> {{ user.created_at }}</p>
             <a href="{% url 'update_profile' user.user_id %}">Edit profile</a>
             <form method="post" action="{% url 'viewer_profile' user.user_id %}" style="display:inline;">
                 {% csrf_token %}

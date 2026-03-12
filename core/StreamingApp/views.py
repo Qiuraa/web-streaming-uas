@@ -53,10 +53,23 @@ class ViewerRegisterView(View):
         if viewer_register_form.is_valid():
             # Create a new user with the provided username, email, and password
             from django.contrib.auth.models import User
-            username = viewer_register_form.cleaned_data['username']
+            # Use provided username if present, otherwise derive one from the email
+            username = viewer_register_form.cleaned_data.get('username')
             email = viewer_register_form.cleaned_data['email']
             password = viewer_register_form.cleaned_data['password']
-            user = get_user_model().objects.create_user(username=username, email=email, password=password)
+            UserModel = get_user_model()
+            if not username:
+                # derive base username from email local part
+                base = email.split('@')[0]
+                candidate = base
+                suffix = 1
+                # ensure uniqueness of username
+                while UserModel.objects.filter(username=candidate).exists():
+                    candidate = f"{base}{suffix}"
+                    suffix += 1
+                username = candidate
+
+            user = UserModel.objects.create_user(username=username, email=email, password=password)
             user.role = 'viewer'
             user.save()
             return redirect('viewer_login')
@@ -834,8 +847,9 @@ class HomeView(View):
 admin_login = LoginView.as_view(
     template_name='admin/admin_login.html',
     redirect_authenticated_user=True,
+    authentication_form=form.EmailAuthenticationForm,
 )
-viewer_login = ViewerRequiredView.as_view()
+viewer_login = ViewerRequiredView.as_view(authentication_form=form.EmailAuthenticationForm)
 admin_logout = LogoutView.as_view(next_page='admin_login')
 admin_homepage = AdminHomepageView.as_view()
 add_producer = AddProducerView.as_view()
