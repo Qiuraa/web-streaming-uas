@@ -166,11 +166,12 @@ class WatchHistory(models.Model):
     last_watched_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.user.username} - {self.series.title} - {self.episode.title} - {self.progress_seconds}s"
+        return f"{self.user.username} - {self.series.title} - {self.episode.episode_title} - {self.progress_seconds}s"
     
 class Comment(models.Model):
     comment_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    series = models.ForeignKey(Series, on_delete=models.CASCADE, null=True, blank=True)
     episode = models.ForeignKey(Episode, on_delete=models.CASCADE)
     content = models.TextField()
     is_deleted = models.BooleanField(default=False)
@@ -178,7 +179,7 @@ class Comment(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.user.username} - {self.episode.title} - {self.content[:20]}..."
+        return f"{self.user.username} - {self.episode.episode_title} - {self.content[:20]}..."
     
 class Genre(models.Model):
 

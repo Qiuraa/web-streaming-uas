@@ -40,9 +40,11 @@ urlpatterns = [
     path('user/watch-history/', views.watch_history, name='watch_history'),
     path('save-progress/', views.save_progress, name='save_progress'),
     path('search/', views.search_results, name='search_results'),
-    path('watch/<uuid:series_id>/', views.watch_film_guest, name='watch_film_guest'),
+    path('watch/<uuid:series_id>/<uuid:episode_id>/', views.watch_film_guest, name='watch_film_guest'),
     path('detail/<uuid:series_id>/', views.detail_film_guest, name='detail_film_guest'),
     path('watchlist/add/<uuid:series_id>/', views.add_to_watchlist, name='add_to_watchlist'),
     path('watchlist/', views.view_watchlist, name='watchlist'),
+    path('watchlist/remove/<uuid:series_id>/', views.remove_from_watchlist, name='remove_from_watchlist'),
+    path('comment/<uuid:series_id>/<uuid:episode_id>/', views.viewer_comment, name='viewer_comment'),
     # legacy/unused patterns removed; use the above simple endpoints
 ]

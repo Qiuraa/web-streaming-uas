@@ -14,7 +14,7 @@
         <img src="/static/img/placeholder.png" alt="No image" class="series-poster">
     {% endif %}
 
-    <a href="{% url 'watch_film_guest' series.series_id %}">
+    <a href="{% url 'watch_film_guest' series.series_id episode.episode_id %}">
         <button>Watch Now</button>
     </a>
     

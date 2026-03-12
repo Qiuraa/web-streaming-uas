@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Producer, Series, SeriesGenre, Genre, User, WatchHistory, Episode, SpotLightSeries, Watchlist
+from .models import Producer, Series, SeriesGenre, Genre, User, WatchHistory, Episode, SpotLightSeries, Watchlist, Comment
 
 
 @admin.register(Producer)
@@ -56,3 +56,8 @@ class SpotLightSeriesAdmin(admin.ModelAdmin):
 class WatchlistAdmin(admin.ModelAdmin):
     readonly_fields = ('watchlist_id', 'created_at')
     list_display = ('user', 'series', 'created_at', 'watchlist_id')
+
+@admin.register(Comment)
+class CommentAdmin(admin.ModelAdmin):
+    readonly_fields = ('comment_id', 'created_at')
+    list_display = ('user', 'content', 'created_at', 'comment_id')

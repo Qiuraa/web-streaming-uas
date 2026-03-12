@@ -8,7 +8,7 @@ from django.contrib.auth import logout, get_user_model
 
 from core.StreamingApp import form
 from core.StreamingApp.form import AddGenreForm, AddProducerForm, AddStudioForm, AddSeriesForm, AddEpisodeForm
-from .models import Genre, Producer, Series, SpotLightSeries, Studio, Episode, WatchHistory, Watchlist
+from .models import Genre, Producer, Series, SpotLightSeries, Studio, Episode, WatchHistory, Watchlist, Comment
 import json
 from django.http import JsonResponse
 import json
@@ -424,20 +424,28 @@ class SearchResultsView(View):
         })
 
 class WatchFilmGuestView(View):
-    def get(self, request, series_id):
+    def get(self, request, series_id, episode_id):
         series = get_object_or_404(Series, series_id=series_id)
-        # Prefer to show episode number 1 on the detail page. If episode 1 doesn't exist,
-        # fall back to the first episode ordered by episode_number.
-        # Episode model doesn't have is_published field; select by series and episode_number
-        episode = Episode.objects.filter(series=series, episode_number=1).first()
-        if not episode:
-            episode = Episode.objects.filter(series=series).order_by('episode_number').first()
-        # compute origin to include in the YouTube embed query string — helps avoid some embed configuration errors
+
+        episode = get_object_or_404(
+            Episode,
+            episode_id=episode_id,
+            series=series
+        )
         origin = f"{request.scheme}://{request.get_host()}"
+        user = request.user if request.user.is_authenticated else None
+
+        comments = Comment.objects.filter(
+        episode=episode,
+        is_deleted=False
+        ).select_related('user').order_by('-created_at')
+
         return render(request, 'guest/watch_film_guest.html', {
             'series': series,
             'episode': episode,
             'origin': origin,
+            'comments': comments,
+            'user': user,
         })
     
 class DetailFilmGuestView(View):
@@ -745,6 +753,49 @@ class ViewerWatchlistView(LoginRequiredMixin, View):
             'watchlist': watchlist
         })
 
+class ViewerRemoveWatchlistView(LoginRequiredMixin, View):
+    login_url = 'viewer_login'
+
+    def post(self, request, series_id):
+        if not request.user.is_authenticated:
+            return redirect('viewer_login')
+        if getattr(request.user, 'role', None) != 'viewer':
+            return redirect('homepage')
+
+        series = get_object_or_404(Series, series_id=series_id)
+        Watchlist.objects.filter(user=request.user, series=series).delete()
+        return redirect('view_watchlist')
+
+class ViewerCommentView(LoginRequiredMixin, View):
+    login_url = 'viewer_login'
+
+    def get(self, request, series_id, episode_id):
+        series = get_object_or_404(Series, series_id=series_id)
+        episode = get_object_or_404(Episode, episode_id=episode_id, series=series)
+        comments = Comment.objects.filter(episode=episode, is_deleted=False).order_by('-created_at').select_related('user')
+        return render(request, 'guest/watch_film_guest.html', {
+            'series': series,
+            'comments': comments,
+            'user': request.user,
+        })
+
+    def post(self, request, series_id, episode_id):
+
+        if getattr(request.user, 'role', None) != 'viewer':
+            return redirect('homepage')
+
+        series = get_object_or_404(Series, series_id=series_id)
+        episode = get_object_or_404(Episode, episode_id=episode_id)
+        content = request.POST.get('content', '').strip()
+        if content:
+            Comment.objects.create(
+                user=request.user,
+                series=series,
+                episode=episode,
+                content=content
+            )
+
+        return redirect('watch_film_guest', series_id=series_id, episode_id=episode_id)
 
 admin_login = LoginView.as_view(
     template_name='admin/admin_login.html',
@@ -791,8 +842,8 @@ upcoming_releases = UpcomingReleasesView.as_view()
 featured_series = FeaturedSeriesView.as_view()
 manage_spotlight_series = ManageSpotlightSeriesView.as_view()
 add_spotlight_series = AddSpotlightSeriesView.as_view()
-# export the function-based delete view (matches urls.py kwarg name)
-delete_spotlight_series = delete_spotlight_series
 add_to_watchlist = ViewerAddWatchlistView.as_view()
 view_watchlist = ViewerWatchlistView.as_view()
 detail_film_guest = DetailFilmGuestView.as_view()
+remove_from_watchlist = ViewerRemoveWatchlistView.as_view()
+viewer_comment = ViewerCommentView.as_view()

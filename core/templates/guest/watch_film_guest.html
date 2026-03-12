@@ -159,4 +159,22 @@
 {% else %}
     <p>Film not found.</p>
 {% endif %}
+<br>
+<h3>Comments</h3>
+<form method="post" action="{% url 'viewer_comment' series.series_id episode.episode_id %}">
+    {% csrf_token %}
+    <textarea name="content" placeholder="Write your comment here..." required></textarea>
+    <br>
+    <button type="submit">Post Comment</button>
+</form>
+{% if comments %}
+    <h3>Comments</h3>
+    <ul>
+    {% for c in comments %}
+        <li><strong>{{ c.user.username }}</strong> ({{ c.created_at }}): {{ c.content }}</li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No comments yet. Be the first to comment!</p>
+{% endif %}
 {% endblock %}
