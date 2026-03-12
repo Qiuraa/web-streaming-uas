@@ -31,6 +31,7 @@ urlpatterns = [
     path('dashboard-admin/manage-spotlight-series/', views.manage_spotlight_series, name='manage_spotlight_series'),
     path('dashboard-admin/manage-spotlight-series/add/', views.add_spotlight_series, name='add_spotlight_series'),
     path('dashboard-admin/manage-spotlight-series/delete/<uuid:spotlight_series_id>/', views.delete_spotlight_series, name='delete_spotlight_series'),
+    path('', views.home, name='home'),
     path('user/login/', views.viewer_login, name='viewer_login'),
     path('user/register/', views.viewer_register, name='signup'),
     path('homepage/', views.homepage, name='homepage'),

@@ -826,6 +826,10 @@ class ViewerCommentView(LoginRequiredMixin, View):
             )
 
         return redirect('watch_film_guest', series_id=series_id, episode_id=episode_id)
+    
+class HomeView(View):
+    def get(self, request):
+        return render(request, 'guest/home.html')
 
 admin_login = LoginView.as_view(
     template_name='admin/admin_login.html',
@@ -877,3 +881,4 @@ view_watchlist = ViewerWatchlistView.as_view()
 detail_film_guest = DetailFilmGuestView.as_view()
 remove_from_watchlist = ViewerRemoveWatchlistView.as_view()
 viewer_comment = ViewerCommentView.as_view()
+home = HomeView.as_view()
