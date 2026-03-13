@@ -1,6 +1,7 @@
 from django.urls import path
 from . import views
 from django.contrib.auth.views import LoginView, LogoutView
+from django.contrib.auth import views as auth_views
 
 
 urlpatterns = [
@@ -48,5 +49,35 @@ urlpatterns = [
     path('watchlist/', views.view_watchlist, name='watchlist'),
     path('watchlist/remove/<uuid:series_id>/', views.remove_from_watchlist, name='remove_from_watchlist'),
     path('comment/<uuid:series_id>/<uuid:episode_id>/', views.viewer_comment, name='viewer_comment'),
-    # legacy/unused patterns removed; use the above simple endpoints
+    path(
+        'password-reset/',
+        auth_views.PasswordResetView.as_view(
+            template_name='auth/password_reset.html'
+        ),
+        name='password_reset'
+    ),
+
+    path(
+        'password-reset/done/',
+        auth_views.PasswordResetDoneView.as_view(
+            template_name='auth/password_reset_done.html'
+        ),
+        name='password_reset_done'
+    ),
+
+    path(
+        'reset/<uidb64>/<token>/',
+        auth_views.PasswordResetConfirmView.as_view(
+            template_name='auth/password_reset_confirm.html'
+        ),
+        name='password_reset_confirm'
+    ),
+
+    path(
+        'reset/done/',
+        auth_views.PasswordResetCompleteView.as_view(
+            template_name='auth/password_reset_complete.html'
+        ),
+        name='password_reset_complete'
+    ),
 ]

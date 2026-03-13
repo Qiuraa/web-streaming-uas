@@ -116,7 +116,6 @@ margin-bottom:15px;
 </div>
 {% endif %}
 
-<label>Username</label>
 <label>Email</label>
 {{ form.username }}
 
@@ -131,6 +130,7 @@ margin-bottom:15px;
 
 </form>
 
+<a href="{% url 'password_reset' %}">Forgot Password?</a><br>
 <a href="{% url 'signup' %}">Sign Up</a>
 <a href="{% url 'homepage' %}">Back to Homepage</a>
 
