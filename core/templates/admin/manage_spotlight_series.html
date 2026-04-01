@@ -1,40 +1,163 @@
 {% extends 'base_admin/base_manage_film.html' %}
 {% block content %}
 
+<style>
+
+/* HEADER */
+
+.page-header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:25px;
+}
+
+.page-title{
+font-size:20px;
+font-weight:600;
+}
+
+/* BUTTON */
+
+.btn{
+padding:10px 16px;
+border:none;
+border-radius:8px;
+color:white;
+cursor:pointer;
+}
+
+.btn-primary{
+background:linear-gradient(135deg,#6366f1,#3b82f6);
+}
+
+.btn-danger{
+background:#ef4444;
+}
+
+.btn-danger:hover{
+background:#dc2626;
+}
+
+/* GRID */
+
+.spotlight-grid{
+display:grid;
+grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+gap:25px;
+}
+
+/* CARD */
+
+.spotlight-card{
+background:white;
+border-radius:14px;
+overflow:hidden;
+box-shadow:0 10px 25px rgba(0,0,0,0.08);
+transition:.25s;
+}
+
+.spotlight-card:hover{
+transform:translateY(-6px);
+}
+
+/* IMAGE */
+
+.spotlight-img{
+width:100%;
+height:160px;
+object-fit:cover;
+}
+
+/* CONTENT */
+
+.spotlight-content{
+padding:12px;
+}
+
+.spotlight-title{
+margin:0;
+font-size:14px;
+font-weight:600;
+color:#111827;
+}
+
+/* ACTION */
+
+.spotlight-actions{
+margin-top:10px;
+display:flex;
+justify-content:flex-end;
+}
+
+</style>
+
+
+
+<!-- HEADER -->
+
+<div class="page-header">
+
+<h2 class="page-title">Spotlight Series</h2>
+
 <a href="{% url 'add_spotlight_series' %}">
-    <button style="margin-bottom:20px;">Add Spotlight Series</button>
+<button class="btn btn-primary">+ Add Spotlight</button>
 </a>
 
-{% if spotlight_series %}
-{% for series in spotlight_series %}
-<div class="series-item">
-    <a href="{% url 'detail_film' series.series.series_id %}">
-        {% if series.series.thumbnail_picture %}
-            <img src="{{ series.series.thumbnail_picture.url }}" alt="{{ series.series.title }} Poster" class="series-poster">
-        {% else %}
-            <img src="/static/img/placeholder.png" alt="No image" class="series-poster">
-        {% endif %}
-        <h3>{{ series.series.title }}</h3>
-    </a>
-    <form method="post" action="{% url 'delete_spotlight_series' series.spotlight_series_id %}" style="display:inline;">
-        {% csrf_token %}
-        <button type="submit" onclick="return confirm('Are you sure you want to remove this series from the spotlight?');">Remove</button>
-    </form>
-        <td>
-            <a href="{% url 'detail_film_guest' series.series.series_id %}">
-                {% if series.image %}
-                    <img src="{{ series.image.url }}" alt="{{ series.series.title }}" width="180">
-                {% elif series.series.thumbnail_picture %}
-                    <img src="{{ series.series.thumbnail_picture.url }}" alt="{{ series.series.title }}" width="120">
-                {% else %}
-                    <img src="/static/img/placeholder.png" alt="No image" width="120">
-                {% endif %}
-            </a>
-        </td>
 </div>
-{% endfor %}
+
+
+
+<!-- GRID -->
+
+{% if spotlight_series %}
+
+<div class="spotlight-grid">
+
+{% for item in spotlight_series %}
+
+<div class="spotlight-card">
+
+<a href="{% url 'detail_film' item.series.series_id %}" style="text-decoration:none;">
+
+{% if item.image %}
+<img src="{{ item.image.url }}" class="spotlight-img">
+{% elif item.series.thumbnail_picture %}
+<img src="{{ item.series.thumbnail_picture.url }}" class="spotlight-img">
 {% else %}
-    <p>No spotlight series available.</p>
+<img src="/static/img/placeholder.png" class="spotlight-img">
+{% endif %}
+
+<div class="spotlight-content">
+
+<h4 class="spotlight-title">{{ item.series.title }}</h4>
+
+</a>
+
+<div class="spotlight-actions">
+
+<form method="post" action="{% url 'delete_spotlight_series' item.spotlight_series_id %}">
+{% csrf_token %}
+<button class="btn btn-danger"
+onclick="return confirm('Remove this from spotlight?');">
+Remove
+</button>
+</form>
+
+</div>
+
+</div>
+
+</div>
+
+{% endfor %}
+
+</div>
+
+{% else %}
+
+<p>No spotlight series available.</p>
+
 {% endif %}
 
 {% endblock %}

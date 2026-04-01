@@ -1,48 +1,190 @@
 {% extends 'base_user/base_user.html' %}
 {% block content %}
 
+<style>
+
+/* CONTAINER */
+.detail-container{
+    display:flex;
+    gap:40px;
+    padding:40px;
+    flex-wrap:wrap;
+}
+
+/* POSTER */
+.detail-poster{
+    width:280px;
+    border-radius:10px;
+}
+
+/* INFO */
+.detail-info{
+    max-width:700px;
+}
+
+/* TITLE */
+.detail-title{
+    font-size:36px;
+    font-weight:bold;
+}
+
+.detail-alt{
+    color:#aaa;
+    margin-bottom:10px;
+}
+
+/* BUTTON */
+.action-buttons{
+    margin:20px 0;
+    display:flex;
+    gap:10px;
+}
+
+.btn{
+    padding:10px 20px;
+    border:none;
+    border-radius:5px;
+    cursor:pointer;
+    font-weight:500;
+}
+
+.btn-watch{
+    background:#ff2c2c;
+    color:white;
+}
+
+.btn-watchlist{
+    background:#333;
+    color:white;
+}
+
+/* META */
+.meta{
+    margin-top:15px;
+    line-height:1.8;
+    color:#ccc;
+}
+
+/* BADGE */
+.badge{
+    display:inline-block;
+    background:#222;
+    padding:5px 10px;
+    border-radius:5px;
+    margin:3px;
+    font-size:12px;
+}
+
+/* SYNOPSIS */
+.synopsis{
+    margin-top:15px;
+    line-height:1.6;
+}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+    .detail-container{
+        flex-direction:column;
+        align-items:center;
+    }
+
+    .detail-info{
+        text-align:center;
+    }
+}
+
+</style>
+
+
 {% if series %}
-    <h2>{{ series.title }}</h2>
-    {% if series.alternate_title %}
-        <h3>{{ series.alternate_title }}</h3>
-    {% endif %}
 
+<div class="detail-container">
 
+    <!-- POSTER -->
     {% if series.thumbnail_picture %}
-        <img src="{{ series.thumbnail_picture.url }}" alt="{{ series.title }} Poster" class="series-poster">
+        <img src="{{ series.thumbnail_picture.url }}" class="detail-poster">
     {% else %}
-        <img src="/static/img/placeholder.png" alt="No image" class="series-poster">
+        <img src="/static/img/placeholder.png" class="detail-poster">
     {% endif %}
 
-    {# If `episode` isn't provided to this template, use the first episode of the series when available #}
-    <a href="{% if series.episode_set.first %}{% url 'watch_film_guest' series.series_id series.episode_set.first.episode_id %}{% else %}#{% endif %}">
-        <button>Watch Now</button>
-    </a>
-    
-    {% if user.is_authenticated %}
-        <form method="post" action="{% url 'add_to_watchlist' series.series_id %}" style="display:inline;">
-            {% csrf_token %}
-            <button type="submit">Add to Watchlist</button>
-        </form>
-    
-    {% else %}
-        <button onclick="alert('Please log in to add this series to your watchlist.')">Add to Watchlist</button>
-    {% endif %}
 
-    <p><strong>Sypnosis:</strong> {{ series.sypnosis }}</p>
-    <p><strong>Total Episode:</strong> {{ series.total_episodes }}</p>
-    <p><strong>Status:</strong> {{ series.status }}</p>
-    <p><strong>Aired date:</strong> {{ series.aired_start_date }} to {% if series.aired_end_date %} {{series.aired_end_date}} {% else %} ? {% endif %}</p>
-    <p><strong>Status:</strong> {{ series.get_premiered_season_display }}, {{ series.premiered_year }}</p>
-    <p><strong>Genres:</strong> {% for genre in series.genre.all %}{{ genre.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
-    <p><strong>Producer:</strong> {% for producer in series.producer.all %}{{ producer.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
-    <p><strong>Studio:</strong> {% for studio in series.studio.all %}{{ studio.studio_name }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
-    <p><strong>Duration:</strong> {{ series.duration_minutes }} minutes per ep</p>
-    <p><strong>Score:</strong> {{ series.score }}</p>
-    <p><strong>Rating:</strong> {{ series.get_rating_display }}</p>
-    
+    <!-- INFO -->
+    <div class="detail-info">
+
+        <div class="detail-title">{{ series.title }}</div>
+
+        {% if series.alternate_title %}
+            <div class="detail-alt">{{ series.alternate_title }}</div>
+        {% endif %}
+
+        <!-- BUTTON -->
+        <div class="action-buttons">
+
+            <a href="{% if series.episode_set.first %}{% url 'watch_film_guest' series.series_id series.episode_set.first.episode_id %}{% else %}#{% endif %}">
+                <button class="btn btn-watch">▶ Watch Now</button>
+            </a>
+
+            {% if user.is_authenticated %}
+                <form method="post" action="{% url 'add_to_watchlist' series.series_id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-watchlist">+ Watchlist</button>
+                </form>
+            {% else %}
+                <button class="btn btn-watchlist" onclick="alert('Login dulu bro 😄')">+ Watchlist</button>
+            {% endif %}
+
+        </div>
+
+        <!-- SYNOPSIS -->
+        <div class="synopsis">
+            <strong>Synopsis:</strong>
+            <p>{{ series.sypnosis }}</p>
+        </div>
+
+        <!-- META -->
+        <div class="meta">
+
+            <p><strong>Episodes:</strong> {{ series.total_episodes }}</p>
+            <p><strong>Status:</strong> {{ series.status }}</p>
+            <p><strong>Aired:</strong> {{ series.aired_start_date }} - {% if series.aired_end_date %}{{ series.aired_end_date }}{% else %}?{% endif %}</p>
+            <p><strong>Season:</strong> {{ series.get_premiered_season_display }} {{ series.premiered_year }}</p>
+
+            <p><strong>Duration:</strong> {{ series.duration_minutes }} min/ep</p>
+            <p><strong>Score:</strong> ⭐ {{ series.score }}</p>
+            <p><strong>Rating:</strong> {{ series.get_rating_display }}</p>
+
+        </div>
+
+        <!-- GENRES -->
+        <div class="meta">
+            <strong>Genres:</strong><br>
+            {% for genre in series.genre.all %}
+                <span class="badge">{{ genre.name }}</span>
+            {% endfor %}
+        </div>
+
+        <!-- PRODUCER -->
+        <div class="meta">
+            <strong>Producer:</strong><br>
+            {% for producer in series.producer.all %}
+                <span class="badge">{{ producer.name }}</span>
+            {% endfor %}
+        </div>
+
+        <!-- STUDIO -->
+        <div class="meta">
+            <strong>Studio:</strong><br>
+            {% for studio in series.studio.all %}
+                <span class="badge">{{ studio.studio_name }}</span>
+            {% endfor %}
+        </div>
+
+    </div>
+
+</div>
+
 {% else %}
-    <p>Series not found.</p>
+    <p style="padding:40px;">Series not found.</p>
 {% endif %}
 
 {% endblock %}

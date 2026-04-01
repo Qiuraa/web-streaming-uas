@@ -1,105 +1,234 @@
 {% extends "base_user/base_user.html" %}
 {% block content %}
 
+<style>
+
+/* SECTION */
+.section{
+    padding:30px 40px;
+}
+
+/* TITLE */
+.section h2{
+    margin-bottom:15px;
+}
+
+/* SPOTLIGHT */
+.spotlight-row{
+    position:relative;
+    border-radius:12px;
+    overflow:hidden;
+    margin-bottom:30px;
+}
+
+.spotlight-banner{
+    width:100%;
+    height:70vh;
+    object-fit:cover;
+    filter:brightness(0.4);
+}
+
+.spotlight-caption{
+    position:absolute;
+    bottom:40px;
+    left:40px;
+}
+
+.spotlight-caption h3{
+    font-size:40px;
+}
+
+/* GRID */
+.series-list{
+    display:flex;
+    gap:15px;
+    overflow-x:auto;
+}
+
+/* CARD */
+.series-item{
+    min-width:180px;
+    border-radius:10px;
+    overflow:hidden;
+    background:#1c1c1c;
+    transition:0.3s;
+}
+
+.series-item:hover{
+    transform:scale(1.1);
+}
+
+/* IMAGE */
+.series-poster{
+    width:100%;
+    height:260px;
+    object-fit:cover;
+}
+
+/* TITLE */
+.series-item h3{
+    padding:10px;
+    font-size:14px;
+}
+
+/* CONTINUE WATCHING */
+.continue-list{
+    display:flex;
+    gap:15px;
+    overflow-x:auto;
+}
+
+.continue-item{
+    min-width:220px;
+}
+
+.progress-bar{
+    width:100%;
+    height:5px;
+    background:#333;
+    border-radius:5px;
+    margin-top:5px;
+}
+
+.progress{
+    height:100%;
+    background:#ff2c2c;
+    border-radius:5px;
+}
+
+</style>
+
+
+<div class="section">
+
+<!-- SPOTLIGHT -->
 {% if spotlight_series %}
-    <h2>Spotlight</h2>
+    <h2>🔥 Spotlight</h2>
 
     <div class="spotlight-row">
         {% for ss in spotlight_series %}
-            <a href="{% url 'watch_film_guest' ss.series.series_id ss.series.episode_set.first.episode_id %}" class="spotlight-item" style="display:block; width:100%;">
+            <a href="{% url 'watch_film_guest' ss.series.series_id ss.series.episode_set.first.episode_id %}">
+
                 {% if ss.image %}
-                    <img src="{{ ss.image.url }}" alt="{{ ss.series.title }} Spotlight" class="spotlight-banner" style="width:100%; height:auto; display:block; object-fit:cover;">
+                    <img src="{{ ss.image.url }}" class="spotlight-banner">
                 {% elif ss.series.thumbnail_picture %}
-                    <img src="{{ ss.series.thumbnail_picture.url }}" alt="{{ ss.series.title }} Poster" class="spotlight-banner" style="width:100%; height:auto; display:block; object-fit:cover;">
+                    <img src="{{ ss.series.thumbnail_picture.url }}" class="spotlight-banner">
                 {% else %}
-                    <img src="/static/img/placeholder.png" alt="No image" class="spotlight-banner" style="width:100%; height:auto; display:block; object-fit:cover;">
+                    <img src="/static/img/placeholder.png" class="spotlight-banner">
                 {% endif %}
-                <div class="spotlight-caption"><h3 style="position:absolute; left:20px; bottom:20px; color:#fff; text-shadow:0 2px 6px rgba(0,0,0,0.6);">{{ ss.series.title }}</h3></div>
+
+                <div class="spotlight-caption">
+                    <h3>{{ ss.series.title }}</h3>
+                </div>
+
             </a>
         {% endfor %}
     </div>
-{% else %}
-    <p>No spotlight series at the moment. Please check back later!</p>
 {% endif %}
 
+
+<!-- FEATURED -->
 {% if series %}
-    <h2>Featured Series</h2>
+    <h2>⭐ Featured</h2>
 
     <div class="series-list">
         {% for s in series %}
             <div class="series-item">
                 <a href="{% url 'watch_film_guest' s.series_id s.episode_set.first.episode_id %}">
+
                     {% if s.thumbnail_picture %}
-                        <img src="{{ s.thumbnail_picture.url }}" alt="{{ s.title }} Poster" class="series-poster">
+                        <img src="{{ s.thumbnail_picture.url }}" class="series-poster">
                     {% else %}
-                        <img src="/static/img/placeholder.png" alt="No image" class="series-poster">
+                        <img src="/static/img/placeholder.png" class="series-poster">
                     {% endif %}
+
                     <h3>{{ s.title }}</h3>
+
                 </a>
             </div>
         {% endfor %}
-        
     </div>
-{% else %}
-    <p>No series available at the moment. Please check back later!</p>
 {% endif %}
 
-    <h2>Continue Watching</h2>
-    {% if watch_history_list %}
+
+<!-- CONTINUE WATCHING -->
+<h2>▶ Continue Watching</h2>
+
+{% if watch_history_list %}
+    <div class="continue-list">
 
         {% for history in watch_history_list %}
+            <div class="continue-item">
 
-            <img src="{{ history.episode.series.thumbnail_picture.url }}" alt="{{ history.episode.series.title }} Poster" class="series-poster"><br>
-            <a href="{% url 'watch_film_guest' history.episode.series.series_id history.episode.series.episode_set.first.episode_id %}?t={{ history.progress_seconds }}#ep-{{ history.episode.episode_number }}"><br>
-                {{ history.episode.series.title }} - {{ history.episode.episode_title }}<br>
-            </a>
+                <a href="{% url 'watch_film_guest' history.episode.series.series_id history.episode.series.episode_set.first.episode_id %}?t={{ history.progress_seconds }}#ep-{{ history.episode.episode_number }}">
 
+                    <img src="{{ history.episode.series.thumbnail_picture.url }}" class="series-poster">
+
+                    <p>{{ history.episode.series.title }}</p>
+
+                    <!-- progress bar -->
+                    <div class="progress-bar">
+                        <div class="progress" style="width: {{ history.progress_seconds|default:0 }}%;"></div>
+                    </div>
+
+                </a>
+
+            </div>
         {% endfor %}
-    {% else %}
-        <p>You have no ongoing watch history.</p>
-    {% endif %}
 
-    <h2>New On WatchOut!</h2>
-    {% if new_series %}
-        <div class="series-list">
-            {% for ns in new_series %}
-                <div class="series-item">
-                    <a href="{% url 'watch_film_guest' ns.series_id ns.episode_set.first.episode_id %}">
-                        {% if ns.thumbnail_picture %}
-                            <img src="{{ ns.thumbnail_picture.url }}" alt="{{ ns.title }} Poster" class="series-poster">
-                        {% else %}
-                            <img src="/static/img/placeholder.png" alt="No image" class="series-poster">
-                        {% endif %}
-                        <h3>{{ ns.title }}</h3>
-                    </a>
-                </div>
-            {% endfor %}
-            
-        </div>
-    {% else %}
-        <p>No new series added recently. Please check back later!</p>
-    {% endif %}
+    </div>
+{% else %}
+    <p>No watch history yet.</p>
+{% endif %}
 
-    <h2>Upcoming Releases on WatchOut!</h2>
-    {% if upcoming_series %}
-        <div class="series-list">
-            {% for us in upcoming_series %}
-                <div class="series-item">
-                    <a href="{% url 'watch_film_guest' us.series_id us.episode_set.first.episode_id %}">
-                        {% if us.thumbnail_picture %}
-                            <img src="{{ us.thumbnail_picture.url }}" alt="{{ us.title }} Poster" class="series-poster">
-                        {% else %}
-                            <img src="/static/img/placeholder.png" alt="No image" class="series-poster">
-                        {% endif %}
-                        <h3>{{ us.title }}</h3>
-                    </a>
-                </div>
-            {% endfor %}
-            
-        </div>
-    {% else %}
-        <p>No upcoming releases at the moment. Please check back later!</p>
-    {% endif %}
-    
+
+<!-- NEW -->
+{% if new_series %}
+    <h2>🆕 New</h2>
+
+    <div class="series-list">
+        {% for ns in new_series %}
+            <div class="series-item">
+                <a href="{% url 'watch_film_guest' ns.series_id ns.episode_set.first.episode_id %}">
+
+                    {% if ns.thumbnail_picture %}
+                        <img src="{{ ns.thumbnail_picture.url }}" class="series-poster">
+                    {% else %}
+                        <img src="/static/img/placeholder.png" class="series-poster">
+                    {% endif %}
+
+                    <h3>{{ ns.title }}</h3>
+
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+
+<!-- UPCOMING -->
+{% if upcoming_series %}
+    <h2>🚀 Upcoming</h2>
+
+    <div class="series-list">
+        {% for us in upcoming_series %}
+            <div class="series-item">
+                <a href="{% url 'watch_film_guest' us.series_id us.episode_set.first.episode_id %}">
+
+                    {% if us.thumbnail_picture %}
+                        <img src="{{ us.thumbnail_picture.url }}" class="series-poster">
+                    {% else %}
+                        <img src="/static/img/placeholder.png" class="series-poster">
+                    {% endif %}
+
+                    <h3>{{ us.title }}</h3>
+
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+</div>
 
 {% endblock %}

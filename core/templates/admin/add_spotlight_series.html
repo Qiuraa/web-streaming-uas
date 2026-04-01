@@ -1,70 +1,209 @@
 {% extends 'base_admin/base_admin.html' %}
 {% block content %}
 
+<style>
+
+/* CONTAINER */
+
+.spotlight-container{
+max-width:600px;
+margin:auto;
+margin-top:40px;
+}
+
+/* CARD */
+
+.spotlight-card{
+background:white;
+padding:30px;
+border-radius:14px;
+box-shadow:0 10px 25px rgba(0,0,0,0.06);
+border:1px solid #e2e8f0;
+}
+
+/* TITLE */
+
+.spotlight-title{
+font-size:20px;
+font-weight:600;
+margin-bottom:20px;
+}
+
+/* FORM */
+
+.form-group{
+margin-bottom:18px;
+}
+
+label{
+display:block;
+margin-bottom:6px;
+font-size:14px;
+color:#475569;
+}
+
+input{
+width:100%;
+padding:10px;
+border-radius:8px;
+border:1px solid #cbd5f5;
+background:white;
+}
+
+input:focus{
+outline:none;
+border-color:#6366f1;
+box-shadow:0 0 0 2px rgba(99,102,241,0.2);
+}
+
+/* FILE */
+
+input[type="file"]{
+cursor:pointer;
+}
+
+/* BUTTON */
+
+.btn-submit{
+width:100%;
+padding:12px;
+border:none;
+border-radius:10px;
+background:linear-gradient(135deg,#6366f1,#4f46e5);
+color:white;
+font-size:15px;
+cursor:pointer;
+transition:.2s;
+}
+
+.btn-submit:hover{
+transform:translateY(-2px);
+box-shadow:0 8px 20px rgba(79,70,229,0.3);
+}
+
+/* SUGGESTION */
+
+.suggestions{
+margin-top:5px;
+border-radius:10px;
+overflow:hidden;
+background:white;
+border:1px solid #e2e8f0;
+box-shadow:0 5px 15px rgba(0,0,0,0.05);
+}
+
+.suggestion-item{
+padding:10px;
+cursor:pointer;
+transition:.2s;
+}
+
+.suggestion-item:hover{
+background:#6366f1;
+color:white;
+}
+
+/* TEXT */
+
+small{
+color:#64748b;
+font-size:12px;
+}
+
+</style>
+
+
+
+<div class="spotlight-container">
+
+<div class="spotlight-card">
+
+<h2 class="spotlight-title">Add Spotlight Series</h2>
+
 <form method="post" id="add-spotlight-form" enctype="multipart/form-data">
-    {% csrf_token %}
+{% csrf_token %}
 
-    <div class="form-group">
-        <label for="id_series_search">Search series</label>
-        <input type="text" id="id_series_search" name="series_search" class="form-control" placeholder="Type a series title...">
-        <div id="series-suggestions" class="suggestions" style="border:1px solid #ccc; display:none; position:relative; background:#fff; max-height:200px; overflow:auto;"></div>
-    </div>
+<div class="form-group">
+<label>Search Series</label>
+<input type="text" id="id_series_search" placeholder="Type anime title...">
+<div id="series-suggestions" class="suggestions" style="display:none;"></div>
+</div>
 
-    {{ add_spotlight_form.series_id }} {# hidden input rendered by the form #}
+{{ add_spotlight_form.series_id }}
 
-    <div class="form-group">
-        <label for="id_image">Spotlight image (landscape)</label>
-        <input type="file" id="id_image" name="image" accept="image/*" class="form-control" />
-        <small class="form-text text-muted">Recommended: landscape image wide enough to span the spotlight row.</small>
-    </div>
+<div class="form-group">
+<label>Spotlight Image (Landscape)</label>
+<input type="file" id="id_image" name="image" accept="image/*">
+<small>Recommended size: 1280x720</small>
+</div>
 
-    <button type="submit" class="btn btn-primary">Add Spotlight Series</button>
+<button type="submit" class="btn-submit">Add to Spotlight</button>
+
 </form>
 
+</div>
+
+</div>
+
+
+
 <script>
-// Client-side small search+dropdown for published_series
 (function(){
-    const published = {{ published_series_json|safe }};
-    const input = document.getElementById('id_series_search');
-    const suggestions = document.getElementById('series-suggestions');
-    const hiddenField = document.getElementById('id_series_id');
 
-    function showSuggestions(list){
-        suggestions.innerHTML = '';
-        if(!list.length){ suggestions.style.display = 'none'; return; }
-        list.forEach(item => {
-            const div = document.createElement('div');
-            div.className = 'suggestion-item';
-            div.style.padding = '6px';
-            div.style.cursor = 'pointer';
-            div.textContent = item.title;
-            div.dataset.id = item.series_id;
-            div.addEventListener('click', function(){
-                input.value = this.textContent;
-                if(hiddenField) hiddenField.value = this.dataset.id;
-                suggestions.style.display = 'none';
-            });
-            suggestions.appendChild(div);
-        });
-        suggestions.style.display = 'block';
-    }
+// ✅ FIX ERROR DISINI
+const published = {{ published_series_json|default:"[]"|safe }};
 
-    input.addEventListener('input', function(){
-        const q = this.value.trim().toLowerCase();
-        if(!q){ suggestions.style.display = 'none'; return; }
-        const filtered = published.filter(p => p.title.toLowerCase().includes(q));
-        showSuggestions(filtered.slice(0,50));
-    });
+const input = document.getElementById('id_series_search');
+const suggestions = document.getElementById('series-suggestions');
+const hiddenField = document.getElementById('id_series_id');
 
-    // hide on click outside
-    document.addEventListener('click', function(e){
-        if(!document.getElementById('add-spotlight-form').contains(e.target)){
-            suggestions.style.display = 'none';
-        }
-    });
+function showSuggestions(list){
+suggestions.innerHTML = '';
 
-    // ensure hidden field cleared if user edits after selecting
-    input.addEventListener('change', function(){ if(hiddenField && hiddenField.value && hiddenField.value.length>0){ /* keep */ } });
+if(!list.length){
+suggestions.style.display = 'none';
+return;
+}
+
+list.forEach(item => {
+const div = document.createElement('div');
+div.className = 'suggestion-item';
+div.textContent = item.title;
+div.dataset.id = item.series_id;
+
+div.onclick = function(){
+input.value = this.textContent;
+if(hiddenField) hiddenField.value = this.dataset.id;
+suggestions.style.display = 'none';
+};
+
+suggestions.appendChild(div);
+});
+
+suggestions.style.display = 'block';
+}
+
+input.addEventListener('input', function(){
+const q = this.value.toLowerCase().trim();
+
+if(!q){
+suggestions.style.display = 'none';
+return;
+}
+
+const filtered = published.filter(p =>
+p.title.toLowerCase().includes(q)
+);
+
+showSuggestions(filtered.slice(0,20));
+});
+
+document.addEventListener('click', function(e){
+if(!document.getElementById('add-spotlight-form').contains(e.target)){
+suggestions.style.display = 'none';
+}
+});
+
 })();
 </script>
 

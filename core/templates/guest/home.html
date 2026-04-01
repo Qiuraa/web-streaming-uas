@@ -1,12 +1,116 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
+    <title>WatchOut</title>
+
+<style>
+
+/* RESET */
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Segoe UI', sans-serif;
+}
+
+body{
+    background:#0f0f0f;
+    color:white;
+    overflow:hidden;
+}
+
+/* HERO */
+.hero{
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    text-align:center;
+    position:relative;
+}
+
+/* BACKGROUND */
+.hero::before{
+    content:"";
+    position:absolute;
+    width:100%;
+    height:100%;
+    background:url("{% static 'img/bg-anime.jpg' %}") center/cover no-repeat;
+    filter:brightness(0.3);
+    z-index:1;
+}
+
+/* CONTENT */
+.hero-content{
+    position:relative;
+    z-index:2;
+    animation:fadeIn 1.5s ease;
+}
+
+.hero-title{
+    font-size:50px;
+    font-weight:bold;
+}
+
+.hero-sub{
+    margin-top:10px;
+    color:#ccc;
+}
+
+/* BUTTON */
+.btn{
+    margin-top:25px;
+    padding:12px 25px;
+    background:#ff2c2c;
+    border:none;
+    border-radius:6px;
+    color:white;
+    font-size:16px;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+.btn:hover{
+    background:#ff4444;
+    transform:scale(1.05);
+}
+
+/* ANIMATION */
+@keyframes fadeIn{
+    from{
+        opacity:0;
+        transform:translateY(20px);
+    }
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+
+</style>
+
 </head>
+
 <body>
-    <h1>Welcome to the Streaming Service</h1>
-    <p><a href="{% url 'homepage' %}">Go to Homepage</a></p>
+
+<div class="hero">
+    <div class="hero-content">
+
+        <div class="hero-title">WatchOut</div>
+
+        <div class="hero-sub">
+            Stream your favorite anime anytime, anywhere
+        </div>
+
+        <a href="{% url 'homepage' %}">
+            <button class="btn">Start Watching</button>
+        </a>
+
+    </div>
+</div>
+
 </body>
 </html>

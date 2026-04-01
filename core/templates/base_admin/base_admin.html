@@ -16,30 +16,14 @@ body{
 margin:0;
 font-family:'Poppins', sans-serif;
 color:#1e293b;
-background:url('/static/img/anime-bg.jpg') center/cover fixed;
-position:relative;
-overflow-x:hidden;
-}
-
-/* TRANSPARENT OVERLAY */
-
-body::before{
-content:"";
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-background:rgba(255,255,255,0.85);
-z-index:-1;
+background:#f1f5f9;
 }
 
 /* HEADER */
 
 .header{
 height:70px;
-background:rgba(255,255,255,0.8);
-backdrop-filter:blur(10px);
+background:white;
 display:flex;
 align-items:center;
 justify-content:space-between;
@@ -50,66 +34,71 @@ box-shadow:0 4px 20px rgba(0,0,0,0.05);
 /* LOGO */
 
 .logo{
-font-size:22px;
+font-size:20px;
 font-weight:600;
-color:#2563eb;
-letter-spacing:1px;
+color:#4f46e5;
+text-decoration:none;
+transition:0.2s;
+}
+
+.logo:hover{
+opacity:0.8;
+transform:scale(1.05);
 }
 
 /* NAV */
 
 .nav a{
 text-decoration:none;
-color:#475569;
+color:#64748b;
 margin-left:25px;
 font-weight:500;
-position:relative;
+transition:.2s;
 }
 
 .nav a:hover{
-color:#2563eb;
+color:#4f46e5;
 }
 
 /* CONTENT */
 
 .content{
 padding:40px;
-animation:fadeIn 0.5s ease;
+animation:fadeIn 0.4s ease;
 }
 
 /* CARD */
 
 .card{
-background:rgba(255,255,255,0.85);
-backdrop-filter:blur(8px);
+background:white;
 padding:25px;
-border-radius:12px;
+border-radius:14px;
 margin-bottom:25px;
-box-shadow:0 10px 25px rgba(0,0,0,0.1);
-transition:0.25s;
+box-shadow:0 8px 25px rgba(0,0,0,0.06);
+border:1px solid #e2e8f0;
+transition:.25s;
 }
 
 .card:hover{
-transform:translateY(-6px);
+transform:translateY(-4px);
 }
 
 /* BUTTON */
 
 button{
-background:linear-gradient(135deg,#6366f1,#3b82f6);
+background:linear-gradient(135deg,#6366f1,#4f46e5);
 border:none;
 padding:10px 18px;
 border-radius:8px;
 color:white;
 cursor:pointer;
 font-weight:500;
-box-shadow:0 4px 12px rgba(0,0,0,0.2);
-transition:0.2s;
+transition:.2s;
 }
 
 button:hover{
-transform:scale(1.07);
-background:linear-gradient(135deg,#818cf8,#6366f1);
+transform:translateY(-2px);
+box-shadow:0 8px 20px rgba(79,70,229,0.3);
 }
 
 /* TABLE */
@@ -117,25 +106,26 @@ background:linear-gradient(135deg,#818cf8,#6366f1);
 table{
 width:100%;
 border-collapse:collapse;
-background:rgba(255,255,255,0.9);
+background:white;
 border-radius:10px;
 overflow:hidden;
-box-shadow:0 5px 15px rgba(0,0,0,0.08);
+box-shadow:0 5px 15px rgba(0,0,0,0.05);
 }
 
 table th{
-background:#3b82f6;
+background:#4f46e5;
 color:white;
 padding:12px;
+text-align:left;
 }
 
 table td{
 padding:12px;
-border-bottom:1px solid #eee;
+border-bottom:1px solid #e2e8f0;
 }
 
 table tr:hover{
-background:#f1f5f9;
+background:#f8fafc;
 }
 
 /* INPUT */
@@ -143,8 +133,8 @@ background:#f1f5f9;
 input,select,textarea{
 width:100%;
 padding:10px;
-border-radius:6px;
-border:1px solid #e2e8f0;
+border-radius:8px;
+border:1px solid #cbd5f5;
 background:white;
 margin-bottom:10px;
 }
@@ -152,6 +142,7 @@ margin-bottom:10px;
 input:focus{
 outline:none;
 border-color:#6366f1;
+box-shadow:0 0 0 2px rgba(99,102,241,0.2);
 }
 
 /* GRID */
@@ -168,12 +159,12 @@ gap:25px;
 background:white;
 border-radius:12px;
 overflow:hidden;
-box-shadow:0 5px 15px rgba(0,0,0,0.1);
-transition:0.25s;
+box-shadow:0 5px 15px rgba(0,0,0,0.08);
+transition:.25s;
 }
 
 .poster:hover{
-transform:scale(1.06);
+transform:scale(1.05);
 }
 
 .poster img{
@@ -188,7 +179,7 @@ margin:0;
 font-size:14px;
 }
 
-/* FADE ANIMATION */
+/* FADE */
 
 @keyframes fadeIn{
 from{
@@ -201,30 +192,6 @@ transform:translateY(0);
 }
 }
 
-/* SAKURA ANIMATION */
-
-.sakura{
-position:fixed;
-top:-50px;
-font-size:20px;
-color:pink;
-animation:fall linear infinite;
-}
-
-@keyframes fall{
-
-0%{
-transform:translateY(-50px) rotate(0deg);
-opacity:1;
-}
-
-100%{
-transform:translateY(110vh) rotate(360deg);
-opacity:0;
-}
-
-}
-
 </style>
 
 </head>
@@ -235,7 +202,9 @@ opacity:0;
 
 <div class="header">
 
-<div class="logo">🎌 Anime Admin</div>
+<a href="{% url 'admin_homepage' %}" class="logo">
+🎌 Anime Admin
+</a>
 
 <div class="nav">
 
@@ -257,30 +226,6 @@ opacity:0;
 {% endblock %}
 
 </div>
-
-<!-- SAKURA EFFECT -->
-
-<script>
-
-for(let i=0;i<15;i++){
-
-let sakura=document.createElement("div")
-
-sakura.classList.add("sakura")
-
-sakura.innerHTML="🌸"
-
-sakura.style.left=Math.random()*100+"vw"
-
-sakura.style.animationDuration=(5+Math.random()*5)+"s"
-
-sakura.style.fontSize=(12+Math.random()*20)+"px"
-
-document.body.appendChild(sakura)
-
-}
-
-</script>
 
 </body>
 </html>

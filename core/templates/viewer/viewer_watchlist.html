@@ -1,42 +1,153 @@
 {% extends "base_user/base_user.html" %}
 {% block content %}
 
-{% if not user.is_authenticated %}
-    redirect('viewer_login')
-{% endif %}
+<style>
 
-<a href="{% url 'viewer_profile' user.user_id %}">Profile</a>
-<a href="{% url 'watch_history' %}">Watch History</a>
-<a href="{% url 'watchlist' %}">Watchlist</a>
+/* NAV */
+.watchlist-nav{
+    display:flex;
+    gap:20px;
+    padding:20px 40px;
+}
+
+.watchlist-nav a{
+    color:#ccc;
+    text-decoration:none;
+}
+
+.watchlist-nav a:hover{
+    color:white;
+}
+
+/* CONTAINER */
+.watchlist-container{
+    padding:20px 40px;
+}
+
+/* GRID */
+.series-list{
+    display:grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap:20px;
+}
+
+/* CARD */
+.series-item{
+    position:relative;
+    background:#1c1c1c;
+    border-radius:10px;
+    overflow:hidden;
+    transition:0.3s;
+}
+
+.series-item:hover{
+    transform:scale(1.05);
+}
+
+/* IMAGE */
+.series-poster{
+    width:100%;
+    height:260px;
+    object-fit:cover;
+}
+
+/* TITLE */
+.series-item h3{
+    padding:10px;
+    font-size:14px;
+}
+
+/* OVERLAY ACTION */
+.overlay{
+    position:absolute;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.7);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    opacity:0;
+    transition:0.3s;
+}
+
+.series-item:hover .overlay{
+    opacity:1;
+}
+
+/* BUTTON */
+.remove-btn{
+    padding:10px 15px;
+    background:#ff2c2c;
+    border:none;
+    border-radius:6px;
+    color:white;
+    cursor:pointer;
+}
+
+</style>
+
+
+<!-- NAV -->
+<div class="watchlist-nav">
+    <a href="{% url 'viewer_profile' user.user_id %}">Profile</a>
+    <a href="{% url 'watch_history' %}">History</a>
+    <a href="{% url 'watchlist' %}">Watchlist</a>
+</div>
+
+
+<div class="watchlist-container">
 
 {% if watchlist %}
+
     <h2>Your Watchlist</h2>
 
     <div class="series-list">
+
         {% for item in watchlist %}
-            <div class="series-item">
-                {# Link to watch page: use the series' first episode if available #}
-                {% if item.series.episode_set.first %}
-                <a href="{% url 'watch_film_guest' item.series.series_id item.series.episode_set.first.episode_id %}">
+
+        <div class="series-item">
+
+            {% if item.series.episode_set.first %}
+            <a href="{% url 'watch_film_guest' item.series.series_id item.series.episode_set.first.episode_id %}">
+            {% else %}
+            <a href="#">
+            {% endif %}
+
+                {% if item.series.thumbnail_picture %}
+                    <img src="{{ item.series.thumbnail_picture.url }}" class="series-poster">
                 {% else %}
-                <a href="#">
+                    <img src="/static/img/placeholder.png" class="series-poster">
                 {% endif %}
-                    {% if item.series.thumbnail_picture %}
-                        <img src="{{ item.series.thumbnail_picture.url }}" alt="{{ item.series.title }} Poster" class="series-poster">
-                    {% else %}
-                        <img src="/static/img/placeholder.png" alt="No image" class="series-poster">
-                    {% endif %}
-                    <h3>{{ item.series.title }}</h3>
-                </a>
-                <form method="post" action="{% url 'remove_from_watchlist' item.series.series_id %}" style="display:inline; margin-left:8px;">
+
+                <h3>{{ item.series.title }}</h3>
+
+            </a>
+
+            <!-- OVERLAY REMOVE -->
+            <div class="overlay">
+                <form method="post" action="{% url 'remove_from_watchlist' item.series.series_id %}">
                     {% csrf_token %}
-                    <button type="submit" onclick="return confirm('Are you sure you want to remove this series from your watchlist?');">Remove from Watchlist</button>
+                    <button type="submit" class="remove-btn"
+                        onclick="return confirm('Remove from watchlist?');">
+                        Remove
+                    </button>
                 </form>
             </div>
+
+        </div>
+
         {% endfor %}
+
     </div>
+
 {% else %}
-    <p>Your watchlist is empty. Start adding some series to your watchlist to see them here!</p>
+
+    <p>Your watchlist is empty.</p>
+
 {% endif %}
+
+</div>
 
 {% endblock %}

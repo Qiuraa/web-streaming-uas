@@ -1,211 +1,219 @@
 {% extends 'base_admin/base_manage_film.html' %}
 {% block content %}
 
-<div style="font-family:'Poppins',sans-serif;">
+<style>
 
-<!-- HEADER ACTION BAR -->
+/* HEADER */
 
-<div style="
+.page-header{
 display:flex;
 justify-content:space-between;
 align-items:center;
 flex-wrap:wrap;
 gap:15px;
 margin-bottom:30px;
-">
+}
 
-<div>
+.page-title{
+margin:0;
+font-weight:600;
+}
 
-<h2 style="margin:0;font-weight:600;">Manage Anime</h2>
-<p style="margin:3px 0;color:#6b7280;font-size:14px;">
-Manage all anime in your library
-</p>
+.page-subtitle{
+margin:3px 0;
+color:#64748b;
+font-size:14px;
+}
 
-</div>
+/* ACTION */
 
-<div style="display:flex;gap:10px;flex-wrap:wrap;">
+.action-bar{
+display:flex;
+gap:10px;
+flex-wrap:wrap;
+}
 
-<input type="text" id="animeSearch" placeholder="Search anime..."
-style="
+.search-input{
 padding:10px 15px;
 border-radius:8px;
 border:1px solid #ddd;
 width:220px;
-">
+}
 
-<a href="{% url 'add_film' %}">
-<button style="
+/* BUTTON VARIANTS */
+
+.btn{
+padding:10px 16px;
+border:none;
+border-radius:8px;
+color:white;
+cursor:pointer;
+}
+
+.btn-primary{
 background:linear-gradient(135deg,#6366f1,#3b82f6);
-padding:10px 16px;
-border:none;
-border-radius:8px;
-color:white;
-cursor:pointer;
-">
-+ Add Anime
-</button>
-</a>
+}
 
-<a href="{% url 'manage_genre' %}">
-<button style="
+.btn-blue{
 background:#3b82f6;
-padding:10px 16px;
-border:none;
-border-radius:8px;
-color:white;
-cursor:pointer;
-">
-Genres
-</button>
-</a>
+}
 
-<a href="{% url 'admin_homepage' %}">
-<button style="
+.btn-gray{
 background:#64748b;
-padding:10px 16px;
-border:none;
-border-radius:8px;
-color:white;
-cursor:pointer;
-">
-Dashboard
-</button>
-</a>
+}
 
-</div>
+/* GRID */
 
-</div>
-
-
-
-<!-- ANIME GRID -->
-
-<div id="animeGrid" style="
+.anime-grid{
 display:grid;
 grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
 gap:30px;
-">
+}
 
-{% for s in series %}
+/* CARD */
 
-<div class="animeCard">
-
-<div style="
+.anime-card{
 background:white;
 border-radius:16px;
 overflow:hidden;
 box-shadow:0 10px 25px rgba(0,0,0,0.08);
-transition:0.3s;
+transition:.3s;
 cursor:pointer;
-"
-onmouseover="this.style.transform='translateY(-8px)'"
-onmouseout="this.style.transform='translateY(0)'"
->
+}
 
-<a href="{% url 'detail_film' s.series_id %}" style="text-decoration:none;color:black;">
+.anime-card:hover{
+transform:translateY(-8px);
+}
 
-<!-- POSTER -->
+/* POSTER */
 
-<div style="position:relative">
+.poster{
+position:relative;
+}
 
-{% if s.thumbnail_picture %}
-<img src="{{ s.thumbnail_picture.url }}" style="
+.poster img{
 width:100%;
 height:270px;
 object-fit:cover;
-">
-{% else %}
-<img src="/static/img/placeholder.png" style="
-width:100%;
-height:270px;
-object-fit:cover;
-">
-{% endif %}
+}
 
-<!-- GRADIENT -->
+/* GRADIENT */
 
-<div style="
+.poster::after{
+content:"";
 position:absolute;
 bottom:0;
 left:0;
 right:0;
 height:80px;
 background:linear-gradient(transparent,rgba(0,0,0,0.8));
-"></div>
+}
 
-<!-- EPISODE BADGE -->
+/* BADGES */
 
-<div style="
+.badge{
 position:absolute;
+padding:4px 8px;
+border-radius:6px;
+font-size:12px;
+color:white;
+}
+
+.badge-ep{
 top:10px;
 left:10px;
 background:#6366f1;
-color:white;
-padding:4px 8px;
-border-radius:6px;
-font-size:12px;
-">
+}
 
-EP {{ s.total_episodes }}
-
-</div>
-
-<!-- STATUS BADGE -->
-
-{% if s.is_published %}
-<div style="
-position:absolute;
+.badge-published{
 top:10px;
 right:10px;
 background:#10b981;
-color:white;
-padding:4px 8px;
-border-radius:6px;
-font-size:12px;
-">
+}
 
-Published
-
-</div>
-{% else %}
-
-<div style="
-position:absolute;
+.badge-draft{
 top:10px;
 right:10px;
 background:#f59e0b;
-color:white;
-padding:4px 8px;
-border-radius:6px;
-font-size:12px;
-">
+}
 
-Draft
+/* TITLE */
+
+.anime-title{
+padding:14px;
+font-size:15px;
+font-weight:600;
+line-height:1.4;
+margin:0;
+color:#111827;
+}
+
+</style>
+
+
+
+<!-- HEADER -->
+
+<div class="page-header">
+
+<div>
+<h2 class="page-title">Manage Anime</h2>
+<p class="page-subtitle">Manage all anime in your library</p>
+</div>
+
+<div class="action-bar">
+
+<input type="text" id="animeSearch" placeholder="Search anime..." class="search-input">
+
+<a href="{% url 'add_film' %}">
+<button class="btn btn-primary">+ Add Anime</button>
+</a>
+
+<a href="{% url 'manage_genre' %}">
+<button class="btn btn-blue">Genres</button>
+</a>
+
+<a href="{% url 'admin_homepage' %}">
+<button class="btn btn-gray">Dashboard</button>
+</a>
 
 </div>
 
+</div>
+
+
+
+<!-- GRID -->
+
+<div id="animeGrid" class="anime-grid">
+
+{% for s in series %}
+
+<div class="animeCard">
+
+<div class="anime-card">
+
+<a href="{% url 'detail_film' s.series_id %}" style="text-decoration:none;">
+
+<div class="poster">
+
+{% if s.thumbnail_picture %}
+<img src="{{ s.thumbnail_picture.url }}">
+{% else %}
+<img src="/static/img/placeholder.png">
+{% endif %}
+
+<div class="badge badge-ep">EP {{ s.total_episodes }}</div>
+
+{% if s.is_published %}
+<div class="badge badge-published">Published</div>
+{% else %}
+<div class="badge badge-draft">Draft</div>
 {% endif %}
 
 </div>
 
-
-
-<!-- INFO -->
-
-<div style="padding:14px">
-
-<h4 style="
-margin:0;
-font-size:15px;
-font-weight:600;
-line-height:1.4;
-">
-
-{{ s.title }}
-
-</h4>
-
-</div>
+<h4 class="anime-title">{{ s.title }}</h4>
 
 </a>
 
@@ -217,11 +225,9 @@ line-height:1.4;
 
 </div>
 
-</div>
 
 
-
-<!-- SEARCH SCRIPT -->
+<!-- SEARCH -->
 
 <script>
 
@@ -236,11 +242,7 @@ cards.forEach(card=>{
 
 let text=card.innerText.toLowerCase()
 
-if(text.includes(filter)){
-card.style.display="block"
-}else{
-card.style.display="none"
-}
+card.style.display = text.includes(filter) ? "block" : "none"
 
 })
 

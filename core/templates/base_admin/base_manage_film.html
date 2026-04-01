@@ -4,101 +4,156 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Manage Films</title>
-</head>
 
-<body style="
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+
+/* GLOBAL */
+
+body{
 margin:0;
-font-family:Arial, sans-serif;
-background:#f4f6f9;
-color:#333;
-">
+font-family:'Poppins', sans-serif;
+background:#f1f5f9;
+color:#1e293b;
+}
 
-<!-- Header -->
-<div style="
+/* HEADER */
+
+.header{
 background:white;
 padding:18px 40px;
 display:flex;
 justify-content:space-between;
 align-items:center;
-box-shadow:0 2px 10px rgba(0,0,0,0.08);
-">
+box-shadow:0 2px 10px rgba(0,0,0,0.06);
+}
 
-<h2 style="margin:0;color:#5a4bff;">
-🎬 Anime Admin
-</h2>
+.logo{
+margin:0;
+color:#4f46e5;
+font-size:20px;
+font-weight:600;
+text-decoration:none;
+}
 
-<div>
+.logo:hover{
+opacity:0.8;
+}
 
-<a href="{% url 'admin_homepage' %}" style="
+/* NAV */
+
+.nav a{
 text-decoration:none;
 margin-right:20px;
-font-weight:bold;
-color:#333;
-">
-Dashboard
-</a>
+font-weight:500;
+color:#475569;
+transition:.2s;
+}
 
-<a href="{% url 'manage_film' %}" style="
-text-decoration:none;
-margin-right:20px;
-font-weight:bold;
-color:#333;
-">
-Films
-</a>
+.nav a:hover{
+color:#4f46e5;
+}
 
-<a href="{% url 'manage_producer' %}" style="
-text-decoration:none;
-margin-right:20px;
-font-weight:bold;
-color:#333;
-">
-Producers
-</a>
+/* CONTAINER */
 
-<a href="{% url 'manage_studio' %}" style="
-text-decoration:none;
-font-weight:bold;
-color:#333;
-">
-Studios
-</a>
-
-</div>
-
-</div>
-
-
-<!-- Page Container -->
-<div style="
+.container{
 max-width:1100px;
 margin:40px auto;
 background:white;
 padding:30px;
-border-radius:10px;
-box-shadow:0 5px 20px rgba(0,0,0,0.08);
-">
+border-radius:12px;
+box-shadow:0 8px 25px rgba(0,0,0,0.06);
+}
 
-<!-- Page Title -->
-<div style="
+/* PAGE HEADER */
+
+.page-header{
 display:flex;
 justify-content:space-between;
 align-items:center;
 margin-bottom:25px;
-">
+flex-wrap:wrap;
+gap:10px;
+}
 
-<h1 style="margin:0;color:#444;">
-Manage Films
-</h1>
+.page-title{
+margin:0;
+font-size:22px;
+font-weight:600;
+}
 
-<a href="{% url 'admin_homepage' %}" style="
-background:#5a4bff;
+/* BUTTON */
+
+.btn{
+background:#4f46e5;
 color:white;
 padding:8px 16px;
-border-radius:6px;
+border-radius:8px;
 text-decoration:none;
 font-size:14px;
-">
+transition:.2s;
+}
+
+.btn:hover{
+background:#4338ca;
+}
+
+/* FOOTER */
+
+.footer{
+text-align:center;
+margin-top:40px;
+padding:20px;
+font-size:13px;
+color:#64748b;
+}
+
+/* FADE */
+
+@keyframes fadeIn{
+from{opacity:0; transform:translateY(10px);}
+to{opacity:1; transform:translateY(0);}
+}
+
+.container{
+animation:fadeIn .4s ease;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<!-- HEADER -->
+
+<div class="header">
+
+<a href="{% url 'admin_homepage' %}" class="logo">
+🎬 Anime Admin
+</a>
+
+<div class="nav">
+<a href="{% url 'admin_homepage' %}">Dashboard</a>
+<a href="{% url 'manage_film' %}">Films</a>
+<a href="{% url 'manage_producer' %}">Producers</a>
+<a href="{% url 'manage_studio' %}">Studios</a>
+</div>
+
+</div>
+
+
+
+<!-- CONTENT -->
+
+<div class="container">
+
+<div class="page-header">
+
+<h1 class="page-title">Manage Films</h1>
+
+<a href="{% url 'admin_homepage' %}" class="btn">
 ⬅ Back to Dashboard
 </a>
 
@@ -110,17 +165,11 @@ font-size:14px;
 </div>
 
 
-<!-- Footer -->
-<div style="
-text-align:center;
-margin-top:40px;
-padding:20px;
-font-size:14px;
-color:#777;
-">
 
+<!-- FOOTER -->
+
+<div class="footer">
 Anime Streaming Admin System
-
 </div>
 
 </body>
