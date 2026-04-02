@@ -43,15 +43,28 @@ box-shadow:0 20px 40px rgba(0,0,0,0.8);
 
 /* ================= TITLE ================= */
 
-.series-info h2{
-margin:0;
-font-size:26px;
-color:white;
+.series-info h2, .series-title{
+	margin:0;
+	font-size:26px;
+	color:var(--text);
+	font-weight:700;
+	line-height:1.2;
+	/* prevent overflowing very long titles */
+	max-width:720px;
+	white-space:nowrap;
+	overflow:hidden;
+	text-overflow:ellipsis;
 }
 
-.series-info h3{
-margin-top:5px;
-color:var(--sub);
+.series-info h3, .series-subtitle{
+	margin-top:6px;
+	color:var(--sub);
+	font-size:14px;
+	font-weight:500;
+}
+
+@media(max-width:768px){
+	.series-info h2, .series-title{ font-size:20px; }
 }
 
 /* ================= PLAYER ================= */
@@ -205,7 +218,7 @@ height:300px;
 {% endif %}
 
 <div class="series-info">
-<h2>{{ series.title }}</h2>
+<h2 class="series-title">{{ series.title }}</h2>
 {% if series.alternate_title %}
 <h3>{{ series.alternate_title }}</h3>
 {% endif %}
