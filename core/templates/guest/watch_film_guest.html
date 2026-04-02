@@ -211,12 +211,6 @@ height:300px;
 
 <div class="series-header">
 
-{% if series.thumbnail_picture %}
-<img src="{{ series.thumbnail_picture.url }}" class="series-poster">
-{% else %}
-<img src="/static/img/placeholder.png" class="series-poster">
-{% endif %}
-
 <div class="series-info">
 <h2 class="series-title">{{ series.title }}</h2>
 {% if series.alternate_title %}
