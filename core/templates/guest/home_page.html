@@ -119,11 +119,13 @@
     <div class="spotlight-row">
         {% for ss in spotlight_series|slice:":1" %}
             
-            {% if user.is_authenticated %}
-                <a href="{% url 'watch_film_guest' ss.series.series_id ss.series.episode_set.first.episode_id %}">
-            {% else %}
-                <a href="{% url 'viewer_login' %}">
-            {% endif %}
+            {% with first_ep=ss.series.episode_set.first %}
+                {% if user.is_authenticated and first_ep %}
+                    <a href="{% url 'watch_film_guest' ss.series.series_id first_ep.episode_id %}">
+                {% else %}
+                    <a href="{% url 'viewer_login' %}">
+                {% endif %}
+            {% endwith %}
 
                 {% if ss.image %}
                     <img src="{{ ss.image.url }}" class="spotlight-banner">
@@ -151,11 +153,13 @@
         {% for fs in featured_series %}
             <div class="series-item">
 
-                {% if user.is_authenticated %}
-                    <a href="{% url 'watch_film_guest' fs.series_id fs.episode_set.first.episode_id %}">
-                {% else %}
-                    <a href="{% url 'viewer_login' %}">
-                {% endif %}
+                {% with first_ep=fs.episode_set.first %}
+                    {% if user.is_authenticated and first_ep %}
+                        <a href="{% url 'watch_film_guest' fs.series_id first_ep.episode_id %}">
+                    {% else %}
+                        <a href="{% url 'viewer_login' %}">
+                    {% endif %}
+                {% endwith %}
 
                     {% if fs.thumbnail_picture %}
                         <img src="{{ fs.thumbnail_picture.url }}" class="series-poster">
@@ -192,11 +196,13 @@
         {% for ns in new_series %}
             <div class="series-item">
 
-                {% if user.is_authenticated %}
-                    <a href="{% url 'watch_film_guest' ns.series_id ns.episode_set.first.episode_id %}">
-                {% else %}
-                    <a href="{% url 'viewer_login' %}">
-                {% endif %}
+                {% with first_ep=ns.episode_set.first %}
+                    {% if user.is_authenticated and first_ep %}
+                        <a href="{% url 'watch_film_guest' ns.series_id first_ep.episode_id %}">
+                    {% else %}
+                        <a href="{% url 'viewer_login' %}">
+                    {% endif %}
+                {% endwith %}
 
                     {% if ns.thumbnail_picture %}
                         <img src="{{ ns.thumbnail_picture.url }}" class="series-poster">
@@ -221,11 +227,13 @@
         {% for us in upcoming_series %}
             <div class="series-item">
 
-                {% if user.is_authenticated %}
-                    <a href="{% url 'watch_film_guest' us.series_id us.episode_set.first.episode_id %}">
-                {% else %}
-                    <a href="{% url 'viewer_login' %}">
-                {% endif %}
+                {% with first_ep=us.episode_set.first %}
+                    {% if user.is_authenticated and first_ep %}
+                        <a href="{% url 'watch_film_guest' us.series_id first_ep.episode_id %}">
+                    {% else %}
+                        <a href="{% url 'viewer_login' %}">
+                    {% endif %}
+                {% endwith %}
 
                     {% if us.thumbnail_picture %}
                         <img src="{{ us.thumbnail_picture.url }}" class="series-poster">
