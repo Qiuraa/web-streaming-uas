@@ -132,7 +132,7 @@
     <h2>⭐ Featured</h2>
 
     <div class="series-list">
-        {% for s in series %}
+        {% for s in series|slice:":6" %}
             <div class="series-item">
                 <a href="{% url 'watch_film_guest' s.series_id s.episode_set.first.episode_id %}">
 
