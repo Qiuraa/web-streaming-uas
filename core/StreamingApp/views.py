@@ -418,6 +418,18 @@ class HomepageView(View):
         upcoming_series = Series.objects.filter(is_published=False).order_by('created_at')[:10]
 
         spotlight_series = SpotLightSeries.objects.filter(series__is_published=True).select_related('series').order_by('-created_at')[:5]
+        
+        # Get continue watching: only the latest watched episode per series
+        continue_watching = []
+        if request.user.is_authenticated:
+            # Get latest watched episode per series
+            watch_history_by_series = {}
+            watch_history_list = WatchHistory.objects.filter(user=request.user).select_related('episode__series', 'episode').order_by('-last_watched_at')
+            for wh in watch_history_list:
+                series_id = wh.episode.series.series_id
+                if series_id not in watch_history_by_series:
+                    watch_history_by_series[series_id] = wh
+            continue_watching = list(watch_history_by_series.values())[:5]
 
         return render(request, 'guest/home_page.html', {
             'featured_series': featured_series,
@@ -425,6 +437,7 @@ class HomepageView(View):
             'new_series': new_series,
             'upcoming_series': upcoming_series,
             'spotlight_series': spotlight_series,
+            'continue_watching': continue_watching,
         })
 
 class SearchResultsView(View):
@@ -464,8 +477,20 @@ class WatchFilmGuestView(View):
 class DetailFilmGuestView(View):
     def get(self, request, series_id):
         series = get_object_or_404(Series, series_id=series_id)
+        
+        # Find the last watched episode for this series (if user is authenticated)
+        last_watched_episode = None
+        if request.user.is_authenticated:
+            last_watch = WatchHistory.objects.filter(
+                user=request.user,
+                episode__series=series
+            ).select_related('episode').order_by('-last_watched_at').first()
+            if last_watch:
+                last_watched_episode = last_watch.episode
+        
         return render(request, 'guest/detail_film_guest.html', {
             'series': series,
+            'last_watched_episode': last_watched_episode,
         })
 
 class ViewerHomepageView(View):
@@ -578,10 +603,19 @@ class WatchHistoryView(View):
         # If no user_id provided, show the current user's watch history.
         if user_id is None:
             user = request.user
-            watch_history_list = WatchHistory.objects.filter(user=user).select_related('episode__series').order_by('-last_watched_at')
+            all_history = WatchHistory.objects.filter(user=user).select_related('episode__series').order_by('-last_watched_at')
         else:
             # allow admins to view other users' history by UUID
-            watch_history_list = WatchHistory.objects.filter(user__user_id=user_id).select_related('episode__series').order_by('-last_watched_at')
+            all_history = WatchHistory.objects.filter(user__user_id=user_id).select_related('episode__series').order_by('-last_watched_at')
+
+        # Deduplicate: only keep the most recently watched episode per series
+        seen_series = {}
+        for wh in all_history:
+            sid = wh.episode.series.series_id
+            if sid not in seen_series:
+                seen_series[sid] = wh
+        watch_history_list = list(seen_series.values())
+
         return render(request, 'viewer/viewer_watch_history.html', {
             'watch_history_list': watch_history_list,
         })
@@ -803,7 +837,7 @@ class ViewerRemoveWatchlistView(LoginRequiredMixin, View):
 
         series = get_object_or_404(Series, series_id=series_id)
         Watchlist.objects.filter(user=request.user, series=series).delete()
-        return redirect('view_watchlist')
+        return redirect('watchlist')
 
 class ViewerCommentView(LoginRequiredMixin, View):
     login_url = 'viewer_login'

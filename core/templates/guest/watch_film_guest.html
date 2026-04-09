@@ -252,6 +252,12 @@ Watch on YouTube
 <p>{{ series.sypnosis }}</p>
 </div>
 
+<p style="margin-top:12px;">
+<a href="{% url 'detail_film_guest' series.series_id %}" style="color:var(--accent-soft);text-decoration:none;font-size:14px;">
+    📄 View Film Details →
+</a>
+</p>
+
 {% else %}
 <p>Film not found.</p>
 {% endif %}
@@ -285,12 +291,84 @@ const seriesId = '{{ series.series_id }}';
 let episodeId = "{{ episode.episode_id }}";
 
 let player;
+let lastProgressSavedAt = 0;
+const progressSaveInterval = 10000; // save progress every 10 seconds
+
+// Read start time from ?t= query parameter
+const urlParams = new URLSearchParams(window.location.search);
+const startSeconds = parseInt(urlParams.get('t')) || 0;
+
+// Get CSRF token from the hidden form
+function getCsrfToken() {
+	return document.querySelector('[name=csrfmiddlewaretoken]').value;
+}
 
 window.onYouTubeIframeAPIReady = function(){
 player = new YT.Player('yt-player',{
-videoId:"{{ episode.video_id }}"
+videoId:"{{ episode.video_id }}",
+playerVars: {
+    start: startSeconds
+},
+events: {
+'onStateChange': onPlayerStateChange,
+'onReady': onPlayerReady
+}
 });
 };
+
+function onPlayerReady(event) {
+	// If start time was provided via ?t=, seek to it (backup in case playerVars.start didn't work)
+	if (startSeconds > 0) {
+		player.seekTo(startSeconds, true);
+	}
+	// Start tracking progress once player is ready
+	setInterval(trackProgress, 1000);
+}
+
+function trackProgress() {
+	if (!player || player.getPlayerState() !== YT.PlayerState.PLAYING) {
+		return;
+	}
+
+	const currentTime = Math.floor(player.getCurrentTime());
+	const now = Date.now();
+
+	// Save progress every 10 seconds to avoid too many requests
+	if (now - lastProgressSavedAt > progressSaveInterval) {
+		saveProgress(episodeId, currentTime);
+		lastProgressSavedAt = now;
+	}
+}
+
+function onPlayerStateChange(event) {
+	// Optional: you could also save progress when video ends
+	if (event.data === YT.PlayerState.ENDED) {
+		const duration = Math.floor(player.getDuration());
+		saveProgress(episodeId, duration);
+	}
+}
+
+function saveProgress(epId, seconds) {
+	const csrfToken = getCsrfToken();
+	fetch('/save-progress/', {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+			'X-CSRFToken': csrfToken
+		},
+		body: JSON.stringify({
+			episode_id: epId,
+			progress_seconds: seconds
+		})
+	})
+	.then(r => r.json())
+	.then(data => {
+		if (data.status !== 'ok') {
+			console.warn('Progress save failed:', data.status);
+		}
+	})
+	.catch(err => console.error('Progress save error:', err));
+}
 
 function setVideo(videoId, epId){
 episodeId = epId;

@@ -282,13 +282,7 @@
 {% if spotlight_series %}
     <div class="spotlight-row">
         {% for ss in spotlight_series|slice:":1" %}
-            {% with first_ep=ss.series.episode_set.first %}
-                {% if user.is_authenticated and first_ep %}
-                    <a href="{% url 'watch_film_guest' ss.series.series_id first_ep.episode_id %}">
-                {% else %}
-                    <a href="{% url 'viewer_login' %}">
-                {% endif %}
-            {% endwith %}
+            <a href="{% url 'detail_film_guest' ss.series.series_id %}">
 
                 {% if ss.image %}
                     <img src="{{ ss.image.url }}" class="spotlight-banner">
@@ -319,19 +313,19 @@
     <div class="series-list">
         {% for fs in featured_series|slice:":6" %}
             <div class="series-item">
-                {% with first_ep=fs.episode_set.first %}
-                    {% if first_ep %}
-                        <a href="{% url 'watch_film_guest' fs.series_id first_ep.episode_id %}">
-                    {% else %}
-                        <a href="{% url 'viewer_login' %}">
-                    {% endif %}
-                {% endwith %}
+                <a href="{% url 'detail_film_guest' fs.series_id %}">
 
                     {% if fs.thumbnail_picture %}
                         <img src="{{ fs.thumbnail_picture.url }}" class="series-poster">
                     {% else %}
                         <img src="/static/img/placeholder.png" class="series-poster">
                     {% endif %}
+
+                    <div class="card-overlay">
+                        <div class="play-icon">
+                            <svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
+                        </div>
+                    </div>
 
                     <div class="card-overlay">
                         <div class="play-icon">
@@ -355,7 +349,34 @@
     <h2>▶ Continue Watching</h2>
 </div>
 
-{% if user.is_authenticated %}
+{% if user.is_authenticated and continue_watching %}
+    <div class="series-list">
+        {% for history in continue_watching %}
+            <div class="series-item">
+                <a href="{% url 'watch_film_guest' history.episode.series.series_id history.episode.episode_id %}?t={{ history.progress_seconds }}">
+
+                    {% if history.episode.series.thumbnail_picture %}
+                        <img src="{{ history.episode.series.thumbnail_picture.url }}" class="series-poster">
+                    {% else %}
+                        <img src="/static/img/placeholder.png" class="series-poster">
+                    {% endif %}
+
+                    <div class="card-overlay">
+                        <div class="play-icon">
+                            <svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
+                        </div>
+                    </div>
+
+                    <div class="card-bottom">
+                        <h3>{{ history.episode.series.title }}</h3>
+                        <small style="color:#888;">Ep {{ history.episode.episode_number }}</small>
+                    </div>
+
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+{% elif user.is_authenticated %}
     <p style="color:#555; font-size:14px;">Your watch history will appear here.</p>
 {% else %}
     <a href="{% url 'viewer_login' %}" class="login-reminder">
@@ -374,13 +395,7 @@
     <div class="series-list">
         {% for ns in new_series|slice:":15" %}
             <div class="series-item">
-                {% with first_ep=ns.episode_set.first %}
-                    {% if user.is_authenticated and first_ep %}
-                        <a href="{% url 'watch_film_guest' ns.series_id first_ep.episode_id %}">
-                    {% else %}
-                        <a href="{% url 'viewer_login' %}">
-                    {% endif %}
-                {% endwith %}
+                <a href="{% url 'detail_film_guest' ns.series_id %}">
 
                     {% if ns.thumbnail_picture %}
                         <img src="{{ ns.thumbnail_picture.url }}" class="series-poster">
@@ -407,13 +422,7 @@
         <div class="series-list-vertical">
             {% for ns in new_series|slice:"15:" %}
                 <div class="series-item">
-                    {% with first_ep=ns.episode_set.first %}
-                        {% if user.is_authenticated and first_ep %}
-                            <a href="{% url 'watch_film_guest' ns.series_id first_ep.episode_id %}">
-                        {% else %}
-                            <a href="{% url 'viewer_login' %}">
-                        {% endif %}
-                    {% endwith %}
+                    <a href="{% url 'detail_film_guest' ns.series_id %}">
 
                         {% if ns.thumbnail_picture %}
                             <img src="{{ ns.thumbnail_picture.url }}" class="series-poster">

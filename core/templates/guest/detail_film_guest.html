@@ -120,7 +120,7 @@
         <!-- BUTTON -->
         <div class="action-buttons">
 
-            <a href="{% if series.episode_set.first %}{% url 'watch_film_guest' series.series_id series.episode_set.first.episode_id %}{% else %}#{% endif %}">
+            <a href="{% if last_watched_episode %}{% url 'watch_film_guest' series.series_id last_watched_episode.episode_id %}{% elif series.episode_set.first %}{% url 'watch_film_guest' series.series_id series.episode_set.first.episode_id %}{% else %}#{% endif %}">
                 <button class="btn btn-watch">▶ Watch Now</button>
             </a>
 

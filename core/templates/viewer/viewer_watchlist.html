@@ -51,39 +51,44 @@
     object-fit:cover;
 }
 
+/* CARD LINK */
+.series-item > a{
+    text-decoration:none;
+    color:inherit;
+    display:block;
+}
+
 /* TITLE */
 .series-item h3{
-    padding:10px;
+    padding:10px 10px 6px;
     font-size:14px;
+    margin:0;
+    color:#fff;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
 }
 
-/* OVERLAY ACTION */
-.overlay{
-    position:absolute;
-    top:0;
-    left:0;
-    width:100%;
-    height:100%;
-    background:rgba(0,0,0,0.7);
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    opacity:0;
-    transition:0.3s;
+/* REMOVE BUTTON - small at bottom */
+.remove-form{
+    padding:0 10px 10px;
 }
 
-.series-item:hover .overlay{
-    opacity:1;
-}
-
-/* BUTTON */
 .remove-btn{
-    padding:10px 15px;
-    background:#ff2c2c;
+    background:none;
     border:none;
-    border-radius:6px;
-    color:white;
+    color:#ff4d4d;
+    font-size:12px;
     cursor:pointer;
+    padding:4px 0;
+    transition:0.2s;
+}
+
+.remove-btn:hover{
+    color:#ff1a1a;
+    text-decoration:underline;
+    transform:none;
+    box-shadow:none;
 }
 
 </style>
@@ -112,7 +117,7 @@
             {% if item.series.episode_set.first %}
             <a href="{% url 'watch_film_guest' item.series.series_id item.series.episode_set.first.episode_id %}">
             {% else %}
-            <a href="#">
+            <a href="{% url 'detail_film_guest' item.series.series_id %}">
             {% endif %}
 
                 {% if item.series.thumbnail_picture %}
@@ -125,13 +130,13 @@
 
             </a>
 
-            <!-- OVERLAY REMOVE -->
-            <div class="overlay">
+            <!-- REMOVE BUTTON AT BOTTOM -->
+            <div class="remove-form">
                 <form method="post" action="{% url 'remove_from_watchlist' item.series.series_id %}">
                     {% csrf_token %}
                     <button type="submit" class="remove-btn"
                         onclick="return confirm('Remove from watchlist?');">
-                        Remove
+                        ✕ Remove
                     </button>
                 </form>
             </div>
