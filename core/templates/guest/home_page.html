@@ -2,522 +2,556 @@
 {% block content %}
 
 <style>
+    /* SECTION */
+    .section {
+        padding: 40px 50px;
+    }
 
-/* SECTION */
-.section{
-    padding:40px 50px;
-}
+    /* SECTION HEADER — more professional */
+    .section-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 18px;
+    }
 
-/* SECTION HEADER — more professional */
-.section-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 18px;
-}
+    .section-header h2 {
+        font-size: 20px;
+        font-weight: 700;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 0;
+    }
 
-.section-header h2 {
-    font-size: 20px;
-    font-weight: 700;
-    color: #fff;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin: 0;
-}
+    .section-header h2::after {
+        content: '';
+        display: inline-block;
+        width: 4px;
+        height: 20px;
+        background: #e50914;
+        border-radius: 2px;
+        margin-left: 10px;
+    }
 
-.section-header h2::after {
-    content: '';
-    display: inline-block;
-    width: 4px;
-    height: 20px;
-    background: #e50914;
-    border-radius: 2px;
-    margin-left: 10px;
-}
+    .view-all-btn {
+        font-size: 13px;
+        color: #aaa;
+        text-decoration: none;
+        border: 1px solid #333;
+        padding: 5px 14px;
+        border-radius: 20px;
+        transition: 0.2s;
+        white-space: nowrap;
+    }
 
-.view-all-btn {
-    font-size: 13px;
-    color: #aaa;
-    text-decoration: none;
-    border: 1px solid #333;
-    padding: 5px 14px;
-    border-radius: 20px;
-    transition: 0.2s;
-    white-space: nowrap;
-}
+    .view-all-btn:hover {
+        color: #fff;
+        border-color: #666;
+        background: #1c1c1c;
+    }
 
-.view-all-btn:hover {
-    color: #fff;
-    border-color: #666;
-    background: #1c1c1c;
-}
+    /* SPOTLIGHT */
+    .spotlight-row {
+        position: relative;
+        border-radius: 14px;
+        overflow: hidden;
+        margin-bottom: 40px;
+    }
 
-/* SPOTLIGHT */
-.spotlight-row{
-    position:relative;
-    border-radius:14px;
-    overflow:hidden;
-    margin-bottom:40px;
-}
+    .spotlight-banner {
+        width: 100%;
+        height: 70vh;
+        object-fit: cover;
+        filter: brightness(0.4);
+    }
 
-.spotlight-banner{
-    width:100%;
-    height:70vh;
-    object-fit:cover;
-    filter:brightness(0.4);
-}
+    .spotlight-caption {
+        position: absolute;
+        bottom: 50px;
+        left: 50px;
+        color: white;
+    }
 
-.spotlight-caption{
-    position:absolute;
-    bottom:50px;
-    left:50px;
-    color:white;
-}
+    .spotlight-caption h3 {
+        font-size: 42px;
+        font-weight: 800;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    }
 
-.spotlight-caption h3{
-    font-size:42px;
-    font-weight:800;
-    text-shadow: 0 2px 10px rgba(0,0,0,0.5);
-}
+    .spotlight-caption .watch-now-btn {
+        display: inline-block;
+        margin-top: 14px;
+        background: #e50914;
+        color: white;
+        padding: 10px 24px;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: 0.2s;
+    }
 
-.spotlight-caption .watch-now-btn {
-    display: inline-block;
-    margin-top: 14px;
-    background: #e50914;
-    color: white;
-    padding: 10px 24px;
-    border-radius: 6px;
-    font-size: 14px;
-    font-weight: 600;
-    text-decoration: none;
-    transition: 0.2s;
-}
+    .spotlight-caption .watch-now-btn:hover {
+        background: #c40812;
+    }
 
-.spotlight-caption .watch-now-btn:hover {
-    background: #c40812;
-}
+    /* GRID */
+    .series-list {
+        display: flex;
+        gap: 18px;
+        overflow-x: auto;
+        overflow-y: hidden;
+        padding-bottom: 15px;
+        -webkit-overflow-scrolling: touch;
+        scroll-snap-type: x mandatory;
+        scroll-behavior: smooth;
+        touch-action: pan-x;
+    }
 
-/* GRID */
-.series-list{
-    display:flex;
-    gap:18px;
-    overflow-x:auto;
-    overflow-y:hidden;
-    padding-bottom:15px;
-    -webkit-overflow-scrolling: touch;
-    scroll-snap-type: x mandatory;
-    scroll-behavior: smooth;
-    touch-action: pan-x;
-}
+    /* Thin styled scrollbar */
+    .series-list::-webkit-scrollbar {
+        height: 4px;
+    }
 
-/* Thin styled scrollbar */
-.series-list::-webkit-scrollbar { height: 4px; }
-.series-list::-webkit-scrollbar-track { background: transparent; }
-.series-list::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
+    .series-list::-webkit-scrollbar-track {
+        background: transparent;
+    }
 
-/* CARD */
-.series-item{
-    min-width:180px;
-    flex: 0 0 auto;
-    background:#1c1c1c;
-    border-radius:12px;
-    overflow:hidden;
-    transition: transform 0.3s, box-shadow 0.3s;
-    scroll-snap-align: start;
-    position: relative;
-}
+    .series-list::-webkit-scrollbar-thumb {
+        background: #333;
+        border-radius: 2px;
+    }
 
-.series-item:hover{
-    transform:scale(1.06);
-    box-shadow: 0 12px 30px rgba(0,0,0,0.6);
-}
+    /* CARD */
+    .series-item {
+        min-width: 180px;
+        flex: 0 0 auto;
+        background: #1c1c1c;
+        border-radius: 12px;
+        overflow: hidden;
+        transition: transform 0.3s, box-shadow 0.3s;
+        scroll-snap-align: start;
+        position: relative;
+    }
 
-/* IMAGE */
-.series-poster{
-    width:100%;
-    height:260px;
-    object-fit:cover;
-    display: block;
-}
+    .series-item:hover {
+        transform: scale(1.06);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
+    }
 
-/* CARD OVERLAY — play button on hover */
-.card-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 260px;
-    background: rgba(0,0,0,0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    transition: opacity 0.3s;
-    pointer-events: none;
-}
+    /* IMAGE */
+    .series-poster {
+        width: 100%;
+        height: 260px;
+        object-fit: cover;
+        display: block;
+    }
 
-.series-item:hover .card-overlay {
-    opacity: 1;
-}
+    /* CARD OVERLAY — play button on hover */
+    .card-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 260px;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s;
+        pointer-events: none;
+    }
 
-.play-icon {
-    width: 48px;
-    height: 48px;
-    background: rgba(229,9,20,0.9);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
+    .series-item:hover .card-overlay {
+        opacity: 1;
+    }
 
-.play-icon svg {
-    width: 20px;
-    height: 20px;
-    fill: white;
-    margin-left: 3px;
-}
+    .play-icon {
+        width: 48px;
+        height: 48px;
+        background: rgba(229, 9, 20, 0.9);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
 
-/* CARD BOTTOM */
-.card-bottom {
-    padding: 10px 10px 12px;
-    background: linear-gradient(to bottom, #1c1c1c, #141414);
-}
+    .play-icon svg {
+        width: 20px;
+        height: 20px;
+        fill: white;
+        margin-left: 3px;
+    }
 
-/* TITLE */
-.series-item h3{
-    font-size:13px;
-    color:#fff !important;
-    margin: 0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
+    /* CARD BOTTOM */
+    .card-bottom {
+        padding: 10px 10px 12px;
+        background: linear-gradient(to bottom, #1c1c1c, #141414);
+    }
 
-/* Links inside cards */
-.series-item a {
-    text-decoration: none;
-    display: block;
-    color: inherit;
-}
+    /* TITLE */
+    .series-item h3 {
+        font-size: 13px;
+        color: #fff !important;
+        margin: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 
-/* Vertical fallback list */
-.series-list-vertical{
-    display:flex;
-    flex-wrap:wrap;
-    gap:18px;
-    margin-top:16px;
-}
-.series-list-vertical .series-item{
-    width:180px;
-    flex:0 0 auto;
-}
+    /* Links inside cards */
+    .series-item a {
+        text-decoration: none;
+        display: block;
+        color: inherit;
+    }
 
-/* Upcoming — non-clickable */
-.series-item.upcoming {
-    cursor: default;
-    position: relative;
-}
+    /* Vertical fallback list */
+    .series-list-vertical {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 18px;
+        margin-top: 16px;
+    }
 
-.series-item.upcoming:hover {
-    transform: none;
-    box-shadow: none;
-}
+    .series-list-vertical .series-item {
+        width: 180px;
+        flex: 0 0 auto;
+    }
 
-.series-item.upcoming .series-poster {
-    filter: brightness(0.45);
-}
+    /* Upcoming — non-clickable */
+    .series-item.upcoming {
+        cursor: default;
+        position: relative;
+    }
 
-/* Coming Soon badge */
-.coming-soon-badge {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    background: #e50914;
-    color: white;
-    font-size: 11px;
-    padding: 3px 8px;
-    border-radius: 6px;
-    font-weight: bold;
-    letter-spacing: 0.5px;
-    z-index: 2;
-}
+    .series-item.upcoming:hover {
+        transform: none;
+        box-shadow: none;
+    }
 
-/* LOGIN BOX */
-.login-reminder{
-    padding:16px 22px;
-    background:#1c1c1c;
-    border-radius:12px;
-    display:inline-flex;
-    align-items: center;
-    gap: 10px;
-    margin-top:10px;
-    transition:0.2s;
-    color:white;
-    text-decoration: none;
-    border: 1px solid #2a2a2a;
-    font-size: 14px;
-}
+    .series-item.upcoming .series-poster {
+        filter: brightness(0.45);
+    }
 
-.login-reminder:hover{
-    background:#222;
-    border-color: #444;
-}
+    /* Coming Soon badge */
+    .coming-soon-badge {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background: #e50914;
+        color: white;
+        font-size: 11px;
+        padding: 3px 8px;
+        border-radius: 6px;
+        font-weight: bold;
+        letter-spacing: 0.5px;
+        z-index: 2;
+    }
 
-/* RESPONSIVE */
-@media(max-width:768px){
-    .spotlight-banner{ height:40vh; }
-    .spotlight-caption{ left:20px; bottom:20px; }
-    .spotlight-caption h3{ font-size:24px; }
-    .section{ padding:20px; }
-    .section-header h2 { font-size: 17px; }
-}
+    /* LOGIN BOX */
+    .login-reminder {
+        padding: 16px 22px;
+        background: #1c1c1c;
+        border-radius: 12px;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 10px;
+        transition: 0.2s;
+        color: white;
+        text-decoration: none;
+        border: 1px solid #2a2a2a;
+        font-size: 14px;
+    }
 
+    .login-reminder:hover {
+        background: #222;
+        border-color: #444;
+    }
+
+    /* RESPONSIVE */
+    @media(max-width:768px) {
+        .spotlight-banner {
+            height: 40vh;
+        }
+
+        .spotlight-caption {
+            left: 20px;
+            bottom: 20px;
+        }
+
+        .spotlight-caption h3 {
+            font-size: 24px;
+        }
+
+        .section {
+            padding: 20px;
+        }
+
+        .section-header h2 {
+            font-size: 17px;
+        }
+    }
 </style>
 
 
 <div class="section">
 
-<!-- 🔥 SPOTLIGHT -->
-{% if spotlight_series %}
+    <!-- 🔥 SPOTLIGHT -->
+    {% if spotlight_series %}
     <div class="spotlight-row">
         {% for ss in spotlight_series|slice:":1" %}
-            <a href="{% url 'detail_film_guest' ss.series.series_id %}">
+        <a href="{% url 'detail_film_guest' ss.series.series_id %}">
 
-                {% if ss.image %}
-                    <img src="{{ ss.image.url }}" class="spotlight-banner">
-                {% elif ss.series.thumbnail_picture %}
-                    <img src="{{ ss.series.thumbnail_picture.url }}" class="spotlight-banner">
-                {% else %}
-                    <img src="/static/img/placeholder.png" class="spotlight-banner">
-                {% endif %}
+            {% if ss.image %}
+            <img src="{{ ss.image.url }}" class="spotlight-banner">
+            {% elif ss.series.thumbnail_picture %}
+            <img src="{{ ss.series.thumbnail_picture.url }}" class="spotlight-banner">
+            {% else %}
+            <img src="/static/img/placeholder.png" class="spotlight-banner">
+            {% endif %}
 
-                <div class="spotlight-caption">
-                    <h3>{{ ss.series.title }}</h3>
-                    <span class="watch-now-btn">▶ Watch Now</span>
-                </div>
+            <div class="spotlight-caption">
+                <h3>{{ ss.series.title }}</h3>
+                <span class="watch-now-btn">▶ Watch Now</span>
+            </div>
 
-            </a>
+        </a>
         {% endfor %}
     </div>
-{% endif %}
+    {% endif %}
 
 
-<!-- ⭐ FEATURED — max 6 items, no login required -->
-{% if featured_series %}
+    <!-- ⭐ FEATURED — max 6 items, no login required -->
+    {% if featured_series %}
     <div class="section-header">
-        <h2>⭐ Featured</h2>
+        <h2>Featured</h2>
         <a href="#" class="view-all-btn">View All →</a>
     </div>
 
     <div class="series-list">
         {% for fs in featured_series|slice:":6" %}
-            <div class="series-item">
-                <a href="{% url 'detail_film_guest' fs.series_id %}">
+        <div class="series-item">
+            <a href="{% url 'detail_film_guest' fs.series_id %}">
 
-                    {% if fs.thumbnail_picture %}
-                        <img src="{{ fs.thumbnail_picture.url }}" class="series-poster">
-                    {% else %}
-                        <img src="/static/img/placeholder.png" class="series-poster">
-                    {% endif %}
+                {% if fs.thumbnail_picture %}
+                <img src="{{ fs.thumbnail_picture.url }}" class="series-poster">
+                {% else %}
+                <img src="/static/img/placeholder.png" class="series-poster">
+                {% endif %}
 
-                    <div class="card-overlay">
-                        <div class="play-icon">
-                            <svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
-                        </div>
+                <div class="card-overlay">
+                    <div class="play-icon">
+                        <svg viewBox="0 0 24 24">
+                            <polygon points="5,3 19,12 5,21" />
+                        </svg>
                     </div>
+                </div>
 
-                    <div class="card-overlay">
-                        <div class="play-icon">
-                            <svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
-                        </div>
+                <div class="card-overlay">
+                    <div class="play-icon">
+                        <svg viewBox="0 0 24 24">
+                            <polygon points="5,3 19,12 5,21" />
+                        </svg>
                     </div>
+                </div>
 
-                    <div class="card-bottom">
-                        <h3>{{ fs.title }}</h3>
-                    </div>
+                <div class="card-bottom">
+                    <h3>{{ fs.title }}</h3>
+                </div>
 
-                </a>
-            </div>
+            </a>
+        </div>
         {% endfor %}
     </div>
-{% endif %}
+    {% endif %}
 
 
-<!-- ▶ CONTINUE WATCHING -->
-<div class="section-header" style="margin-top:36px;">
-    <h2>▶ Continue Watching</h2>
-</div>
+    <!-- ▶ CONTINUE WATCHING -->
+    <div class="section-header" style="margin-top:36px;">
+        <h2>▶ Continue Watching</h2>
+    </div>
 
-{% if user.is_authenticated and continue_watching %}
+    {% if user.is_authenticated and continue_watching %}
     <div class="series-list">
         {% for history in continue_watching %}
-            <div class="series-item">
-                <a href="{% url 'watch_film_guest' history.episode.series.series_id history.episode.episode_id %}?t={{ history.progress_seconds }}">
+        <div class="series-item">
+            <a
+                href="{% url 'watch_film_guest' history.episode.series.series_id history.episode.episode_id %}?t={{ history.progress_seconds }}">
 
-                    {% if history.episode.series.thumbnail_picture %}
-                        <img src="{{ history.episode.series.thumbnail_picture.url }}" class="series-poster">
-                    {% else %}
-                        <img src="/static/img/placeholder.png" class="series-poster">
-                    {% endif %}
+                {% if history.episode.series.thumbnail_picture %}
+                <img src="{{ history.episode.series.thumbnail_picture.url }}" class="series-poster">
+                {% else %}
+                <img src="/static/img/placeholder.png" class="series-poster">
+                {% endif %}
 
-                    <div class="card-overlay">
-                        <div class="play-icon">
-                            <svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
-                        </div>
+                <div class="card-overlay">
+                    <div class="play-icon">
+                        <svg viewBox="0 0 24 24">
+                            <polygon points="5,3 19,12 5,21" />
+                        </svg>
                     </div>
+                </div>
 
-                    <div class="card-bottom">
-                        <h3>{{ history.episode.series.title }}</h3>
-                        <small style="color:#888;">Ep {{ history.episode.episode_number }}</small>
-                    </div>
+                <div class="card-bottom">
+                    <h3>{{ history.episode.series.title }}</h3>
+                    <small style="color:#888;">Ep {{ history.episode.episode_number }}</small>
+                </div>
 
-                </a>
-            </div>
+            </a>
+        </div>
         {% endfor %}
     </div>
-{% elif user.is_authenticated %}
+    {% elif user.is_authenticated %}
     <p style="color:#555; font-size:14px;">Your watch history will appear here.</p>
-{% else %}
+    {% else %}
     <a href="{% url 'viewer_login' %}" class="login-reminder">
         🔒 Login to continue watching your anime
     </a>
-{% endif %}
+    {% endif %}
 
 
-<!-- 🆕 NEW -->
-{% if new_series %}
+    <!-- 🆕 NEW -->
+    {% if new_series %}
     <div class="section-header" style="margin-top:36px;">
-        <h2>🆕 New</h2>
+        <h2>New</h2>
         <a href="#" class="view-all-btn">View All →</a>
     </div>
 
     <div class="series-list">
         {% for ns in new_series|slice:":15" %}
-            <div class="series-item">
-                <a href="{% url 'detail_film_guest' ns.series_id %}">
+        <div class="series-item">
+            <a href="{% url 'detail_film_guest' ns.series_id %}">
 
-                    {% if ns.thumbnail_picture %}
-                        <img src="{{ ns.thumbnail_picture.url }}" class="series-poster">
-                    {% else %}
-                        <img src="/static/img/placeholder.png" class="series-poster">
-                    {% endif %}
+                {% if ns.thumbnail_picture %}
+                <img src="{{ ns.thumbnail_picture.url }}" class="series-poster">
+                {% else %}
+                <img src="/static/img/placeholder.png" class="series-poster">
+                {% endif %}
 
-                    <div class="card-overlay">
-                        <div class="play-icon">
-                            <svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
-                        </div>
+                <div class="card-overlay">
+                    <div class="play-icon">
+                        <svg viewBox="0 0 24 24">
+                            <polygon points="5,3 19,12 5,21" />
+                        </svg>
                     </div>
+                </div>
 
-                    <div class="card-bottom">
-                        <h3>{{ ns.title }}</h3>
-                    </div>
+                <div class="card-bottom">
+                    <h3>{{ ns.title }}</h3>
+                </div>
 
-                </a>
-            </div>
+            </a>
+        </div>
         {% endfor %}
     </div>
 
     {% if new_series|length > 15 %}
-        <div class="series-list-vertical">
-            {% for ns in new_series|slice:"15:" %}
-                <div class="series-item">
-                    <a href="{% url 'detail_film_guest' ns.series_id %}">
+    <div class="series-list-vertical">
+        {% for ns in new_series|slice:"15:" %}
+        <div class="series-item">
+            <a href="{% url 'detail_film_guest' ns.series_id %}">
 
-                        {% if ns.thumbnail_picture %}
-                            <img src="{{ ns.thumbnail_picture.url }}" class="series-poster">
-                        {% else %}
-                            <img src="/static/img/placeholder.png" class="series-poster">
-                        {% endif %}
+                {% if ns.thumbnail_picture %}
+                <img src="{{ ns.thumbnail_picture.url }}" class="series-poster">
+                {% else %}
+                <img src="/static/img/placeholder.png" class="series-poster">
+                {% endif %}
 
-                        <div class="card-overlay">
-                            <div class="play-icon">
-                                <svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
-                            </div>
-                        </div>
-
-                        <div class="card-bottom">
-                            <h3>{{ ns.title }}</h3>
-                        </div>
-                    </a>
+                <div class="card-overlay">
+                    <div class="play-icon">
+                        <svg viewBox="0 0 24 24">
+                            <polygon points="5,3 19,12 5,21" />
+                        </svg>
+                    </div>
                 </div>
-            {% endfor %}
+
+                <div class="card-bottom">
+                    <h3>{{ ns.title }}</h3>
+                </div>
+            </a>
         </div>
+        {% endfor %}
+    </div>
     {% endif %}
-{% endif %}
+    {% endif %}
 
 
-<!-- 🚀 UPCOMING -->
-{% if upcoming_series %}
+    <!-- 🚀 UPCOMING -->
+    {% if upcoming_series %}
     <div class="section-header" style="margin-top:36px;">
-        <h2>🚀 Upcoming</h2>
+        <h2>Upcoming</h2>
     </div>
 
     <div class="series-list">
         {% for us in upcoming_series|slice:":15" %}
-            <div class="series-item upcoming">
-                <div style="position:relative;">
-                    <span class="coming-soon-badge">Coming Soon</span>
-                    {% if us.thumbnail_picture %}
-                        <img src="{{ us.thumbnail_picture.url }}" class="series-poster">
-                    {% else %}
-                        <img src="/static/img/placeholder.png" class="series-poster">
-                    {% endif %}
-                </div>
-                <div class="card-bottom">
-                    <h3>{{ us.title }}</h3>
-                </div>
+        <div class="series-item upcoming">
+            <div style="position:relative;">
+                <span class="coming-soon-badge">Coming Soon</span>
+                {% if us.thumbnail_picture %}
+                <img src="{{ us.thumbnail_picture.url }}" class="series-poster">
+                {% else %}
+                <img src="/static/img/placeholder.png" class="series-poster">
+                {% endif %}
             </div>
+            <div class="card-bottom">
+                <h3>{{ us.title }}</h3>
+            </div>
+        </div>
         {% endfor %}
     </div>
 
     {% if upcoming_series|length > 15 %}
-        <div class="series-list-vertical">
-            {% for us in upcoming_series|slice:"15:" %}
-                <div class="series-item upcoming">
-                    <div style="position:relative;">
-                        <span class="coming-soon-badge">Coming Soon</span>
-                        {% if us.thumbnail_picture %}
-                            <img src="{{ us.thumbnail_picture.url }}" class="series-poster">
-                        {% else %}
-                            <img src="/static/img/placeholder.png" class="series-poster">
-                        {% endif %}
-                    </div>
-                    <div class="card-bottom">
-                        <h3>{{ us.title }}</h3>
-                    </div>
-                </div>
-            {% endfor %}
+    <div class="series-list-vertical">
+        {% for us in upcoming_series|slice:"15:" %}
+        <div class="series-item upcoming">
+            <div style="position:relative;">
+                <span class="coming-soon-badge">Coming Soon</span>
+                {% if us.thumbnail_picture %}
+                <img src="{{ us.thumbnail_picture.url }}" class="series-poster">
+                {% else %}
+                <img src="/static/img/placeholder.png" class="series-poster">
+                {% endif %}
+            </div>
+            <div class="card-bottom">
+                <h3>{{ us.title }}</h3>
+            </div>
         </div>
+        {% endfor %}
+    </div>
     {% endif %}
-{% endif %}
+    {% endif %}
 
 </div>
 
 {% endblock %}
 
 <script>
-document.addEventListener('DOMContentLoaded', function(){
-    document.querySelectorAll('.series-list').forEach(function(list){
-        // Vertical wheel → horizontal scroll
-        list.addEventListener('wheel', function(e){
-            if (Math.abs(e.deltaY) > Math.abs(e.deltaX)){
-                e.preventDefault();
-                list.scrollBy({ left: e.deltaY, behavior: 'smooth' });
-            }
-        }, { passive: false });
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.series-list').forEach(function (list) {
+            // Vertical wheel → horizontal scroll
+            list.addEventListener('wheel', function (e) {
+                if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+                    e.preventDefault();
+                    list.scrollBy({ left: e.deltaY, behavior: 'smooth' });
+                }
+            }, { passive: false });
 
-        // Arrow key navigation
-        list.setAttribute('tabindex', '0');
-        list.addEventListener('keydown', function(e){
-            if (e.key === 'ArrowRight'){
-                list.scrollBy({ left: 200, behavior: 'smooth' });
-                e.preventDefault();
-            } else if (e.key === 'ArrowLeft'){
-                list.scrollBy({ left: -200, behavior: 'smooth' });
-                e.preventDefault();
-            }
+            // Arrow key navigation
+            list.setAttribute('tabindex', '0');
+            list.addEventListener('keydown', function (e) {
+                if (e.key === 'ArrowRight') {
+                    list.scrollBy({ left: 200, behavior: 'smooth' });
+                    e.preventDefault();
+                } else if (e.key === 'ArrowLeft') {
+                    list.scrollBy({ left: -200, behavior: 'smooth' });
+                    e.preventDefault();
+                }
+            });
         });
     });
-});
 </script>
