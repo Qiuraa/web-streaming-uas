@@ -2,409 +2,658 @@
 {% block content %}
 
 <style>
+	:root {
+		--bg: #0b0b0f;
+		--card: #14141a;
+		--card2: #1c1c24;
+		--accent: #ff1e3c;
+		--accent-soft: #ff4d6d;
+		--text: #f1f1f1;
+		--sub: #9ca3af;
+		--border: rgba(255, 255, 255, 0.07);
+	}
 
-/* ================= THEME ================= */
+	* {
+		box-sizing: border-box;
+		margin: 0;
+		padding: 0;
+	}
 
-:root{
---bg:#0b0b0f;
---card:#14141a;
---accent:#ff1e3c;
---accent-soft:#ff4d6d;
---text:#f1f1f1;
---sub:#9ca3af;
-}
+	body {
+		background: var(--bg);
+		color: var(--text);
+		font-family: 'Inter', sans-serif;
+	}
 
-body{
-background:linear-gradient(180deg,#0b0b0f,#111827);
-color:var(--text);
-font-family:'Inter',sans-serif;
-}
+	/* ── CONTAINER ── */
+	.watch-container {
+		max-width: 1100px;
+		margin: 0 auto;
+		padding: 28px 24px 60px;
+	}
 
-/* ================= CONTAINER ================= */
+	/* ── SERIES HEADER ── */
+	.series-header {
+		margin-bottom: 18px;
+	}
 
-.watch-container{
-max-width:1100px;
-margin:auto;
-}
+	.series-title {
+		font-size: 22px;
+		font-weight: 700;
+		color: var(--text);
+		line-height: 1.2;
+	}
 
-/* ================= HEADER ================= */
+	.series-subtitle {
+		margin-top: 4px;
+		color: var(--sub);
+		font-size: 13px;
+		font-weight: 400;
+	}
 
-.series-header{
-display:flex;
-gap:20px;
-margin-bottom:20px;
-}
+	/* ── PLAYER ── */
+	#yt-player {
+		width: 100%;
+		height: 540px;
+		background: #000;
+		border-radius: 14px;
+		overflow: hidden;
+		border: 1px solid rgba(255, 0, 0, 0.15);
+		margin-bottom: 18px;
+	}
 
-.series-poster{
-width:180px;
-border-radius:12px;
-box-shadow:0 20px 40px rgba(0,0,0,0.8);
-}
+	/* ── EPISODE PILLS ── */
+	#episode-list {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 8px;
+		margin-bottom: 16px;
+	}
 
-/* ================= TITLE ================= */
+	.ep-btn {
+		background: var(--card);
+		border: 1px solid var(--border);
+		padding: 7px 14px;
+		border-radius: 8px;
+		color: var(--sub);
+		cursor: pointer;
+		font-size: 13px;
+		font-weight: 500;
+		transition: background 0.15s, color 0.15s, transform 0.15s;
+	}
 
-.series-info h2, .series-title{
-	margin:0;
-	font-size:26px;
-	color:var(--text);
-	font-weight:700;
-	line-height:1.2;
-	/* prevent overflowing very long titles */
-	max-width:720px;
-	white-space:nowrap;
-	overflow:hidden;
-	text-overflow:ellipsis;
-}
+	.ep-btn:hover,
+	.ep-btn.active {
+		background: var(--accent);
+		color: #fff;
+		border-color: var(--accent);
+		transform: translateY(-1px);
+	}
 
-.series-info h3, .series-subtitle{
-	margin-top:6px;
-	color:var(--sub);
-	font-size:14px;
-	font-weight:500;
-}
+	/* ── YT LINK ── */
+	#open-on-youtube {
+		display: inline-block;
+		margin-bottom: 20px;
+		color: var(--sub);
+		text-decoration: none;
+		font-size: 13px;
+		transition: color 0.15s;
+	}
 
-@media(max-width:768px){
-	.series-info h2, .series-title{ font-size:20px; }
-}
+	#open-on-youtube:hover {
+		color: var(--accent-soft);
+	}
 
-/* ================= PLAYER ================= */
+	/* ── META ── */
+	.series-meta {
+		margin-top: 16px;
+		color: var(--sub);
+		font-size: 14px;
+		line-height: 1.7;
+		margin-bottom: 8px;
+	}
 
-#yt-player{
-width:100%;
-height:520px;
-background:black;
-border-radius:14px;
-overflow:hidden;
-box-shadow:0 25px 60px rgba(0,0,0,0.9);
-margin-bottom:20px;
-border:1px solid rgba(255,0,0,0.2);
-}
+	.detail-link {
+		color: var(--accent-soft);
+		text-decoration: none;
+		font-size: 13px;
+	}
 
-/* ================= EPISODE ================= */
+	.detail-link:hover {
+		text-decoration: underline;
+	}
 
-#episode-list{
-display:flex;
-flex-wrap:wrap;
-gap:10px;
-margin:20px 0;
-}
+	/* ════════════════════════════════
+   COMMENT SECTION
+════════════════════════════════ */
 
-.ep-btn{
-background:var(--card);
-border:1px solid rgba(255,255,255,0.05);
-padding:8px 12px;
-border-radius:8px;
-color:var(--text);
-cursor:pointer;
-transition:.2s;
-font-size:13px;
-}
+	.comment-section {
+		margin-top: 40px;
+	}
 
-.ep-btn:hover{
-background:var(--accent);
-color:white;
-transform:translateY(-2px);
-box-shadow:0 8px 20px rgba(255,30,60,0.5);
-}
+	/* Top bar */
+	.comment-topbar {
+		display: flex;
+		align-items: center;
+		gap: 20px;
+		padding-bottom: 16px;
+		border-bottom: 1px solid var(--border);
+		margin-bottom: 20px;
+		flex-wrap: wrap;
+	}
 
-/* ================= LINK ================= */
+	.comment-ep-select {
+		background: var(--card2);
+		border: 1px solid var(--border);
+		color: var(--text);
+		font-size: 14px;
+		font-weight: 500;
+		padding: 7px 12px;
+		border-radius: 8px;
+		cursor: pointer;
+		outline: none;
+	}
 
-#open-on-youtube{
-display:inline-block;
-margin-bottom:20px;
-color:var(--accent-soft);
-text-decoration:none;
-font-size:14px;
-}
+	.comment-count {
+		display: flex;
+		align-items: center;
+		gap: 7px;
+		font-size: 15px;
+		font-weight: 600;
+		color: var(--text);
+	}
 
-#open-on-youtube:hover{
-text-decoration:underline;
-}
+	.comment-count svg {
+		opacity: 0.5;
+	}
 
-/* ================= META ================= */
+	.sort-btn {
+		margin-left: auto;
+		background: none;
+		border: none;
+		color: var(--sub);
+		font-size: 14px;
+		cursor: pointer;
+		display: flex;
+		align-items: center;
+		gap: 5px;
+		padding: 0;
+		font-family: inherit;
+	}
 
-.series-meta{
-margin-top:15px;
-color:var(--sub);
-font-size:14px;
-}
+	.sort-btn:hover {
+		color: var(--text);
+		transform: none;
+		box-shadow: none;
+	}
 
-/* ================= COMMENTS ================= */
+	/* Write comment row */
+	.comment-write-row {
+		display: flex;
+		gap: 12px;
+		align-items: flex-start;
+		margin-bottom: 28px;
+		padding-bottom: 24px;
+		border-bottom: 1px solid var(--border);
+	}
 
-.comment-section{
-margin-top:40px;
-}
+	.avatar {
+		width: 38px;
+		height: 38px;
+		border-radius: 50%;
+		background: var(--card2);
+		border: 1px solid var(--border);
+		flex-shrink: 0;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-size: 14px;
+		font-weight: 600;
+		color: var(--sub);
+		overflow: hidden;
+	}
 
-textarea{
-width:100%;
-padding:12px;
-border-radius:10px;
-border:none;
-background:var(--card);
-color:white;
-resize:none;
-outline:none;
-margin-bottom:10px;
-}
+	.avatar img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
 
-textarea::placeholder{
-color:var(--sub);
-}
+	.comment-input-wrap {
+		flex: 1;
+	}
 
-/* ================= BUTTON ================= */
+	.comment-guest-note {
+		font-size: 14px;
+		color: var(--sub);
+		margin-bottom: 10px;
+	}
 
-button{
-background:linear-gradient(135deg,#ff1e3c,#b3001b);
-color:white;
-border:none;
-padding:10px 16px;
-border-radius:8px;
-cursor:pointer;
-transition:.2s;
-}
+	.comment-guest-note a {
+		color: var(--accent-soft);
+		text-decoration: none;
+	}
 
-button:hover{
-transform:translateY(-2px);
-box-shadow:0 10px 25px rgba(255,30,60,0.6);
-}
+	.comment-guest-note a:hover {
+		text-decoration: underline;
+	}
 
-/* ================= COMMENTS LIST ================= */
+	.comment-textarea {
+		width: 100%;
+		padding: 12px 14px;
+		border-radius: 10px;
+		border: 1px solid var(--border);
+		background: var(--card2);
+		color: var(--text);
+		resize: none;
+		outline: none;
+		font-size: 14px;
+		font-family: inherit;
+		min-height: 80px;
+		transition: border-color 0.15s;
+	}
 
-#comments-list ul{
-list-style:none;
-padding:0;
-}
+	.comment-textarea::placeholder {
+		color: #4b5563;
+	}
 
-#comments-list li{
-background:var(--card);
-padding:12px;
-border-radius:10px;
-margin-bottom:10px;
-font-size:14px;
-border-left:3px solid var(--accent);
-}
+	.comment-textarea:focus {
+		border-color: rgba(255, 255, 255, 0.2);
+	}
 
-/* ================= RESPONSIVE ================= */
+	.comment-submit-row {
+		display: flex;
+		justify-content: flex-end;
+		margin-top: 8px;
+	}
 
-@media (max-width:800px){
-.series-header{
-flex-direction:column;
-align-items:center;
-text-align:center;
-}
-.series-poster{
-width:140px;
-}
-#yt-player{
-height:300px;
-}
-}
+	.btn-post {
+		background: var(--accent);
+		color: #fff;
+		border: none;
+		padding: 8px 20px;
+		border-radius: 8px;
+		cursor: pointer;
+		font-size: 14px;
+		font-weight: 500;
+		font-family: inherit;
+		transition: opacity 0.15s, transform 0.15s;
+	}
 
+	.btn-post:hover {
+		opacity: 0.85;
+		transform: translateY(-1px);
+		box-shadow: none;
+	}
+
+	/* Individual comment */
+	.comment-item {
+		display: flex;
+		gap: 12px;
+		padding: 16px 0;
+		border-bottom: 1px solid var(--border);
+	}
+
+	.comment-body {
+		flex: 1;
+		min-width: 0;
+	}
+
+	.comment-meta-row {
+		display: flex;
+		align-items: baseline;
+		gap: 10px;
+		margin-bottom: 6px;
+	}
+
+	.comment-username {
+		font-size: 14px;
+		font-weight: 600;
+		color: var(--text);
+	}
+
+	.comment-time {
+		font-size: 12px;
+		color: var(--sub);
+	}
+
+	.comment-text {
+		font-size: 14px;
+		color: #d1d5db;
+		line-height: 1.6;
+		word-break: break-word;
+	}
+
+	.comment-actions {
+		display: flex;
+		align-items: center;
+		gap: 16px;
+		margin-top: 10px;
+	}
+
+	.comment-action-btn {
+		background: none;
+		border: none;
+		color: var(--sub);
+		font-size: 13px;
+		cursor: pointer;
+		display: flex;
+		align-items: center;
+		gap: 5px;
+		padding: 0;
+		font-family: inherit;
+		transition: color 0.15s;
+	}
+
+	.comment-action-btn:hover {
+		color: var(--text);
+		transform: none;
+		box-shadow: none;
+	}
+
+	.no-comments {
+		color: var(--sub);
+		font-size: 14px;
+		padding: 20px 0;
+		text-align: center;
+	}
+
+	/* ── RESPONSIVE ── */
+	@media (max-width: 800px) {
+		.series-title {
+			font-size: 18px;
+		}
+
+		#yt-player {
+			height: 280px;
+		}
+
+		.comment-topbar {
+			gap: 12px;
+		}
+	}
 </style>
 
 
 <div class="watch-container">
 
-{% if series %}
+	{% if series %}
 
-<form style="display:none">{% csrf_token %}</form>
+	<form style="display:none">{% csrf_token %}</form>
 
-<div class="series-header">
+	<!-- HEADER -->
+	<div class="series-header">
+		<div class="series-title">{{ series.title }}</div>
+		{% if series.alternate_title %}
+		<div class="series-subtitle">{{ series.alternate_title }}</div>
+		{% endif %}
+	</div>
 
-<div class="series-info">
-<h2 class="series-title">{{ series.title }}</h2>
-{% if series.alternate_title %}
-<h3>{{ series.alternate_title }}</h3>
-{% endif %}
-</div>
+	{% if episode %}
 
-</div>
+	<!-- PLAYER -->
+	<div id="yt-player"></div>
 
+	<!-- EPISODE LIST -->
+	<div id="episode-list">
+		{% for ep in series.episode_set.all %}
+		<button class="ep-btn {% if ep.episode_id == episode.episode_id %}active{% endif %}"
+			data-ep-id="{{ ep.episode_id }}" data-video-id="{{ ep.video_id }}" data-ep-number="{{ ep.episode_number }}"
+			data-ep-title="{{ ep.episode_title }}">
+			Episode {{ ep.episode_number }}
+		</button>
+		{% endfor %}
+	</div>
 
-{% if episode %}
-<div id="yt-player"></div>
+	<a id="open-on-youtube" href="https://www.youtube.com/watch?v={{ episode.video_id }}" target="_blank">
+		↗ Watch on YouTube
+	</a>
 
-<div id="episode-list">
-{% for ep in series.episode_set.all %}
-<button class="ep-btn"
-data-ep-id="{{ ep.episode_id }}"
-data-video-id="{{ ep.video_id }}"
-data-ep-number="{{ ep.episode_number }}"
-data-ep-title="{{ ep.episode_title }}">
-Episode {{ ep.episode_number }}
-</button>
-{% endfor %}
-</div>
+	{% else %}
+	<p style="color:var(--sub);padding:20px 0;">No episode available.</p>
+	{% endif %}
 
-<p>
-<a id="open-on-youtube" href="https://www.youtube.com/watch?v={{ episode.video_id }}" target="_blank">
-Watch on YouTube
-</a>
-</p>
+	<!-- META -->
+	<div class="series-meta">
+		<strong style="color:var(--text);">Score:</strong> ⭐ {{ series.score }}<br>
+		<span style="margin-top:8px;display:block;">{{ series.sypnosis }}</span>
+	</div>
 
-{% else %}
-<p>No episode available.</p>
-{% endif %}
+	<a href="{% url 'detail_film_guest' series.series_id %}"
+		style="text-decoration:none;display:inline-block;margin-top:16px;">
+		<button style="
+		background: transparent;
+		border: 1px solid rgba(255,255,255,0.15);
+		color: var(--text);
+		padding: 10px 20px;
+		border-radius: 8px;
+		font-size: 14px;
+		font-weight: 500;
+		cursor: pointer;
+		display: inline-flex;
+		align-items: center;
+		gap: 8px;
+		font-family: inherit;
+		transition: background 0.15s, border-color 0.15s;
+	" onmouseover="this.style.background='var(--card2)';this.style.borderColor='rgba(255,255,255,0.3)'"
+			onmouseout="this.style.background='transparent';this.style.borderColor='rgba(255,255,255,0.15)'">
+			<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+				<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+				<polyline points="14 2 14 8 20 8" />
+				<line x1="16" y1="13" x2="8" y2="13" />
+				<line x1="16" y1="17" x2="8" y2="17" />
+			</svg>
+			View Film Details
+		</button>
+	</a>
 
+	{% if episode %}
+	<!-- ════════ COMMENTS ════════ -->
+	<div class="comment-section">
 
-<div class="series-meta">
-<p><strong>Score:</strong> ⭐ {{ series.score }}</p>
-<p>{{ series.sypnosis }}</p>
-</div>
+		<!-- Top bar -->
+		<div class="comment-topbar">
+			<select class="comment-ep-select" id="comment-ep-select">
+				{% for ep in series.episode_set.all %}
+				<option value="{{ ep.episode_id }}" {% if ep.episode_id == episode.episode_id %}selected{% endif %}>
+					Episode {{ ep.episode_number }}
+				</option>
+				{% endfor %}
+			</select>
 
-<p style="margin-top:12px;">
-<a href="{% url 'detail_film_guest' series.series_id %}" style="color:var(--accent-soft);text-decoration:none;font-size:14px;">
-    📄 View Film Details →
-</a>
-</p>
+			<div class="comment-count">
+				<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+					<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+				</svg>
+				<span id="comment-count-label">0 Comments</span>
+			</div>
 
-{% else %}
-<p>Film not found.</p>
-{% endif %}
+			<button class="sort-btn" type="button">
+				Sort by
+				<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+					<path d="M7 10l5 5 5-5" />
+				</svg>
+			</button>
+		</div>
 
+		<!-- Write comment -->
+		<div class="comment-write-row">
+			<div class="avatar">
+				{% if user.is_authenticated %}
+				{{ user.username|first|upper }}
+				{% else %}
+				<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+					<circle cx="12" cy="8" r="4" />
+					<path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+				</svg>
+				{% endif %}
+			</div>
 
-<!-- ================= COMMENTS ================= -->
+			<div class="comment-input-wrap">
+				{% if user.is_authenticated %}
+				<form method="post" action="{% url 'viewer_comment' series.series_id episode.episode_id %}">
+					{% csrf_token %}
+					<textarea class="comment-textarea" name="content" placeholder="Leave a comment..."
+						required></textarea>
+					<div class="comment-submit-row">
+						<button type="submit" class="btn-post">Post Comment</button>
+					</div>
+				</form>
+				{% else %}
+				<p class="comment-guest-note">You must be <a href="{% url 'login' %}">logged in</a> to post a comment
+				</p>
+				<textarea class="comment-textarea" placeholder="Leave a comment..." disabled></textarea>
+				{% endif %}
+			</div>
+		</div>
 
-<div class="comment-section">
+		<!-- Comments list -->
+		<div id="comments-list"></div>
 
-<h3>Comments</h3>
+	</div>
+	{% endif %}
 
-<form method="post" action="{% url 'viewer_comment' series.series_id episode.episode_id %}">
-{% csrf_token %}
-<textarea name="content" placeholder="Write your comment..." required></textarea>
-<button type="submit">Post Comment</button>
-</form>
-
-<div id="comments-list"></div>
-
-</div>
-
+	{% else %}
+	<p style="color:var(--sub);">Film not found.</p>
+	{% endif %}
 </div>
 
 
 <script src="https://www.youtube.com/iframe_api"></script>
 
 <script>
-(function(){
+	(function () {
 
-const seriesId = '{{ series.series_id }}';
-let episodeId = "{{ episode.episode_id }}";
+		const seriesId = '{{ series.series_id }}';
+		let episodeId = "{{ episode.episode_id }}";
 
-let player;
-let lastProgressSavedAt = 0;
-const progressSaveInterval = 10000; // save progress every 10 seconds
+		let player;
+		let lastProgressSavedAt = 0;
+		const progressSaveInterval = 10000;
 
-// Read start time from ?t= query parameter
-const urlParams = new URLSearchParams(window.location.search);
-const startSeconds = parseInt(urlParams.get('t')) || 0;
+		const urlParams = new URLSearchParams(window.location.search);
+		const startSeconds = parseInt(urlParams.get('t')) || 0;
 
-// Get CSRF token from the hidden form
-function getCsrfToken() {
-	return document.querySelector('[name=csrfmiddlewaretoken]').value;
-}
-
-window.onYouTubeIframeAPIReady = function(){
-player = new YT.Player('yt-player',{
-videoId:"{{ episode.video_id }}",
-playerVars: {
-    start: startSeconds
-},
-events: {
-'onStateChange': onPlayerStateChange,
-'onReady': onPlayerReady
-}
-});
-};
-
-function onPlayerReady(event) {
-	// If start time was provided via ?t=, seek to it (backup in case playerVars.start didn't work)
-	if (startSeconds > 0) {
-		player.seekTo(startSeconds, true);
-	}
-	// Start tracking progress once player is ready
-	setInterval(trackProgress, 1000);
-}
-
-function trackProgress() {
-	if (!player || player.getPlayerState() !== YT.PlayerState.PLAYING) {
-		return;
-	}
-
-	const currentTime = Math.floor(player.getCurrentTime());
-	const now = Date.now();
-
-	// Save progress every 10 seconds to avoid too many requests
-	if (now - lastProgressSavedAt > progressSaveInterval) {
-		saveProgress(episodeId, currentTime);
-		lastProgressSavedAt = now;
-	}
-}
-
-function onPlayerStateChange(event) {
-	// Optional: you could also save progress when video ends
-	if (event.data === YT.PlayerState.ENDED) {
-		const duration = Math.floor(player.getDuration());
-		saveProgress(episodeId, duration);
-	}
-}
-
-function saveProgress(epId, seconds) {
-	const csrfToken = getCsrfToken();
-	fetch('/save-progress/', {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
-			'X-CSRFToken': csrfToken
-		},
-		body: JSON.stringify({
-			episode_id: epId,
-			progress_seconds: seconds
-		})
-	})
-	.then(r => r.json())
-	.then(data => {
-		if (data.status !== 'ok') {
-			console.warn('Progress save failed:', data.status);
+		function getCsrfToken() {
+			return document.querySelector('[name=csrfmiddlewaretoken]').value;
 		}
-	})
-	.catch(err => console.error('Progress save error:', err));
-}
 
-function setVideo(videoId, epId){
-episodeId = epId;
-player.loadVideoById(videoId);
-fetchComments();
-}
+		window.onYouTubeIframeAPIReady = function () {
+			player = new YT.Player('yt-player', {
+				videoId: "{{ episode.video_id }}",
+				playerVars: { start: startSeconds },
+				events: {
+					'onStateChange': onPlayerStateChange,
+					'onReady': onPlayerReady
+				}
+			});
+		};
 
-document.querySelectorAll('.ep-btn').forEach(btn=>{
-btn.addEventListener('click',function(){
-setVideo(this.dataset.videoId,this.dataset.epId);
-});
-});
+		function onPlayerReady(event) {
+			if (startSeconds > 0) player.seekTo(startSeconds, true);
+			setInterval(trackProgress, 1000);
+		}
 
-function renderComments(comments){
-const container = document.querySelector('#comments-list');
-if(!comments.length){
-container.innerHTML = '<p>No comments yet</p>';
-return;
-}
-let html='<ul>';
-comments.forEach(c=>{
-html+=`<li><b>${c.user}</b>: ${c.content}</li>`;
-});
-html+='</ul>';
-container.innerHTML=html;
-}
+		function trackProgress() {
+			if (!player || player.getPlayerState() !== YT.PlayerState.PLAYING) return;
+			const currentTime = Math.floor(player.getCurrentTime());
+			const now = Date.now();
+			if (now - lastProgressSavedAt > progressSaveInterval) {
+				saveProgress(episodeId, currentTime);
+				lastProgressSavedAt = now;
+			}
+		}
 
-function fetchComments(){
-fetch(`/api/comments/${seriesId}/${episodeId}/`)
-.then(r=>r.json())
-.then(data=>renderComments(data.comments || []));
-}
+		function onPlayerStateChange(event) {
+			if (event.data === YT.PlayerState.ENDED) {
+				saveProgress(episodeId, Math.floor(player.getDuration()));
+			}
+		}
 
-fetchComments();
+		function saveProgress(epId, seconds) {
+			fetch('/save-progress/', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrfToken() },
+				body: JSON.stringify({ episode_id: epId, progress_seconds: seconds })
+			}).then(r => r.json()).catch(err => console.error('Progress save error:', err));
+		}
 
-})();
+		function setVideo(videoId, epId) {
+			episodeId = epId;
+			player.loadVideoById(videoId);
+			fetchComments();
+		}
+
+		document.querySelectorAll('.ep-btn').forEach(btn => {
+			btn.addEventListener('click', function () {
+				document.querySelectorAll('.ep-btn').forEach(b => b.classList.remove('active'));
+				this.classList.add('active');
+				setVideo(this.dataset.videoId, this.dataset.epId);
+			});
+		});
+
+		document.getElementById('comment-ep-select')?.addEventListener('change', function () {
+			episodeId = this.value;
+			fetchComments();
+		});
+
+		function timeAgo(dateStr) {
+			const diff = Math.floor((Date.now() - new Date(dateStr)) / 1000);
+			if (diff < 60) return diff + 's ago';
+			if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
+			if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+			return Math.floor(diff / 86400) + 'd ago';
+		}
+
+		function renderComments(comments) {
+			const container = document.getElementById('comments-list');
+			const label = document.getElementById('comment-count-label');
+			label.textContent = comments.length + ' Comment' + (comments.length !== 1 ? 's' : '');
+
+			if (!comments.length) {
+				container.innerHTML = '<p class="no-comments">No comments yet. Be the first!</p>';
+				return;
+			}
+
+			container.innerHTML = comments.map(c => `
+        <div class="comment-item">
+            <div class="avatar" style="background:#1c1c2e;color:#9ca3af;font-weight:600;">
+                ${c.user ? c.user[0].toUpperCase() : '?'}
+            </div>
+            <div class="comment-body">
+                <div class="comment-meta-row">
+                    <span class="comment-username">${c.user || 'Anonymous'}</span>
+                    <span class="comment-time">${c.created_at ? timeAgo(c.created_at) : ''}</span>
+                </div>
+                <div class="comment-text">${c.content}</div>
+                <div class="comment-actions">
+                    <button class="comment-action-btn" type="button">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 15l6-6"/><path d="M9 9h6v6"/></svg>
+                        Reply
+                    </button>
+                    <button class="comment-action-btn" type="button">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/></svg>
+                    </button>
+                    <button class="comment-action-btn" type="button">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10z"/></svg>
+                    </button>
+                    <button class="comment-action-btn" type="button">••• More</button>
+                </div>
+            </div>
+        </div>
+    `).join('');
+		}
+
+		function fetchComments() {
+			fetch(`/api/comments/${seriesId}/${episodeId}/`)
+				.then(r => r.json())
+				.then(data => renderComments(data.comments || []))
+				.catch(() => renderComments([]));
+		}
+
+		fetchComments();
+
+	})();
 </script>
 
 {% endblock %}
