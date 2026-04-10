@@ -272,7 +272,7 @@
                 <div class="progress-wrap">
                     <div class="progress-bar-bg">
                         {% with pct=history.progress_percent %}
-                        <div class="progress-bar-fill" style="width:{% if pct %}{{ pct }}{% else %}10{% endif %}%">
+                        <div class="progress-bar-fill" data-width="{% if pct %}{{ pct }}{% else %}10{% endif %}">
                         </div>
                         {% endwith %}
                     </div>
@@ -310,6 +310,12 @@
 
         {% endfor %}
     </div>
+
+    <script>
+        document.querySelectorAll('.progress-bar-fill[data-width]').forEach(function(el) {
+            el.style.width = el.getAttribute('data-width') + '%';
+        });
+    </script>
 
     {% else %}
 

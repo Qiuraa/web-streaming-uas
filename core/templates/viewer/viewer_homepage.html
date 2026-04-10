@@ -2,232 +2,236 @@
 {% block content %}
 
 <style>
+    /* SECTION */
+    .section {
+        padding: 30px 40px;
+    }
 
-/* SECTION */
-.section{
-    padding:30px 40px;
-}
+    /* TITLE */
+    .section h2 {
+        margin-bottom: 15px;
+    }
 
-/* TITLE */
-.section h2{
-    margin-bottom:15px;
-}
+    /* SPOTLIGHT */
+    .spotlight-row {
+        position: relative;
+        border-radius: 12px;
+        overflow: hidden;
+        margin-bottom: 30px;
+    }
 
-/* SPOTLIGHT */
-.spotlight-row{
-    position:relative;
-    border-radius:12px;
-    overflow:hidden;
-    margin-bottom:30px;
-}
+    .spotlight-banner {
+        width: 100%;
+        height: 70vh;
+        object-fit: cover;
+        filter: brightness(0.4);
+    }
 
-.spotlight-banner{
-    width:100%;
-    height:70vh;
-    object-fit:cover;
-    filter:brightness(0.4);
-}
+    .spotlight-caption {
+        position: absolute;
+        bottom: 40px;
+        left: 40px;
+    }
 
-.spotlight-caption{
-    position:absolute;
-    bottom:40px;
-    left:40px;
-}
+    .spotlight-caption h3 {
+        font-size: 40px;
+    }
 
-.spotlight-caption h3{
-    font-size:40px;
-}
+    /* GRID */
+    .series-list {
+        display: flex;
+        gap: 15px;
+        overflow-x: auto;
+    }
 
-/* GRID */
-.series-list{
-    display:flex;
-    gap:15px;
-    overflow-x:auto;
-}
+    /* CARD */
+    .series-item {
+        min-width: 180px;
+        border-radius: 10px;
+        overflow: hidden;
+        background: #1c1c1c;
+        transition: 0.3s;
+    }
 
-/* CARD */
-.series-item{
-    min-width:180px;
-    border-radius:10px;
-    overflow:hidden;
-    background:#1c1c1c;
-    transition:0.3s;
-}
+    .series-item:hover {
+        transform: scale(1.1);
+    }
 
-.series-item:hover{
-    transform:scale(1.1);
-}
+    /* IMAGE */
+    .series-poster {
+        width: 100%;
+        height: 260px;
+        object-fit: cover;
+    }
 
-/* IMAGE */
-.series-poster{
-    width:100%;
-    height:260px;
-    object-fit:cover;
-}
+    /* TITLE */
+    .series-item h3 {
+        padding: 10px;
+        font-size: 14px;
+    }
 
-/* TITLE */
-.series-item h3{
-    padding:10px;
-    font-size:14px;
-}
+    /* CONTINUE WATCHING */
+    .continue-list {
+        display: flex;
+        gap: 15px;
+        overflow-x: auto;
+    }
 
-/* CONTINUE WATCHING */
-.continue-list{
-    display:flex;
-    gap:15px;
-    overflow-x:auto;
-}
+    .continue-item {
+        min-width: 220px;
+    }
 
-.continue-item{
-    min-width:220px;
-}
+    .progress-bar {
+        width: 100%;
+        height: 5px;
+        background: #333;
+        border-radius: 5px;
+        margin-top: 5px;
+    }
 
-.progress-bar{
-    width:100%;
-    height:5px;
-    background:#333;
-    border-radius:5px;
-    margin-top:5px;
-}
-
-.progress{
-    height:100%;
-    background:#ff2c2c;
-    border-radius:5px;
-}
-
+    .progress {
+        height: 100%;
+        background: #ff2c2c;
+        border-radius: 5px;
+    }
 </style>
 
 
 <div class="section">
 
-<!-- SPOTLIGHT -->
-{% if spotlight_series %}
+    <!-- SPOTLIGHT -->
+    {% if spotlight_series %}
     <h2>🔥 Spotlight</h2>
 
     <div class="spotlight-row">
         {% for ss in spotlight_series %}
-            <a href="{% url 'watch_film_guest' ss.series.series_id ss.series.episode_set.first.episode_id %}">
+        <a href="{% url 'watch_film_guest' ss.series.series_id ss.series.episode_set.first.episode_id %}">
 
-                {% if ss.image %}
-                    <img src="{{ ss.image.url }}" class="spotlight-banner">
-                {% elif ss.series.thumbnail_picture %}
-                    <img src="{{ ss.series.thumbnail_picture.url }}" class="spotlight-banner">
-                {% else %}
-                    <img src="/static/img/placeholder.png" class="spotlight-banner">
-                {% endif %}
+            {% if ss.image %}
+            <img src="{{ ss.image.url }}" class="spotlight-banner">
+            {% elif ss.series.thumbnail_picture %}
+            <img src="{{ ss.series.thumbnail_picture.url }}" class="spotlight-banner">
+            {% else %}
+            <img src="/static/img/placeholder.png" class="spotlight-banner">
+            {% endif %}
 
-                <div class="spotlight-caption">
-                    <h3>{{ ss.series.title }}</h3>
-                </div>
+            <div class="spotlight-caption">
+                <h3>{{ ss.series.title }}</h3>
+            </div>
 
-            </a>
+        </a>
         {% endfor %}
     </div>
-{% endif %}
+    {% endif %}
 
 
-<!-- FEATURED -->
-{% if series %}
+    <!-- FEATURED -->
+    {% if series %}
     <h2>⭐ Featured</h2>
 
     <div class="series-list">
         {% for s in series|slice:":6" %}
-            <div class="series-item">
-                <a href="{% url 'watch_film_guest' s.series_id s.episode_set.first.episode_id %}">
+        <div class="series-item">
+            <a href="{% url 'watch_film_guest' s.series_id s.episode_set.first.episode_id %}">
 
-                    {% if s.thumbnail_picture %}
-                        <img src="{{ s.thumbnail_picture.url }}" class="series-poster">
-                    {% else %}
-                        <img src="/static/img/placeholder.png" class="series-poster">
-                    {% endif %}
+                {% if s.thumbnail_picture %}
+                <img src="{{ s.thumbnail_picture.url }}" class="series-poster">
+                {% else %}
+                <img src="/static/img/placeholder.png" class="series-poster">
+                {% endif %}
 
-                    <h3>{{ s.title }}</h3>
+                <h3>{{ s.title }}</h3>
 
-                </a>
-            </div>
+            </a>
+        </div>
         {% endfor %}
     </div>
-{% endif %}
+    {% endif %}
 
 
-<!-- CONTINUE WATCHING -->
-<h2>▶ Continue Watching</h2>
+    <!-- CONTINUE WATCHING -->
+    <h2>▶ Continue Watching</h2>
 
-{% if watch_history_list %}
+    {% if watch_history_list %}
     <div class="continue-list">
 
         {% for history in watch_history_list %}
-            <div class="continue-item">
+        <div class="continue-item">
 
-                <a href="{% url 'watch_film_guest' history.episode.series.series_id history.episode.series.episode_set.first.episode_id %}?t={{ history.progress_seconds }}#ep-{{ history.episode.episode_number }}">
+            <a
+                href="{% url 'watch_film_guest' history.episode.series.series_id history.episode.series.episode_set.first.episode_id %}?t={{ history.progress_seconds }}#ep-{{ history.episode.episode_number }}">
 
-                    <img src="{{ history.episode.series.thumbnail_picture.url }}" class="series-poster">
+                <img src="{{ history.episode.series.thumbnail_picture.url }}" class="series-poster">
 
-                    <p>{{ history.episode.series.title }}</p>
+                <p>{{ history.episode.series.title }}</p>
 
-                    <!-- progress bar -->
-                    <div class="progress-bar">
-                        <div class="progress" style="width: {{ history.progress_seconds|default:0 }}%;"></div>
-                    </div>
+                <!-- progress bar -->
+                <div class="progress-bar">
+                    <div class="progress" data-width="{{ history.progress_seconds|default:0 }}"></div>
+                </div>
 
-                </a>
+            </a>
 
-            </div>
+        </div>
         {% endfor %}
 
     </div>
-{% else %}
+    <script>
+        document.querySelectorAll('.progress[data-width]').forEach(function(el) {
+            el.style.width = el.getAttribute('data-width') + '%';
+        });
+    </script>
+    {% else %}
     <p>No watch history yet.</p>
-{% endif %}
+    {% endif %}
 
 
-<!-- NEW -->
-{% if new_series %}
+    <!-- NEW -->
+    {% if new_series %}
     <h2>🆕 New</h2>
 
     <div class="series-list">
         {% for ns in new_series %}
-            <div class="series-item">
-                <a href="{% url 'watch_film_guest' ns.series_id ns.episode_set.first.episode_id %}">
+        <div class="series-item">
+            <a href="{% url 'watch_film_guest' ns.series_id ns.episode_set.first.episode_id %}">
 
-                    {% if ns.thumbnail_picture %}
-                        <img src="{{ ns.thumbnail_picture.url }}" class="series-poster">
-                    {% else %}
-                        <img src="/static/img/placeholder.png" class="series-poster">
-                    {% endif %}
+                {% if ns.thumbnail_picture %}
+                <img src="{{ ns.thumbnail_picture.url }}" class="series-poster">
+                {% else %}
+                <img src="/static/img/placeholder.png" class="series-poster">
+                {% endif %}
 
-                    <h3>{{ ns.title }}</h3>
+                <h3>{{ ns.title }}</h3>
 
-                </a>
-            </div>
+            </a>
+        </div>
         {% endfor %}
     </div>
-{% endif %}
+    {% endif %}
 
 
-<!-- UPCOMING -->
-{% if upcoming_series %}
+    <!-- UPCOMING -->
+    {% if upcoming_series %}
     <h2>🚀 Upcoming</h2>
 
     <div class="series-list">
         {% for us in upcoming_series %}
-            <div class="series-item">
-                <a href="{% url 'watch_film_guest' us.series_id us.episode_set.first.episode_id %}">
+        <div class="series-item">
+            <a href="{% url 'watch_film_guest' us.series_id us.episode_set.first.episode_id %}">
 
-                    {% if us.thumbnail_picture %}
-                        <img src="{{ us.thumbnail_picture.url }}" class="series-poster">
-                    {% else %}
-                        <img src="/static/img/placeholder.png" class="series-poster">
-                    {% endif %}
+                {% if us.thumbnail_picture %}
+                <img src="{{ us.thumbnail_picture.url }}" class="series-poster">
+                {% else %}
+                <img src="/static/img/placeholder.png" class="series-poster">
+                {% endif %}
 
-                    <h3>{{ us.title }}</h3>
+                <h3>{{ us.title }}</h3>
 
-                </a>
-            </div>
+            </a>
+        </div>
         {% endfor %}
     </div>
-{% endif %}
+    {% endif %}
 
 </div>
 
