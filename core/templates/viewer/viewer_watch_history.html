@@ -1,32 +1,332 @@
 {% extends "base_user/base_user.html" %}
 {% block content %}
 
-<a href="{% url 'viewer_profile' user.user_id %}">Profile</a>
-<a href="{% url 'watch_history' %}">Watch History</a>
-<a href="{% url 'watchlist' %}">Watchlist</a>
+<style>
+    .history-wrap {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 40px 40px 60px;
+    }
 
-{% if watch_history_list %}
+    .history-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 28px;
+    }
 
-<h2>Your Watch History</h2>
+    .history-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: #f1f1f1;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
 
-<ul>
-    {% for history in watch_history_list %}
-    <img src="{{ history.episode.series.thumbnail_picture.url }}" alt="{{ history.episode.series.title }} class="
-        series-poster">
-    <li>
-        <a
+    .history-title::before {
+        content: "";
+        display: inline-block;
+        width: 3px;
+        height: 20px;
+        background: #ff1e3c;
+        border-radius: 2px;
+    }
+
+    .history-count {
+        font-size: 13px;
+        color: #9ca3af;
+        font-weight: 400;
+    }
+
+    /* ── CARD LIST ── */
+    .history-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .history-card {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+        background: #14141a;
+        border: 0.5px solid rgba(255, 255, 255, 0.07);
+        border-radius: 12px;
+        padding: 14px;
+        text-decoration: none;
+        transition: background 0.15s, border-color 0.15s, transform 0.15s;
+    }
+
+    .history-card:hover {
+        background: #1c1c24;
+        border-color: rgba(255, 30, 60, 0.25);
+        transform: translateX(4px);
+    }
+
+    /* THUMBNAIL */
+    .history-thumb {
+        flex-shrink: 0;
+        width: 80px;
+        height: 112px;
+        border-radius: 8px;
+        object-fit: cover;
+        background: #1c1c24;
+        border: 0.5px solid rgba(255, 255, 255, 0.07);
+    }
+
+    .history-thumb-placeholder {
+        width: 80px;
+        height: 112px;
+        border-radius: 8px;
+        background: #1c1c24;
+        border: 0.5px solid rgba(255, 255, 255, 0.07);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        color: #374151;
+        font-size: 22px;
+    }
+
+    /* INFO */
+    .history-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .history-series {
+        font-size: 15px;
+        font-weight: 600;
+        color: #f1f1f1;
+        margin-bottom: 4px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .history-episode {
+        font-size: 13px;
+        color: #9ca3af;
+        margin-bottom: 10px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* PROGRESS BAR */
+    .progress-wrap {
+        margin-bottom: 8px;
+    }
+
+    .progress-bar-bg {
+        width: 100%;
+        height: 3px;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 2px;
+        overflow: hidden;
+    }
+
+    .progress-bar-fill {
+        height: 100%;
+        background: #ff1e3c;
+        border-radius: 2px;
+        min-width: 4px;
+    }
+
+    .history-meta {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .meta-badge {
+        font-size: 11px;
+        font-weight: 500;
+        color: #6b7280;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .meta-badge svg {
+        opacity: 0.6;
+    }
+
+    /* RIGHT ARROW */
+    .history-arrow {
+        flex-shrink: 0;
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 0.5px solid rgba(255, 255, 255, 0.08);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #9ca3af;
+        transition: background 0.15s, color 0.15s;
+    }
+
+    .history-card:hover .history-arrow {
+        background: #ff1e3c;
+        border-color: #ff1e3c;
+        color: #fff;
+    }
+
+    /* ── EMPTY STATE ── */
+    .empty-state {
+        text-align: center;
+        padding: 80px 20px;
+    }
+
+    .empty-icon {
+        font-size: 48px;
+        opacity: 0.2;
+        margin-bottom: 16px;
+    }
+
+    .empty-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #f1f1f1;
+        margin-bottom: 8px;
+    }
+
+    .empty-sub {
+        font-size: 14px;
+        color: #6b7280;
+        margin-bottom: 24px;
+    }
+
+    .btn-browse {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 10px 22px;
+        background: #ff1e3c;
+        border: none;
+        border-radius: 8px;
+        color: #fff;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        font-family: inherit;
+        text-decoration: none;
+        transition: opacity 0.15s;
+    }
+
+    .btn-browse:hover {
+        opacity: 0.85;
+    }
+
+    @media (max-width: 640px) {
+        .history-wrap {
+            padding: 28px 16px 48px;
+        }
+
+        .history-thumb,
+        .history-thumb-placeholder {
+            width: 64px;
+            height: 90px;
+        }
+
+        .history-series {
+            font-size: 14px;
+        }
+    }
+</style>
+
+
+<div class="history-wrap">
+
+    <div class="history-header">
+        <div class="history-title">
+            Watch History
+            {% if watch_history_list %}
+            <span class="history-count">{{ watch_history_list|length }}</span>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if watch_history_list %}
+
+    <div class="history-list">
+        {% for history in watch_history_list %}
+
+        <a class="history-card"
             href="{% url 'watch_film_guest' history.episode.series.series_id history.episode.episode_id %}?t={{ history.progress_seconds }}">
-            {{ history.episode.series.title }} - {{ history.episode.episode_title }}
+
+            {% if history.episode.series.thumbnail_picture %}
+            <img src="{{ history.episode.series.thumbnail_picture.url }}" alt="{{ history.episode.series.title }}"
+                class="history-thumb">
+            {% else %}
+            <div class="history-thumb-placeholder">🎬</div>
+            {% endif %}
+
+            <div class="history-info">
+                <div class="history-series">{{ history.episode.series.title }}</div>
+                <div class="history-episode">{{ history.episode.episode_title }}</div>
+
+                <div class="progress-wrap">
+                    <div class="progress-bar-bg">
+                        {% with pct=history.progress_percent %}
+                        <div class="progress-bar-fill" style="width:{% if pct %}{{ pct }}{% else %}10{% endif %}%">
+                        </div>
+                        {% endwith %}
+                    </div>
+                </div>
+
+                <div class="history-meta">
+                    <span class="meta-badge">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <circle cx="12" cy="12" r="10" />
+                            <polyline points="12 6 12 12 16 14" />
+                        </svg>
+                        {{ history.progress_seconds }}s watched
+                    </span>
+                    <span class="meta-badge">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <rect x="3" y="4" width="18" height="18" rx="2" />
+                            <line x1="16" y1="2" x2="16" y2="6" />
+                            <line x1="8" y1="2" x2="8" y2="6" />
+                            <line x1="3" y1="10" x2="21" y2="10" />
+                        </svg>
+                        {{ history.last_watched_at|date:"M d, Y" }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="history-arrow">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="9 18 15 12 9 6" />
+                </svg>
+            </div>
+
         </a>
-        ({{ history.progress_seconds }} seconds watched) — last watched: {{ history.last_watched_at }}
-    </li>
-    {% endfor %}
-</ul>
 
-{% else %}
+        {% endfor %}
+    </div>
 
-<p>You have no watch history yet. Start watching some films to see them here!</p>
+    {% else %}
 
-{% endif %}
+    <div class="empty-state">
+        <div class="empty-icon">🎬</div>
+        <div class="empty-title">No watch history yet</div>
+        <div class="empty-sub">Start watching some anime to see them here!</div>
+        <a href="{% url 'homepage' %}" class="btn-browse">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="5 3 19 12 5 21 5 3" />
+            </svg>
+            Browse Anime
+        </a>
+    </div>
+
+    {% endif %}
+
+</div>
 
 {% endblock %}

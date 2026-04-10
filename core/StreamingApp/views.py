@@ -616,6 +616,11 @@ class WatchHistoryView(View):
                 seen_series[sid] = wh
         watch_history_list = list(seen_series.values())
 
+        # Compute progress_percent for each history item so the template progress bar works
+        for wh in watch_history_list:
+            duration_sec = (wh.episode.series.duration_minutes or 1) * 60
+            wh.progress_percent = min(int((wh.progress_seconds / duration_sec) * 100), 100) if duration_sec > 0 else 0
+
         return render(request, 'viewer/viewer_watch_history.html', {
             'watch_history_list': watch_history_list,
         })
