@@ -273,6 +273,23 @@
         border-color: #444;
     }
 
+    /* CONTINUE WATCHING — progress bar */
+    .progress-bar {
+        width: 100%;
+        height: 3px;
+        background: #333;
+        border-radius: 3px;
+        margin-top: 6px;
+        overflow: hidden;
+    }
+
+    .progress {
+        height: 100%;
+        background: #e50914;
+        border-radius: 3px;
+        transition: width 0.3s;
+    }
+
     /* RESPONSIVE */
     @media(max-width:768px) {
         .spotlight-banner {
@@ -352,14 +369,6 @@
                     </div>
                 </div>
 
-                <div class="card-overlay">
-                    <div class="play-icon">
-                        <svg viewBox="0 0 24 24">
-                            <polygon points="5,3 19,12 5,21" />
-                        </svg>
-                    </div>
-                </div>
-
                 <div class="card-bottom">
                     <h3>{{ fs.title }}</h3>
                 </div>
@@ -399,7 +408,11 @@
 
                 <div class="card-bottom">
                     <h3>{{ history.episode.series.title }}</h3>
-                    <small style="color:#888;">Ep {{ history.episode.episode_number }}</small>
+                    <small style="color:#888;">Ep {{ history.episode.episode_number }} — {{ history.episode.episode_title }}</small>
+                    <!-- progress bar -->
+                    <div class="progress-bar">
+                        <div class="progress" data-width="{{ history.progress_percent|default:10 }}"></div>
+                    </div>
                 </div>
 
             </a>
@@ -528,10 +541,13 @@
 
 </div>
 
-{% endblock %}
-
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        // Set progress bar widths
+        document.querySelectorAll('.progress[data-width]').forEach(function(el) {
+            el.style.width = el.getAttribute('data-width') + '%';
+        });
+
         document.querySelectorAll('.series-list').forEach(function (list) {
             // Vertical wheel → horizontal scroll
             list.addEventListener('wheel', function (e) {
@@ -555,3 +571,5 @@
         });
     });
 </script>
+
+{% endblock %}

@@ -650,8 +650,13 @@
                 display: none;
             }
 
+            .search-box {
+                flex: 1;
+                max-width: none;
+            }
+
             .search-box input {
-                width: 180px;
+                width: 100%;
             }
 
             .section {
@@ -661,6 +666,45 @@
             .card {
                 min-width: 130px;
                 height: 195px;
+            }
+
+            /* Mobile menu button */
+            .mobile-menu-btn {
+                display: flex;
+            }
+
+            /* Mobile nav overlay */
+            .mobile-nav {
+                display: none;
+                position: fixed;
+                top: 58px;
+                left: 0;
+                right: 0;
+                background: rgba(11, 11, 15, 0.97);
+                backdrop-filter: blur(18px);
+                border-bottom: 0.5px solid var(--border);
+                z-index: 199;
+                padding: 12px 16px;
+                flex-direction: column;
+                gap: 2px;
+            }
+
+            .mobile-nav.open {
+                display: flex;
+                animation: fadeDown 0.18s ease;
+            }
+
+            .mobile-nav a {
+                padding: 12px 16px;
+                border-radius: 8px;
+                font-size: 14px;
+                color: var(--sub);
+                transition: background 0.15s, color 0.15s;
+            }
+
+            .mobile-nav a:hover {
+                background: var(--card2);
+                color: var(--text);
             }
         }
     </style>
@@ -695,6 +739,17 @@
             <a class="nav-link" href="{% url 'watchlist' %}">Watchlist</a>
             {% endif %}
         </div>
+
+        {% if user.is_authenticated %}
+        <!-- Mobile menu button (hidden on desktop via CSS) -->
+        <button class="mobile-menu-btn" onclick="toggleMobileNav()" style="display:none;background:none;border:none;cursor:pointer;color:var(--sub);padding:6px;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="3" y1="6" x2="21" y2="6"/>
+                <line x1="3" y1="12" x2="21" y2="12"/>
+                <line x1="3" y1="18" x2="21" y2="18"/>
+            </svg>
+        </button>
+        {% endif %}
 
         {% if user.is_authenticated %}
         <div class="dropdown-wrap">
@@ -737,6 +792,15 @@
 
     </nav>
 
+    <!-- Mobile nav overlay -->
+    {% if user.is_authenticated %}
+    <div class="mobile-nav" id="mobileNav">
+        <a href="{% url 'watch_history' %}">Watch History</a>
+        <a href="{% url 'watchlist' %}">Watchlist</a>
+        <a href="{% url 'viewer_profile' user.user_id %}">Profile</a>
+    </div>
+    {% endif %}
+
     <!-- ════════ CONTENT ════════ -->
     <div class="main-content">
         {% block content %}
@@ -757,7 +821,29 @@
             if (wrap && !wrap.contains(e.target)) {
                 document.getElementById('dropdownMenu')?.classList.remove('open');
             }
+            // Close mobile nav if clicking outside
+            const mobileNav = document.getElementById('mobileNav');
+            const mobileBtn = document.querySelector('.mobile-menu-btn');
+            if (mobileNav && mobileBtn && !mobileNav.contains(e.target) && !mobileBtn.contains(e.target)) {
+                mobileNav.classList.remove('open');
+            }
         });
+
+        function toggleMobileNav() {
+            document.getElementById('mobileNav')?.classList.toggle('open');
+        }
+
+        // Show the mobile menu button only on small screens
+        (function() {
+            function updateMobileBtn() {
+                var btn = document.querySelector('.mobile-menu-btn');
+                if (btn) {
+                    btn.style.display = window.innerWidth <= 768 ? 'flex' : 'none';
+                }
+            }
+            updateMobileBtn();
+            window.addEventListener('resize', updateMobileBtn);
+        })();
     </script>
 
 </body>

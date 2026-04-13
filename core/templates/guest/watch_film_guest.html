@@ -500,7 +500,7 @@
 					</div>
 				</form>
 				{% else %}
-				<p class="comment-guest-note">You must be <a href="{% url 'login' %}">logged in</a> to post a comment
+				<p class="comment-guest-note">You must be <a href="{% url 'viewer_login' %}">logged in</a> to post a comment
 				</p>
 				<textarea class="comment-textarea" placeholder="Leave a comment..." disabled></textarea>
 				{% endif %}

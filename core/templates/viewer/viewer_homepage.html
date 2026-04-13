@@ -301,7 +301,7 @@
     {% if spotlight_series %}
     <div class="spotlight-row">
         {% for ss in spotlight_series|slice:":1" %}
-        <a href="{% url 'watch_film_guest' ss.series.series_id ss.series.episode_set.first.episode_id %}">
+        <a href="{% url 'detail_film_guest' ss.series.series_id %}">
 
             {% if ss.image %}
             <img src="{{ ss.image.url }}" class="spotlight-banner">
@@ -332,7 +332,7 @@
     <div class="series-list">
         {% for s in series|slice:":6" %}
         <div class="series-item">
-            <a href="{% url 'watch_film_guest' s.series_id s.episode_set.first.episode_id %}">
+            <a href="{% url 'detail_film_guest' s.series_id %}">
 
                 {% if s.thumbnail_picture %}
                 <img src="{{ s.thumbnail_picture.url }}" class="series-poster">
@@ -386,10 +386,10 @@
 
                 <div class="card-bottom">
                     <h3>{{ history.episode.series.title }}</h3>
-                    <small style="color:#888;">Ep {{ history.episode.episode_number }}</small>
+                    <small style="color:#888;">Ep {{ history.episode.episode_number }} — {{ history.episode.episode_title }}</small>
                     <!-- progress bar -->
                     <div class="progress-bar">
-                        <div class="progress" data-width="{{ history.progress_seconds|default:0 }}"></div>
+                        <div class="progress" data-width="{{ history.progress_percent|default:10 }}"></div>
                     </div>
                 </div>
 
@@ -410,7 +410,7 @@
     <div class="series-list">
         {% for ns in new_series|slice:":15" %}
         <div class="series-item">
-            <a href="{% url 'watch_film_guest' ns.series_id ns.episode_set.first.episode_id %}">
+            <a href="{% url 'detail_film_guest' ns.series_id %}">
 
                 {% if ns.thumbnail_picture %}
                 <img src="{{ ns.thumbnail_picture.url }}" class="series-poster">

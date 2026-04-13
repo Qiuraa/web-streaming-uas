@@ -13,7 +13,8 @@
 
 /* CARD */
 .profile-card{
-    width:400px;
+    width:100%;
+    max-width:400px;
     background:#1c1c1c;
     border-radius:15px;
     padding:30px;
@@ -86,6 +87,34 @@
 
 .profile-info p{
     margin:8px 0;
+    color:#ccc;
+}
+
+.profile-info strong{
+    color:#f1f1f1;
+}
+
+/* LABELS */
+.profile-card label{
+    color:#ccc;
+    font-size:13px;
+    display:block;
+    text-align:left;
+    margin-top:8px;
+}
+
+/* RESPONSIVE */
+@media(max-width:480px){
+    .profile-container{
+        padding:20px 16px;
+    }
+    .profile-card{
+        padding:20px;
+    }
+    .profile-picture-large{
+        width:90px;
+        height:90px;
+    }
 }
 
 </style>

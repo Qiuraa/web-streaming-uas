@@ -91,6 +91,52 @@
     box-shadow:none;
 }
 
+/* HEADING */
+.watchlist-container h2{
+    color:#f1f1f1;
+    font-size:20px;
+    font-weight:700;
+    margin-bottom:20px;
+}
+
+/* EMPTY STATE */
+.watchlist-container p{
+    color:#9ca3af;
+    font-size:14px;
+}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+    .watchlist-nav{
+        padding:16px 20px;
+        gap:14px;
+    }
+    .watchlist-container{
+        padding:16px 20px;
+    }
+    .series-list{
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap:12px;
+    }
+    .series-poster{
+        height:200px;
+    }
+}
+
+@media(max-width:480px){
+    .series-list{
+        grid-template-columns: repeat(2, 1fr);
+        gap:10px;
+    }
+    .series-poster{
+        height:180px;
+    }
+    .series-item h3{
+        font-size:12px;
+        padding:8px 8px 4px;
+    }
+}
+
 </style>
 
 

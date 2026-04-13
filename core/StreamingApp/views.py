@@ -1,4 +1,3 @@
-from urllib import response
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -11,13 +10,11 @@ from core.StreamingApp.form import AddGenreForm, AddProducerForm, AddStudioForm,
 from .models import Genre, Producer, Series, SpotLightSeries, Studio, Episode, WatchHistory, Watchlist, Comment
 import json
 from django.http import JsonResponse
-import json
 from datetime import timedelta
 from django.utils import timezone
 from django.db.models import Sum, Value
 from django.db.models.functions import Coalesce
 from django.core.serializers.json import DjangoJSONEncoder
-import json
 
 
 class ViewerRequiredView(LoginView):
@@ -292,7 +289,7 @@ class EditFilmView(AdminRequiredView):
     
     def post(self, request, series_id):
         series = get_object_or_404(Series, series_id=series_id)
-        edit_film_form = AddSeriesForm(request.POST, instance=series)
+        edit_film_form = AddSeriesForm(request.POST, request.FILES, instance=series)
         if edit_film_form.is_valid():
             edit_film_form.save()
             return redirect('manage_film')
@@ -431,6 +428,11 @@ class HomepageView(View):
                     watch_history_by_series[series_id] = wh
             continue_watching = list(watch_history_by_series.values())[:5]
 
+            # Compute progress_percent for each history item so the template progress bar works
+            for wh in continue_watching:
+                duration_sec = (wh.episode.series.duration_minutes or 1) * 60
+                wh.progress_percent = min(int((wh.progress_seconds / duration_sec) * 100), 100) if duration_sec > 0 else 0
+
         return render(request, 'guest/home_page.html', {
             'featured_series': featured_series,
             'series': series,
@@ -501,7 +503,24 @@ class ViewerHomepageView(View):
         ).order_by('-total_views')[:10]
         # `series` in the template is used for the Featured section; provide featured_series there
         series = featured_series
-        watch_history_list = WatchHistory.objects.filter(user__user_id=user_id).select_related('episode__series').order_by('-last_watched_at')[:5]
+
+        # Get continue watching: only the latest watched episode per series
+        all_history = WatchHistory.objects.filter(
+            user__user_id=user_id
+        ).select_related('episode__series', 'episode').order_by('-last_watched_at')
+
+        watch_history_by_series = {}
+        for wh in all_history:
+            sid = wh.episode.series.series_id
+            if sid not in watch_history_by_series:
+                watch_history_by_series[sid] = wh
+        watch_history_list = list(watch_history_by_series.values())[:5]
+
+        # Compute progress_percent for each history item so the template progress bar works
+        for wh in watch_history_list:
+            duration_sec = (wh.episode.series.duration_minutes or 1) * 60
+            wh.progress_percent = min(int((wh.progress_seconds / duration_sec) * 100), 100) if duration_sec > 0 else 0
+
         # Show recently published series in the "New On WatchOut!" section.
         # Keep the same window as NewReleasesView (last 5 days) and limit to 10.
         five_days_ago = timezone.now() - timedelta(days=5)
