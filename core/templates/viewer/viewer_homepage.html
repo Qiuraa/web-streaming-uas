@@ -252,6 +252,70 @@
         z-index: 2;
     }
 
+    /* ── NEW ANIME SECTION ── */
+    .new-anime-badge {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background: linear-gradient(135deg, #00c6ff, #0072ff);
+        color: white;
+        font-size: 10px;
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-weight: 800;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        z-index: 2;
+        box-shadow: 0 2px 8px rgba(0, 114, 255, 0.4);
+    }
+
+    .score-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: rgba(0, 0, 0, 0.75);
+        color: #ffd700;
+        font-size: 12px;
+        padding: 3px 8px;
+        border-radius: 8px;
+        font-weight: 700;
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        gap: 3px;
+        backdrop-filter: blur(4px);
+    }
+
+    .score-badge svg {
+        width: 12px;
+        height: 12px;
+        fill: #ffd700;
+    }
+
+    .card-meta {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-top: 4px;
+        flex-wrap: wrap;
+    }
+
+    .card-meta .genre-tag {
+        font-size: 10px;
+        color: #aaa;
+        background: #2a2a2a;
+        padding: 2px 7px;
+        border-radius: 4px;
+        white-space: nowrap;
+    }
+
+    .card-meta .pub-date {
+        font-size: 10px;
+        color: #666;
+        margin-left: auto;
+        white-space: nowrap;
+    }
+
     /* CONTINUE WATCHING — progress bar */
     .progress-bar {
         width: 100%;
@@ -400,10 +464,10 @@
     {% endif %}
 
 
-    <!-- 🆕 NEW -->
+    <!-- 🆕 NEW ANIME -->
     {% if new_series %}
     <div class="section-header" style="margin-top:36px;">
-        <h2>New</h2>
+        <h2>🆕 New Anime</h2>
         <a href="#" class="view-all-btn">View All →</a>
     </div>
 
@@ -411,12 +475,19 @@
         {% for ns in new_series|slice:":15" %}
         <div class="series-item">
             <a href="{% url 'detail_film_guest' ns.series_id %}">
+                <div style="position:relative;">
+                    <span class="new-anime-badge">NEW</span>
+                    <span class="score-badge">
+                        <svg viewBox="0 0 24 24"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg>
+                        {{ ns.score }}
+                    </span>
 
-                {% if ns.thumbnail_picture %}
-                <img src="{{ ns.thumbnail_picture.url }}" class="series-poster">
-                {% else %}
-                <img src="/static/img/placeholder.png" class="series-poster">
-                {% endif %}
+                    {% if ns.thumbnail_picture %}
+                    <img src="{{ ns.thumbnail_picture.url }}" class="series-poster">
+                    {% else %}
+                    <img src="/static/img/placeholder.png" class="series-poster">
+                    {% endif %}
+                </div>
 
                 <div class="card-overlay">
                     <div class="play-icon">
@@ -428,6 +499,14 @@
 
                 <div class="card-bottom">
                     <h3>{{ ns.title }}</h3>
+                    <div class="card-meta">
+                        {% for g in ns.genre.all|slice:":2" %}
+                        <span class="genre-tag">{{ g.name }}</span>
+                        {% endfor %}
+                        {% if ns.is_published_date %}
+                        <span class="pub-date">{{ ns.is_published_date|date:"M d, Y" }}</span>
+                        {% endif %}
+                    </div>
                 </div>
 
             </a>

@@ -404,12 +404,11 @@ class HomepageView(View):
             ).order_by('-total_views')[:10]
         # `series` in the template is used for the Featured section; provide featured_series there
         series = featured_series
-        # Show recently published series in the "New On WatchOut!" section.
-        # Keep the same window as NewReleasesView (last 5 days) and limit to 10.
-        five_days_ago = timezone.now() - timedelta(days=5)
+        # Show the most recently published series in the "New Anime" section.
         new_series = Series.objects.filter(
-            is_published_date__gte=five_days_ago
-        ).order_by('-is_published_date')[:10]
+            is_published=True,
+            is_published_date__isnull=False
+        ).prefetch_related('genre').order_by('-is_published_date')[:10]
 
         # Also supply upcoming (not yet published) series for the "Upcoming Releases" section.
         upcoming_series = Series.objects.filter(is_published=False).order_by('created_at')[:10]
@@ -521,12 +520,11 @@ class ViewerHomepageView(View):
             duration_sec = (wh.episode.series.duration_minutes or 1) * 60
             wh.progress_percent = min(int((wh.progress_seconds / duration_sec) * 100), 100) if duration_sec > 0 else 0
 
-        # Show recently published series in the "New On WatchOut!" section.
-        # Keep the same window as NewReleasesView (last 5 days) and limit to 10.
-        five_days_ago = timezone.now() - timedelta(days=5)
+        # Show the most recently published series in the "New Anime" section.
         new_series = Series.objects.filter(
-            is_published_date__gte=five_days_ago
-        ).order_by('-is_published_date')[:10]
+            is_published=True,
+            is_published_date__isnull=False
+        ).prefetch_related('genre').order_by('-is_published_date')[:10]
 
         # Also supply upcoming (not yet published) series for the "Upcoming Releases" section.
         upcoming_series = Series.objects.filter(is_published=False).order_by('created_at')[:10]
@@ -723,11 +721,10 @@ def save_progress(request):
 class NewReleasesView(View):
     def get(self, request):
 
-        five_days_ago = timezone.now() - timedelta(days=5)
-
         new_series = Series.objects.filter(
-            is_published_date__gte=five_days_ago
-        ).order_by('-is_published_date')[:5]
+            is_published=True,
+            is_published_date__isnull=False
+        ).prefetch_related('genre').order_by('-is_published_date')[:10]
 
         return render(request, "viewer/viewer_homepage.html", {
             "new_series": new_series
