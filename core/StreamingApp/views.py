@@ -4,6 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views import View
 from django.urls import reverse
 from django.contrib.auth import logout, get_user_model
+from django.db import IntegrityError
 
 from core.StreamingApp import form
 from core.StreamingApp.form import AddGenreForm, AddProducerForm, AddStudioForm, AddSeriesForm, AddEpisodeForm
@@ -66,9 +67,23 @@ class ViewerRegisterView(View):
                     suffix += 1
                 username = candidate
 
-            user = UserModel.objects.create_user(username=username, email=email, password=password)
-            user.role = 'viewer'
-            user.save()
+            # pre-check: if user supplied a username that already exists, add form error
+            if viewer_register_form.cleaned_data.get('username') and UserModel.objects.filter(username__iexact=username).exists():
+                viewer_register_form.add_error('username', 'This username is already taken. Please choose another.')
+                return render(request, 'guest/viewer_register.html', {
+                    'viewer_register_form': viewer_register_form,
+                })
+
+            try:
+                user = UserModel.objects.create_user(username=username, email=email, password=password)
+                user.role = 'viewer'
+                user.save()
+            except IntegrityError:
+                # Handle rare race condition where username was created after the check
+                viewer_register_form.add_error('username', 'This username is already taken. Please choose another.')
+                return render(request, 'guest/viewer_register.html', {
+                    'viewer_register_form': viewer_register_form,
+                })
             return redirect('viewer_login')
         return render(request, 'guest/viewer_register.html', {
             'viewer_register_form': viewer_register_form,

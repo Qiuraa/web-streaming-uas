@@ -37,6 +37,26 @@ class ViewerRegisterForm(forms.Form):
     email = forms.EmailField(required=True)
     password = forms.CharField(widget=forms.PasswordInput, required=True)
 
+    def clean_password(self):
+        pw = self.cleaned_data.get('password')
+        # Validation rules
+        min_length = 8
+        errors = []
+        if not pw or len(pw) < min_length:
+            errors.append(f'Password must be at least {min_length} characters long.')
+        if not any(c.isupper() for c in pw):
+            errors.append('Password must contain at least one uppercase letter.')
+        if not any(c.isdigit() for c in pw):
+            errors.append('Password must contain at least one digit.')
+        # special characters: anything not alnum
+        if not any((not c.isalnum()) for c in pw):
+            errors.append('Password must contain at least one symbol (e.g. !@#$%).')
+
+        if errors:
+            raise forms.ValidationError(errors)
+
+        return pw
+
 
 class EmailAuthenticationForm(AuthenticationForm):
     """Authentication form that accepts an email in the 'username' field.
