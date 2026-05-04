@@ -37,6 +37,13 @@ class ViewerRegisterForm(forms.Form):
     email = forms.EmailField(required=True)
     password = forms.CharField(widget=forms.PasswordInput, required=True)
 
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        UserModel = get_user_model()
+        if UserModel.objects.filter(email__iexact=email).exists():
+            raise forms.ValidationError('This email is already registered. Please use a different email or login to your existing account.')
+        return email
+
     def clean_password(self):
         pw = self.cleaned_data.get('password')
         # Validation rules

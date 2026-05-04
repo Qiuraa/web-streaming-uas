@@ -67,6 +67,13 @@ class ViewerRegisterView(View):
                     suffix += 1
                 username = candidate
 
+            # pre-check: if the email is already registered, add form error
+            if UserModel.objects.filter(email__iexact=email).exists():
+                viewer_register_form.add_error('email', 'This email is already registered. Please use a different email or login to your existing account.')
+                return render(request, 'guest/viewer_register.html', {
+                    'viewer_register_form': viewer_register_form,
+                })
+
             # pre-check: if user supplied a username that already exists, add form error
             if viewer_register_form.cleaned_data.get('username') and UserModel.objects.filter(username__iexact=username).exists():
                 viewer_register_form.add_error('username', 'This username is already taken. Please choose another.')
