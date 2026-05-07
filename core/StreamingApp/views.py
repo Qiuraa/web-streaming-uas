@@ -238,8 +238,12 @@ class AddFilmView(AdminRequiredView):
         # include request.FILES so uploaded files (thumbnail_picture) are processed
         add_film_form = AddSeriesForm(request.POST, request.FILES)
         if add_film_form.is_valid():
-            add_film_form.save()
-            return redirect('manage_film')
+            try:
+                add_film_form.save()
+                return redirect('manage_film')
+            except Exception as e:
+                # attach error to form non-field errors so template shows it
+                add_film_form.add_error(None, f'Error saving series: {e}')
         return render(request, 'admin/add_film.html', {
             'add_film_form': add_film_form
         })

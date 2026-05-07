@@ -125,11 +125,17 @@ font-size:12px;
 
 <div class="form-group">
 <label>Search Series</label>
-<input type="text" id="id_series_search" placeholder="Type anime title...">
+<input type="text" id="id_series_search" name="series_search" placeholder="Type anime title...">
 <div id="series-suggestions" class="suggestions" style="display:none;"></div>
 </div>
 
 {{ add_spotlight_form.series_id }}
+{% if add_spotlight_form.series_search.errors %}
+	<div class="errorlist">{{ add_spotlight_form.series_search.errors }}</div>
+{% endif %}
+{% if add_spotlight_form.series_id.errors %}
+	<div class="errorlist">{{ add_spotlight_form.series_id.errors }}</div>
+{% endif %}
 
 <div class="form-group">
 <label>Spotlight Image (Landscape)</label>
@@ -150,12 +156,15 @@ font-size:12px;
 <script>
 (function(){
 
-// ✅ FIX ERROR DISINI
-const published = {{ published_series_json|default:"[]"|safe }};
+// Published series JSON safely embedded and parsed
+const publishedJson = "{{ published_series_json|default:'[]'|escapejs }}";
+let published = [];
+try{ published = JSON.parse(publishedJson); }catch(e){ published = []; }
 
 const input = document.getElementById('id_series_search');
 const suggestions = document.getElementById('series-suggestions');
 const hiddenField = document.getElementById('id_series_id');
+const clientError = document.getElementById('client-error');
 
 function showSuggestions(list){
 suggestions.innerHTML = '';
@@ -203,6 +212,28 @@ if(!document.getElementById('add-spotlight-form').contains(e.target)){
 suggestions.style.display = 'none';
 }
 });
+
+// guard form submission: ensure hidden series_id is set
+const form = document.getElementById('add-spotlight-form');
+if (form) {
+	form.addEventListener('submit', function (e) {
+		if (!hiddenField || !hiddenField.value) {
+			e.preventDefault();
+			// show client-side message
+			let el = document.getElementById('client-error');
+			if (!el) {
+				el = document.createElement('div');
+				el.id = 'client-error';
+				el.className = 'errorlist';
+				form.insertBefore(el, form.firstChild);
+			}
+			el.style.display = 'block';
+			el.textContent = 'Please select a series from the suggestions before submitting.';
+			return false;
+		}
+		return true;
+	});
+}
 
 })();
 </script>

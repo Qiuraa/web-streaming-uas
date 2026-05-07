@@ -43,6 +43,15 @@ Create a new anime entry in the library
 
 {% csrf_token %}
 
+	{{ add_film_form.non_field_errors }}
+	{# Debug: show all errors in a compact way so admins can see why save failed #}
+	{% if add_film_form.errors %}
+	<div class="errorlist" style="margin-bottom:12px;">
+		<strong>There were problems with your submission:</strong>
+		<pre style="white-space:pre-wrap;color:#b91c1c">{{ add_film_form.errors }}</pre>
+	</div>
+	{% endif %}
+
 <div style="
 display:grid;
 grid-template-columns:1fr 1fr;
